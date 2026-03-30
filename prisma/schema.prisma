@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. EL CLIENTE (Dueño de la invitación)
+model User {
+  id          String   @id @default(cuid())
+  nombre      String
+  email       String   @unique
+  password    String
+  role        String   @default("USER") // "ADMIN" o "USER"
+  
+  // Datos para la URL y Diseño
+  slug        String   @unique // Ej: "boda-mario-y-clara"
+  templateId  String   @default("DEMO1") // "DEMO1", "DEMO2", "DEMO3"
+
+  songSuggestions SongSuggestion[]
+  // RELACIONES
+  // Un usuario tiene una única configuración de su evento
+  eventConfig EventConfig? 
+  // Un usuario tiene muchos invitados en su lista
+  guests      Guest[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}
+
+// 2. CONFIGURACIÓN DEL EVENTO (Lo que el cliente edita)
+model EventConfig {
+  id               String   @id @default(cuid())
+  
+  // Relación con el Usuario
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Diseño y Multimedia
+  heroImage        String?  @default("")
+  videoUrl         String?  @default("")
+  musicUrl         String?  @default("")
+  carruselImages   String?  @default("[]") // Guardado como JSON string
+
+  // Datos Principales (Cuenta Regresiva / Header)
+  eventName        String   @default("Mi Evento")
+  eventDate        String   @default("2026-12-19")
+  eventTime        String   @default("21:00")
+  
+  // Ubicación
+  venueName        String   @default("Nombre del Salón")
+  venueAddress     String   @default("Calle Falsa 123")
+  mapLink          String   @default("")
+
+  // Detalles y Regalos
+  dressCode        String   @default("Elegante Sport")
+  dressDescription String   @default("¡Tu presencia es lo más importante!")
+  cbu              String   @default("0000003100012345678901")
+  alias            String   @default("MI.EVENTO.ALIAS")
+  bankName         String   @default("Mercado Pago")
+  holderName       String   @default("Nombre del Titular")
+
+  updatedAt        DateTime @updatedAt
+
+  @@map("event_config")
+}
+
+// 3. LOS INVITADOS (Los que confirman asistencia)
+model Guest {
+  id        String   @id @default(cuid())
+  apellido  String
+  cupos     Int      @default(1)
+  codigo    String   @unique // Código para que el invitado entre a SU invitación
+  status    String   @default("PENDING") // "CONFIRMED", "CANCELLED", "PENDING"
+  dietary   String?  // Celíaco, Vegano, etc.
+  
+  // Relación: Cada invitado pertenece a un Usuario (Evento) específico
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("guests")
+}
+
+// Agrega esto al final de tu archivo schema.prisma
+model SongSuggestion {
+  id         String   @id @default(cuid())
+  tema1      String?
+  tema2      String?
+  tema3      String?
+  guestName  String?  // <--- AGREGAR ESTO PARA SABER QUIÉN SUGIRIÓ
+  
+  // Relación con el usuario (dueño de la fiesta)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
