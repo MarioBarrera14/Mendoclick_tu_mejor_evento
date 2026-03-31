@@ -80,7 +80,9 @@ export default function NightLightsDemoPage() {
   images={JSON.stringify([
     "/img_demo/1.webp", 
     "/img_demo/2.webp", 
-    "/img_demo/3.webp"
+    "/img_demo/3.webp",
+    "/img_demo/18.webp",
+    "/img_demo/15.webp"
   ])} 
   videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
 />

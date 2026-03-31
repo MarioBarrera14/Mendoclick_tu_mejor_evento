@@ -33,6 +33,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
       { id: 2, url: "/img_demo/7.webp" },
       { id: 3, url: "/img_demo/8.webp" },
       { id: 4, url: "/img_demo/9.webp" },
+      { id: 5, url: "/img_demo/14.webp" },
     ];
 
     try {

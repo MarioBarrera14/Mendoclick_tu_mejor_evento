@@ -31,11 +31,11 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   // 2. Procesamos las imágenes con protección contra undefined
   const fotos = (() => {
     const defaultPhotos = [
-      { id: 1, url: "/img_demo/9.webp", caption: "Comenzando el sueño" },
-      { id: 2, url: "/img_demo/10.webp", caption: "Detalles que ilusionan" },
-      { id: 3, url: "/img_demo/11.webp", caption: "Cada vez más cerca" },
-      { id: 4, url: "/img_demo/12.webp", caption: "Mi sesión especial" },
-      { id: 5, url: "/img_demo/13.webp", caption: "Preparando la magia" },
+      { id: 1, url: "/img_demo/9.webp", caption: "Donde nace el sueño" },
+      { id: 2, url: "/img_demo/10.webp", caption: "Detalles con ilusión" },
+      { id: 3, url: "/img_demo/11.webp", caption:  "Cada vez más especial"},
+      { id: 4, url: "/img_demo/12.webp", caption:  "Retratos del alma" },
+      { id: 5, url: "/img_demo/13.webp", caption: "Creamos la magia" },
     ];
 
     try {
@@ -48,11 +48,11 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
 
         if (validUrls.length > 0) {
           const captions = [
-            "Comenzando el sueño", 
-            "Detalles que ilusionan", 
-            "Cada vez más cerca", 
-            "Mi sesión especial", 
-            "Preparando la magia"
+           "Donde nace el sueño", 
+  "Detalles con ilusión", 
+  "Cada vez más especial", 
+  "Retratos del alma", 
+  "Creamos la magia"
           ];
           return validUrls.map((url: string, i: number) => ({
             id: i,
