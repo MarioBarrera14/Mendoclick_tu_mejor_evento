@@ -47,9 +47,11 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
       console.error("Error parseando fotos Golden:", e);
     }
     return [
-      { id: 1, url: localImagenes.hero },
-      { id: 2, url: "/img/foto2.jpg" },
-      { id: 3, url: "/img/foto3.jpg" },
+      { id: 1, url:"/img_demo/1.webp" },
+      { id: 2, url: "/img_demo/2.webp" },
+      { id: 3, url: "/img_demo/3.webp" },
+      { id: 4, url: "/img_demo/4.webp" },
+      { id: 5, url: "/img_demo/5.webp" },
     ];
   }, [images, localImagenes.hero]);
 

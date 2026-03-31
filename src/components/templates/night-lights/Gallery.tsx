@@ -31,11 +31,11 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   // 2. Procesamos las imágenes con protección contra undefined
   const fotos = (() => {
     const defaultPhotos = [
-      { id: 1, url: localImagenes.hero, caption: "Comenzando el sueño" },
-      { id: 2, url: "/img/foto2.jpg", caption: "Detalles que ilusionan" },
-      { id: 3, url: "/img/foto3.jpg", caption: "Cada vez más cerca" },
-      { id: 4, url: "/img/foto4.jpg", caption: "Mi sesión especial" },
-      { id: 5, url: "/img/foto5.jpg", caption: "Preparando la magia" },
+      { id: 1, url: "/img_demo/9.webp", caption: "Comenzando el sueño" },
+      { id: 2, url: "/img_demo/10.webp", caption: "Detalles que ilusionan" },
+      { id: 3, url: "/img_demo/11.webp", caption: "Cada vez más cerca" },
+      { id: 4, url: "/img_demo/12.webp", caption: "Mi sesión especial" },
+      { id: 5, url: "/img_demo/13.webp", caption: "Preparando la magia" },
     ];
 
     try {

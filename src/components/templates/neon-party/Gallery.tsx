@@ -29,10 +29,10 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   // --- LÓGICA BLINDADA PARA FOTOS ---
   const fotos = useMemo(() => {
     const defaultPhotos = [
-      { id: 1, url: "/img/foto1.jpg" },
-      { id: 2, url: "/img/foto2.jpg" },
-      { id: 3, url: "/img/foto3.jpg" },
-      { id: 4, url: "/img/foto1.jpg" },
+       { id: 1, url:"/img_demo/6.webp" },
+      { id: 2, url: "/img_demo/7.webp" },
+      { id: 3, url: "/img_demo/8.webp" },
+      { id: 4, url: "/img_demo/9.webp" },
     ];
 
     try {
