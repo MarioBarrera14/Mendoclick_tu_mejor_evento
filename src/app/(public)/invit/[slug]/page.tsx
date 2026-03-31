@@ -56,7 +56,7 @@ export default async function InvitacionDinamica({ params }: PageProps) {
     case "NIGHT_LIGHTS":
       return (
         <main className="min-h-screen bg-[#0a0a0a]">
-          <NightLights.Envelope musicUrl={config.musicUrl}>
+          <NightLights.Envelope musicUrl={config.musicUrl ?? ""}>
             <NightLights.Navbar eventName={config.eventName} />
             
             <NightLights.Hero 
@@ -88,7 +88,6 @@ export default async function InvitacionDinamica({ params }: PageProps) {
               venueAddress={config.venueAddress}
               mapLink={config.mapLink}
             />
-
             <NightLights.MusicSuggestion eventId={config.id} />    
             <NightLights.RSVP />
             <NightLights.Footer />
@@ -101,14 +100,24 @@ export default async function InvitacionDinamica({ params }: PageProps) {
       return (
         <main className="min-h-screen bg-[#0a0a0a]">
           {/* 3. PASAMOS LOS DATOS TAMBIÉN A NEON PARTY */}
+          <NeonParty.Envelope musicUrl={config.musicUrl ?? ""}>
+
           <NeonParty.Navbar eventName={config.eventName} />
           <NeonParty.Hero heroImage={config.heroImage} eventName={config.eventName} />
           <NeonParty.Countdown eventDate={config.eventDate} eventTime={config.eventTime} />
           <NeonParty.FotoCarousel images={config.carruselImages} videoUrl={config.videoUrl} />
           <NeonParty.Location venueName={config.venueName} venueAddress={config.venueAddress} />
-          <NeonParty.Details alias={config.alias} cbu={config.cbu} />
+          <NeonParty.Details  dressCode={config.dressCode}
+              dressDescription={config.dressDescription}
+              alias={config.alias}
+              cbu={config.cbu}
+              bankName={config.bankName}
+              holderName={config.holderName} />
+          <NeonParty.MusicSuggestion eventId={config.id} />    
+
           <NeonParty.RSVP />
           <NeonParty.Footer />
+          </NeonParty.Envelope>
         </main>
       );
 
@@ -117,14 +126,22 @@ export default async function InvitacionDinamica({ params }: PageProps) {
       return (
         <main className="min-h-screen bg-[#0a0a0a]">
           {/* 4. PASAMOS LOS DATOS TAMBIÉN A GOLDEN BDAY */}
+          <GoldenBday.Envelope musicUrl={config.musicUrl ?? ""}>
           <GoldenBday.Navbar eventName={config.eventName} />
           <GoldenBday.Hero heroImage={config.heroImage} eventName={config.eventName} />
           <GoldenBday.Countdown eventDate={config.eventDate} eventTime={config.eventTime} />
           <GoldenBday.FotoCarousel images={config.carruselImages} videoUrl={config.videoUrl} />
           <GoldenBday.Location venueName={config.venueName} venueAddress={config.venueAddress} />
-          <GoldenBday.Details alias={config.alias} cbu={config.cbu} />
+          <GoldenBday.Details  dressCode={config.dressCode}
+              dressDescription={config.dressDescription}
+              alias={config.alias}
+              cbu={config.cbu}
+              bankName={config.bankName}
+              holderName={config.holderName}/>
+          <GoldenBday.MusicSuggestion eventId={config.id} /> 
           <GoldenBday.RSVP />
           <GoldenBday.Footer />
+          </GoldenBday.Envelope>
         </main>
       );
 

@@ -62,7 +62,7 @@ export default async function NeonPartyDemoPage() {
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
        <Envelope musicUrl={dbDemo.config.musicaUrl}>
-     <Navbar eventName={dbDemo.nombre} />
+   <Navbar eventName={dbDemo.nombre} isDemo={true} />
             
             <Hero 
               eventName={dbDemo.nombre} 

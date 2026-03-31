@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, Users, LogOut, Sparkles } from "lucide-react"; 
+import { LayoutDashboard, Users, LogOut, Sparkles, RefreshCw } from "lucide-react"; 
 import { useRouter } from "next/navigation";
 import { eventConfig as localConfig } from "@/data/event-config";
 import { useSession, signOut } from "next-auth/react";
@@ -9,12 +9,17 @@ import { motion } from "framer-motion";
 
 interface NavbarProps {
   eventName?: string | null;
+  isDemo?: boolean; // Nueva prop para el modo demo
 }
 
-export const Navbar = ({ eventName }: NavbarProps) => {
+export const Navbar = ({ eventName, isDemo = false }: NavbarProps) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const displayName = eventName || localConfig.personal.nombre;
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
 
   return (
     <nav className="fixed -top-4 w-full z-[100] py-6 px-6 pointer-events-none">
@@ -42,46 +47,69 @@ export const Navbar = ({ eventName }: NavbarProps) => {
           </span>
         </Link>
 
-        {/* ACCIONES */}
+        {/* ACCIONES / CONTROLES DEMO */}
         <div className="flex items-center gap-5"> 
           
-          {/* LOGIN */}
-          {status === "unauthenticated" && (
+          {isDemo ? (
+            /* --- BOTÓN DE REINICIO PARA DEMO --- */
             <button 
-              onClick={() => router.push("/client-login")}
+              onClick={handleRefresh}
               className="group flex items-center gap-3 bg-amber-50 border border-amber-200 hover:border-amber-500 rounded-2xl px-4 py-2 transition-all duration-500"
             >
-              <span className="text-[10px] font-bold text-amber-900 uppercase tracking-widest hidden md:block group-hover:scale-105 transition-transform">
-                Acceder
+              <span className="text-[10px] font-bold text-amber-900 uppercase tracking-widest hidden md:block">
+                Reiniciar Demo
               </span>
-              <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                <Users className="w-4 h-4" />
-              </div>
+              <motion.div 
+                className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-colors"
+                whileHover={{ rotate: 180 }}
+                transition={{ type: "spring", stiffness: 200 }}
+              >
+                <RefreshCw className="w-4 h-4 text-amber-900 group-hover:text-white transition-colors" />
+              </motion.div>
             </button>
+          ) : (
+            /* --- LÓGICA NORMAL (ACCESO / DASHBOARD) --- */
+            <>
+              {/* LOGIN */}
+              {status === "unauthenticated" && (
+                <button 
+                  onClick={() => router.push("/client-login")}
+                  className="group flex items-center gap-3 bg-amber-50 border border-amber-200 hover:border-amber-500 rounded-2xl px-4 py-2 transition-all duration-500"
+                >
+                  <span className="text-[10px] font-bold text-amber-900 uppercase tracking-widest hidden md:block group-hover:scale-105 transition-transform">
+                    Acceder
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                    <Users className="w-4 h-4" />
+                  </div>
+                </button>
+              )}
+
+              {/* AUTHENTICATED */}
+              {status === "authenticated" && (
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => router.push("/admin")}
+                    className="group flex items-center gap-3 bg-amber-900 text-white rounded-2xl px-5 py-2 hover:bg-amber-800 transition-all shadow-lg shadow-amber-900/20"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-widest hidden md:block">Panel</span>
+                    <LayoutDashboard size={16} />
+                  </button>
+
+                  <div className="w-[1px] h-6 bg-amber-200" />
+
+                  <button 
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="group p-2.5 text-red-800 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    title="Cerrar Sesión"
+                  >
+                    <LogOut size={20} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
-          {/* AUTHENTICATED */}
-          {status === "authenticated" && (
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => router.push("/admin")}
-                className="group flex items-center gap-3 bg-amber-900 text-white rounded-2xl px-5 py-2 hover:bg-amber-800 transition-all shadow-lg shadow-amber-900/20"
-              >
-                <span className="text-[10px] font-bold uppercase tracking-widest hidden md:block">Panel</span>
-                <LayoutDashboard size={16} />
-              </button>
-
-              <div className="w-[1px] h-6 bg-amber-200" />
-
-              <button 
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="group p-2.5 text-red-800 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                title="Cerrar Sesión"
-              >
-                <LogOut size={20} />
-              </button>
-            </div>
-          )}
         </div>
       </motion.div>
     </nav>
