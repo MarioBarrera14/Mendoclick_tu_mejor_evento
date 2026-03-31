@@ -62,7 +62,7 @@ export const eventConfig: EventConfig = {
     titulo: "REGALO",
     mensaje: "**¡El mejor regalo es tu presencia!**\nPero si deseas hacerme un regalo, te brindo mis datos bancarios:",
     datosBancarios: {
-      titular: "Delfina Alvarez",
+      titular: "Luz Jazmin",
       cbu: "1254875968554455223366",
       alias: "delfi.mis.xv",
       banco: "Banco Nación",
