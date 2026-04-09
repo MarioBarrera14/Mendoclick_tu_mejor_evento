@@ -2,24 +2,20 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Disc3, Headset, X, Send, Loader2, KeyRound } from "lucide-react";
+import { X, Send, Loader2, KeyRound, Music as MusicIcon } from "lucide-react";
 import { submitSongSuggestions } from "@/app/api/admin/songs/route";
+import Image from "next/image";
 import Swal from "sweetalert2";
-import { DiamondDivider } from "./Decorations";
 
 interface MusicSuggestionProps {
   eventId: string;
 }
-
-const WAVE_PATH = "M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z";
 
 export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
-
-  const bars = Array.from({ length: 40 });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,14 +25,15 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestCode.trim()) {
-      Swal.fire({ title: "Falta un detalle", text: "Por favor, ingresa tu código de invitado", icon: "info", confirmButtonColor: "#4B664B" });
+      Swal.fire({ 
+        title: "Falta el código", 
+        text: "Ingresa tu código de invitado", 
+        icon: "info", 
+        confirmButtonColor: "#5ba394" 
+      });
       return;
     }
-    if (!songs.tema1 && !songs.tema2 && !songs.tema3) {
-      Swal.fire({ title: "Ups!", text: "Escribe al menos una canción", icon: "warning", confirmButtonColor: "#4B664B" });
-      return;
-    }
-
+    
     setIsSending(true);
     try {
       const result = await submitSongSuggestions(eventId, guestCode, songs);
@@ -46,195 +43,166 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         setGuestCode("");
         Swal.fire({ 
           title: "¡DJ Notificado!", 
-          text: "Tus sugerencias fueron enviadas con éxito. 🎵", 
+          text: "Tus temas ya están en la lista. 🎵", 
           icon: "success", 
-          confirmButtonColor: "#4B664B",
-          customClass: { popup: 'rounded-[2rem]' }
+          confirmButtonColor: "#5ba394"
         });
       } else {
-        Swal.fire({ title: "Código inválido", text: result.error || "Error de validación", icon: "error", confirmButtonColor: "#4B664B" });
+        Swal.fire({ title: "Error", text: result.error || "Código inválido", icon: "error", confirmButtonColor: "#d29b7b" });
       }
     } catch (error) {
-      Swal.fire({ title: "Error", text: "No se pudo enviar la sugerencia", icon: "error" });
+      Swal.fire({ title: "Error", text: "No se pudo enviar", icon: "error", confirmButtonColor: "#d29b7b" });
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <section 
-      className="relative pt-32 pb-48 md:pt-48 md:pb-64 overflow-hidden bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/fondowedin.jpg')" }}
-    >
-      {/* Overlay verde sutil general */}
-      <div className="absolute inset-0 bg-[#94A994]/50 z-0" />
+    <section className="relative py-20 overflow-hidden bg-[url('/images/img-grafitis/radio.png')] bg-cover bg-center mb-[-1px]">
       
-      {/* --- OLAS SUPERIORES --- */}
-      <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10">
-        <motion.svg 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
-          className="relative block w-[200%] h-[60px] md:h-[100px]"
-          animate={{ x: ["-50%", "0%"] }}
-          transition={{ duration: 25, ease: "linear", repeat: Infinity }}
-        >
-          <path d={WAVE_PATH} fill="#ffffff" fillOpacity="0.25" />
-          <path d={WAVE_PATH} x="1200" fill="#ffffff" fillOpacity="0.25" />
-        </motion.svg>
-        <motion.svg 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
-          className="absolute top-0 left-0 block w-[200%] h-[50px] md:h-[90px]"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-        >
-          <path d={WAVE_PATH} fill="#F9FAF7" />
-          <path d={WAVE_PATH} x="1200" fill="#F9FAF7" />
-        </motion.svg>
+      {/* SEPARADOR GRAFITERO SUPERIOR */}
+      <div className="absolute top-0 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
+        <div 
+          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          /* bg-[#e0f2f1] debe ser el color de la sección ANTERIOR a esta */
+        />
       </div>
 
-      <div className="container mx-auto px-6 relative z-20">
-        {/* TARJETA BLANCA TRASLÚCIDA CENTRAL */}
-        <div className="max-w-4xl mx-auto bg-white/20 backdrop-blur-md rounded-[3rem] p-10 md:p-20 shadow-xl border border-white/40 text-center flex flex-col items-center">
-          
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="mb-8 text-[#4B664B]/60"
-          >
-            <Disc3 className="w-20 h-20 md:w-24 md:h-24 stroke-[0.5px]" />
-          </motion.div>
+      {/* Overlay oscuro para legibilidad */}
+      <div className="absolute inset-0 bg-black/50 z-0" />
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-12 flex flex-col items-center"
-          >
-            <p className="font-serif italic text-4xl md:text-7xl text-[#4B664B] mb-3 tracking-tight">Musicalizá la fiesta</p>
-            <DiamondDivider className="mb-4 text-[#4B664B]/20" />
-            <p className="text-[#4B664B]/60 tracking-[0.4em] text-[10px] md:text-xs uppercase font-bold">¿Qué canción no puede faltar?</p>
-          </motion.div>
-
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpen(true)}
-            className="group relative inline-flex items-center gap-4 px-10 py-5 bg-[#4B664B] text-white font-bold tracking-[0.3em] text-[10px] uppercase rounded-full shadow-2xl hover:bg-[#3a503a] transition-all duration-500"
-          >
-            <Headset className="w-4 h-4" />
-            Sugerí tu tema acá
-          </motion.button>
+      <div className="container mx-auto px-6 relative z-10 flex justify-center pt-10">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="max-w-xl w-full bg-white/30 backdrop-blur-xl p-8 md:p-12 shadow-2xl text-center rounded-[1rem] border border-white/30"
+        >
           
-          {/* ECUALIZADOR (Ajustado a color verde dentro de la tarjeta) */}
-          <div className="flex justify-center items-end gap-1 mt-12 opacity-30 h-10">
-            {bars.slice(0, 20).map((_, i) => (
-              <motion.div
-                key={i}
-                animate={{ height: [5, Math.random() * 30 + 10, 5] }}
-                transition={{ duration: Math.random() * 0.5 + 0.5, repeat: Infinity, ease: "easeInOut" }}
-                className="w-1 bg-[#4B664B] rounded-full"
+          <div className="flex justify-center mb-4">
+            <div className="relative w-16 h-16 md:w-20 md:h-20">
+              <Image 
+                src="/images/img-grafitis/musica.png" 
+                alt="Icono Baile" 
+                fill 
+                className="object-contain" 
               />
-            ))}
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* --- OLAS INFERIORES --- */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-10">
-        <motion.svg 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
-          className="relative block w-[200%] h-[70px] md:h-[130px]"
-          style={{ rotate: 180 }}
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 30, ease: "linear", repeat: Infinity }}
-        >
-          <path d={WAVE_PATH} fill="#ffffff" fillOpacity="0.3" />
-          <path d={WAVE_PATH} x="1200" fill="#ffffff" fillOpacity="0.3" />
-        </motion.svg>
+          <div className="mb-8">
+            <h2 className="text-5xl md:text-6xl font-['Permanent_Marker',_cursive] text-black mb-4 uppercase tracking-tighter">
+              Música
+            </h2>
+            <p className="text-black text-sm md:text-base font-medium leading-tight mb-2">
+              ¿Qué canciones son infaltables?
+            </p>
+            <p className="text-black/70 text-xs italic font-medium">
+              Ayudanos con la selección para bailar toda la noche
+            </p>
+          </div>
 
-        <motion.svg 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
-          className="absolute bottom-0 left-0 block w-[200%] h-[60px] md:h-[110px]"
-          style={{ rotate: 180 }}
-          animate={{ x: ["-50%", "0%"] }}
-          transition={{ duration: 25, ease: "linear", repeat: Infinity }}
-        >
-          <path d={WAVE_PATH} fill="#ffffff" />
-          <path d={WAVE_PATH} x="1200" fill="#F9FAF7" />
-        </motion.svg>
+          <div className="flex justify-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsOpen(true)}
+              className="bg-[#5ba394] hover:bg-[#4d8a7d] text-white px-10 py-3 text-xs font-bold uppercase tracking-widest flex items-center gap-2 rounded-full shadow-lg transition-all font-['Permanent_Marker',_cursive]"
+            >
+              <MusicIcon size={18} />
+              Sugerir Canción
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
 
       {/* MODAL DE SUGERENCIAS */}
       <AnimatePresence>
         {isOpen && (
-          <>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]"
+              onClick={() => !isSending && setIsOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed inset-0 m-auto w-[90%] max-w-md h-fit bg-white p-8 md:p-10 z-[101] rounded-[2.5rem] shadow-2xl"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="relative w-full max-w-md bg-white/30 backdrop-blur-xl rounded-[2rem] p-8 md:p-10 shadow-2xl z-10 border border-white/40"
             >
-              <button onClick={() => setIsOpen(false)} className="absolute top-6 right-6 text-[#4B664B]/20 hover:text-[#4B664B]">
-                <X size={24} />
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="absolute top-6 right-6 text-black hover:scale-110 transition-transform disabled:opacity-50"
+                disabled={isSending}
+              >
+                <X size={28} />
               </button>
 
-              <div className="text-center mb-8">
-                <span className="text-[9px] tracking-[0.4em] text-[#94A994] uppercase font-bold mb-2 block">Playlist</span>
-                <h4 className="text-3xl font-serif italic text-[#4B664B]">¿Qué vamos a bailar?</h4>
+              <div className="text-center mb-6">
+                <h4 className="text-3xl font-['Permanent_Marker',_cursive] text-black uppercase tracking-tighter">
+                  DJ Playlist
+                </h4>
               </div>
 
-              <form className="space-y-5" onSubmit={handleSubmit}>
-                <div className="bg-[#4B664B]/5 p-4 rounded-2xl border border-[#4B664B]/10">
-                  <label className="text-[9px] uppercase tracking-widest text-[#4B664B]/60 mb-2 block font-bold">Tu Código de Invitado</label>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="bg-white/40 p-4 rounded-xl border border-white/20">
+                  <label className="text-[10px] uppercase font-bold text-black/60 mb-1 block tracking-widest text-center">Código de Invitado</label>
                   <div className="flex items-center gap-3">
-                    <KeyRound size={16} className="text-[#4B664B]/30" />
+                    <KeyRound size={20} className="text-[#5ba394]" />
                     <input 
                       type="text" 
                       value={guestCode}
                       onChange={(e) => setGuestCode(e.target.value)}
-                      placeholder="Ej: MAR-123" 
-                      className="bg-transparent border-none outline-none text-[#4B664B] w-full uppercase placeholder:text-[#4B664B]/30 text-sm font-medium" 
+                      placeholder="INGRESA TU CÓDIGO" 
+                      className="bg-transparent border-none outline-none text-black w-full uppercase placeholder:text-black/30 font-bold" 
                     />
                   </div>
                 </div>
 
-                {[1, 2, 3].map((num) => (
-                  <div key={num}>
-                    <label className="text-[9px] uppercase tracking-widest text-[#4B664B]/40 mb-1 block font-bold">Tema {num}</label>
-                    <input
-                      type="text"
-                      name={`tema${num}`}
-                      value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
-                      onChange={handleChange}
-                      placeholder="Nombre de la canción..."
-                      className="w-full bg-transparent border-b border-[#4B664B]/10 py-2 outline-none focus:border-[#94A994] transition-all text-[#4B664B] text-sm px-1"
-                    />
-                  </div>
-                ))}
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase font-bold text-black/60 tracking-widest text-center mb-2">Tus Temas Favoritos</p>
+                  {[1, 2, 3].map((num) => (
+                    <div key={num} className="bg-white/40 border border-white/20 p-3 rounded-xl flex items-center gap-2">
+                      <span className="text-[#d29b7b] font-bold text-sm">{num}.</span>
+                      <input
+                        type="text"
+                        name={`tema${num}`}
+                        value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
+                        onChange={handleChange}
+                        placeholder="Artista - Canción"
+                        className="w-full bg-transparent border-none outline-none text-black font-medium text-sm placeholder:text-black/30"
+                      />
+                    </div>
+                  ))}
+                </div>
                 
-                <button
-                  type="submit"
-                  disabled={isSending}
-                  className="w-full bg-[#4B664B] text-white py-4 rounded-full font-bold text-[10px] tracking-widest uppercase mt-4 hover:bg-[#3a503a] transition-all flex items-center justify-center gap-3 shadow-lg disabled:opacity-50"
-                >
-                  {isSending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
-                  {isSending ? "ENVIANDO..." : "ENVIAR SUGERENCIAS"}
-                </button>
+                <div className="pt-4 flex justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={isSending}
+                    className="w-full py-3 bg-black text-white rounded-xl font-bold font-['Permanent_Marker',_cursive] flex justify-center items-center gap-2 uppercase tracking-wider shadow-lg"
+                  >
+                    {isSending ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+                    {isSending ? "ENVIANDO..." : "ENVIAR AL DJ"}
+                  </motion.button>
+                </div>
               </form>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
+       {/* SEPARADOR GRAFITERO SUPERIOR */}
+      <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
+        <div 
+          className="w-full h-[60px] md:h-[160px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          /* bg-[#e0f2f1] debe ser el color de la sección ANTERIOR a esta */
+        />
+      </div>
     </section>
   );
 }

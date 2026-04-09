@@ -18,7 +18,6 @@ export function Witnesses() {
     { name: "Pablo Martinez", role: "Mejor Amigo del Novio", image: "/img_boda/testigo4.jpg" },
   ];
 
-  // Tipamos la transición para que TypeScript la acepte correctamente
   const floatTransition: Transition = {
     duration: 4,
     ease: "easeInOut",
@@ -27,38 +26,37 @@ export function Witnesses() {
   };
 
   return (
-    <section className="relative py-24 bg-[#F9FAF7] overflow-hidden mt-[-1px]">
-
+    <section className="relative py-12 bg-[#e0f2f1] overflow-hidden mt-[-1px]">
       <div className="container mx-auto px-6 relative z-10">
         
-        {/* ENCABEZADO CON ELEGANCE-5 */}
+        {/* ENCABEZADO MÁS COMPACTO */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-2">
             <motion.div
-              animate={{ y: [0, -12, 0] }}
+              animate={{ y: [0, -8, 0] }}
               transition={floatTransition}
-              className="relative w-20 h-20 md:w-28 md:h-28" // Ajuste de tamaño para la cabecera
+              className="relative w-16 h-16"
             >
               <Image 
-                src="/elegance-5.png" 
-                alt="Decoración cabecera" 
+                src="/images/img-grafitis/testigos.png" 
+                alt="Decoración pluma" 
                 fill
-                className="object-contain opacity-80" 
+                className="object-contain" 
               />
             </motion.div>
           </div>
-          <h2 className="text-4xl md:text-5xl font-serif italic text-[#4B664B] tracking-tight">
+          <h2 className="font-['Permanent_Marker',_cursive] text-4xl md:text-5xl text-black uppercase tracking-tighter">
             Los Testigos
           </h2>
         </motion.div>
 
-        {/* GRILLA DE TESTIGOS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-5xl mx-auto">
+        {/* GRILLA DE TESTIGOS CON TAMAÑO REDUCIDO */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto">
           {witnesses.map((witness, index) => (
             <motion.div
               key={index}
@@ -68,37 +66,28 @@ export function Witnesses() {
               transition={{ delay: index * 0.1 }}
               className="flex flex-col items-center text-center group"
             >
-              <motion.div
-                animate={{ y: [0, -12, 0] }}
-                transition={{
-                  ...floatTransition,
-                  delay: index * 0.7,
-                }}
-                className="flex flex-col items-center w-full"
-              >
-                {/* Imagen Circular */}
-                <div className="relative w-28 h-28 md:w-32 md:h-32 mb-6">
-                  <div className="absolute inset-0 rounded-full border-2 border-[#94A994]/20 scale-110 group-hover:scale-125 transition-transform duration-700" />
-                  
-                  <div className="relative w-full h-full rounded-full overflow-hidden shadow-md ring-4 ring-white">
-                    <Image 
-                      src={witness.image} 
-                      alt={witness.name} 
-                      fill 
-                      sizes="(max-width: 768px) 112px, 128px"
-                      className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" 
-                    />
-                  </div>
+              {/* Imagen Circular más chica */}
+              <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
+                <div className="relative w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white">
+                  <Image 
+                    src={witness.image} 
+                    alt={witness.name} 
+                    fill 
+                    className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                    sizes="(max-width: 768px) 96px, 128px"
+                  />
                 </div>
+              </div>
 
-                {/* Texto */}
-                <h3 className="text-lg md:text-xl font-serif italic text-[#4B664B] mb-1 group-hover:text-[#4B664B] transition-colors duration-500">
-                  {witness.name}
-                </h3>
-                <p className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase font-bold text-[#4B664B]/40 leading-tight">
-                  {witness.role}
-                </p>
-              </motion.div>
+              {/* Nombre reducido */}
+              <h3 className="font-['Permanent_Marker',_cursive] text-xl md:text-2xl text-[#5ca394] mb-1">
+                {witness.name}
+              </h3>
+              
+              {/* Rol reducido */}
+              <p className="text-[9px] md:text-[10px] tracking-[0.1em] uppercase font-bold text-gray-400">
+                {witness.role}
+              </p>
             </motion.div>
           ))}
         </div>

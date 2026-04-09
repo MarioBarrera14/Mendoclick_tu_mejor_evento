@@ -1,182 +1,136 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  CalendarCheck, X, Loader2, KeyRound, CheckCircle2, 
-  AlertCircle, PartyPopper, Heart, MessageSquareHeart, 
-  Ban 
-} from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function RSVP() {
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isValidated, setIsValidated] = useState(false);
-  const [alreadyResponded, setAlreadyResponded] = useState(false);
-  const [familyCode, setFamilyCode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [guestInfo, setGuestInfo] = useState<any>(null);
   
-  const [formData, setFormData] = useState({
-    name: "",
-    attendance: "", 
-    dietary: [] as string[],
-    message: "",
-  });
-
-  const resetAll = () => {
-    setIsValidated(false);
-    setAlreadyResponded(false);
-    setFamilyCode("");
-    setErrorMessage("");
-    setGuestInfo(null);
-    setFormData({ name: "", attendance: "", dietary: [], message: "" });
-  };
-
   const handleClose = () => {
     if (!isSubmitting) {
       setIsOpen(false);
-      setTimeout(resetAll, 300);
     }
-  };
-
-  const handleValidateCode = async () => {
-    if (!familyCode) return;
-    setIsSubmitting(true);
-    setErrorMessage("");
-    
-    try {
-      const response = await fetch("/api/guests");
-      const invitados = await response.json();
-      
-      const invitadoEncontrado = invitados.find(
-        (inv: any) => inv.codigo === familyCode.toUpperCase().trim()
-      );
-
-      if (invitadoEncontrado) {
-        if (invitadoEncontrado.status !== "PENDING" && invitadoEncontrado.status !== null) {
-          setAlreadyResponded(true);
-          setIsValidated(true);
-          return;
-        }
-        setGuestInfo(invitadoEncontrado);
-        setIsValidated(true);
-        setFormData(prev => ({ ...prev, name: invitadoEncontrado.apellido }));
-      } else {
-        setErrorMessage("Código no reconocido.");
-      }
-    } catch (error) {
-      setErrorMessage("Error de conexión.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.name || !formData.attendance) return;
-    setIsSubmitting(true);
-    try {
-      const dietaFinal = formData.dietary.length > 0 ? formData.dietary.join(", ") : "Ninguna";
-      const infoFinal = formData.message 
-        ? `${dietaFinal} | Mensaje: ${formData.message}` 
-        : dietaFinal;
-
-      const response = await fetch("/api/guests", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code: familyCode.toUpperCase().trim(),
-          name: formData.name,
-          status: formData.attendance === "YES" ? "CONFIRMED" : "CANCELLED",
-          dietary: infoFinal,
-        }),
-      });
-
-      if (response.ok) setAlreadyResponded(true);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDietaryChange = (item: string) => {
-    setFormData(prev => {
-      if (item.includes("NINGUNA")) return { ...prev, dietary: [item] };
-      const newDietary = prev.dietary.filter(i => !i.includes("NINGUNA"));
-      return {
-        ...prev,
-        dietary: newDietary.includes(item) ? newDietary.filter(i => i !== item) : [...newDietary, item]
-      };
-    });
   };
 
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
   return (
-    // Agregamos mb-[-1px] para eliminar la línea de separación con el footer
-    <section className="relative py-24 md:py-30 bg-[#F9FAF7] overflow-hidden font-sans mb-[-1px]">
-      
-      <motion.img 
-        src="/elegance-1b.png" 
-        className="absolute left-[-3%] top-0 w-32 md:w-64 opacity-10 pointer-events-none z-0"
-        initial={{ opacity: 0, x: -15 }}
-        whileInView={{ opacity: 0.1, x: 0 }}
-        transition={{ duration: 1 }}
-      />
-      <motion.img 
-        src="/elegance-1a.png" 
-        className="absolute right-[-3%] bottom-0 w-32 md:w-64 opacity-10 pointer-events-none z-0"
-        initial={{ opacity: 0, x: 15 }}
-        whileInView={{ opacity: 0.1, x: 0 }}
-        transition={{ duration: 1 }}
-      />
+    <section className="relative py-20 md:py-28 overflow-hidden font-sans mb-[-1px] bg-[url('/images/img-grafitis/pared.jpg')] bg-cover bg-center">
+            {/* SEPARADOR GRAFITERO SUPERIOR */}
+      <div className="absolute top-0 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
+        <div 
+          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          /* bg-[#e0f2f1] debe ser el color de la sección ANTERIOR a esta */
+        />
+      </div>
+      <div className="absolute inset-0 bg-black/40 z-0" />
 
       <div className="container mx-auto px-6 relative z-10 flex justify-center">
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative bg-white border border-[#94A994]/20 shadow-xl max-w-5xl w-full flex flex-col md:flex-row rounded-[3rem] overflow-visible"
+          className="relative bg-white/30 backdrop-blur-xl shadow-2xl max-w-5xl w-full flex flex-col md:flex-row rounded-[1rem] overflow-hidden border border-white/30"
         >
-          {/* Planta Moño con opacidad corregida */}
-          <motion.div 
-            className="absolute -top-6 -right-6 md:-top-10 md:-right-10 w-24 h-24 md:w-40 md:h-40 z-30 pointer-events-none drop-shadow-md"
-            initial={{ opacity: 0, rotate: 0, scale: 0.8 }}
-            whileInView={{ opacity: 0.8, rotate: 12, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.3 }}
-          >
-            <img src="/elegance-4b.png" alt="detalle moño" className="w-full h-full object-contain" />
-          </motion.div>
-
-          <div className="w-full md:w-1/2 h-[350px] md:h-[550px] overflow-hidden rounded-[3rem] md:rounded-l-[3rem] md:rounded-r-none">
-            <img src="/img_boda/gallery-2.jpg" alt="Pareja" className="w-full h-full object-cover grayscale brightness-95" />
+          
+          <div className="w-full md:w-1/2 h-[300px] md:h-[450px] relative">
+            <Image 
+              src="/img_boda/gallery-2.jpg" 
+              alt="Pareja" 
+              fill
+              className="object-cover opacity-80"
+              priority
+            />
           </div>
 
-          <div className="w-full md:w-1/2 p-10 md:p-16 flex flex-col items-center justify-center text-center bg-white/50 backdrop-blur-sm rounded-[3rem] md:rounded-r-[3rem] md:rounded-l-none">
-            <div className="mb-6 text-[#94A994]/60"><CalendarCheck size={32} strokeWidth={1} /></div>
-            <h2 className="font-serif text-5xl md:text-7xl text-[#94A994] mb-4 italic leading-tight">Confirmación</h2>
-            <p className="text-zinc-400 text-sm md:text-base font-light leading-relaxed mb-4 max-w-sm">Esperamos que puedas acompañarnos.</p>
-            <p className="text-[#94A994] text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-12">¡Confirmá tu asistencia!</p>
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={() => setIsOpen(true)} className="px-12 py-5 bg-[#94A994] text-white tracking-[0.2em] text-[11px] uppercase font-bold rounded-full shadow-lg">CONFIRMAR</motion.button>
+          <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col items-center justify-center text-center relative bg-transparent">
+            <div className="mb-4 w-12 h-12 md:w-16 md:h-16 relative">
+              <Image 
+                src="/images/img-grafitis/sobre.png"
+                alt="Sobre"
+                fill
+                className="object-contain"
+              />
+            </div>
+
+            <h2 className="font-['Permanent_Marker',_cursive] text-4xl md:text-6xl text-black mb-4 uppercase tracking-tighter">
+              Confirmación
+            </h2>
+
+            <p className="text-black text-sm md:text-base font-medium leading-relaxed mb-1 max-w-xs">
+              Esperamos que puedas acompañarnos.
+            </p>
+            
+            <p className="text-black/70 text-[10px] md:text-xs font-bold tracking-normal mb-8">
+              ¡Confirmá tu asistencia antes del 10/08/2026!
+            </p>
+
+            <motion.button 
+              whileHover={{ scale: 1.05 }} 
+              whileTap={{ scale: 0.95 }} 
+              onClick={() => setIsOpen(true)} 
+              className="px-10 py-3 bg-[#5ba394] hover:bg-[#4d8a7d] text-white tracking-widest text-xs uppercase font-bold rounded-full shadow-lg transition-colors font-['Permanent_Marker',_cursive]"
+            >
+              CONFIRMAR ASISTENCIA
+            </motion.button>
           </div>
         </motion.div>
       </div>
 
+      {/* MODAL CON TRANSPARENCIA (Glassmorphism) */}
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-              {/* Contenido del Modal simplificado para el ejemplo */}
-              <div className="p-8 text-center text-[#94A994]">Formulario de Invitación</div>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={handleClose} 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            />
+            
+            <motion.div 
+               initial={{ scale: 0.8, opacity: 0 }} 
+               animate={{ scale: 1, opacity: 1 }} 
+               exit={{ scale: 0.8, opacity: 0 }} 
+               // CAMBIO AQUÍ: bg-white/30 y backdrop-blur-xl para el formulario
+               className="relative w-full max-w-lg bg-white/30 backdrop-blur-xl rounded-[2rem] p-10 shadow-2xl z-10 border border-white/40"
+            >
+              <button onClick={handleClose} className="absolute top-6 right-6 text-black hover:scale-110 transition-transform">
+                <X size={24} />
+              </button>
+              
+              <div className="text-center">
+                 <h3 className="font-['Permanent_Marker',_cursive] text-3xl mb-4 text-black uppercase">Asistencia</h3>
+                 <p className="text-black/80 font-medium text-sm mb-6 uppercase tracking-tight">Ingresa tu código de invitación</p>
+                 
+                 <input 
+                  type="text" 
+                  placeholder="CÓDIGO" 
+                  // Input también un poco traslúcido para que no choque
+                  className="w-full bg-white/50 border-2 border-white/20 p-3 rounded-xl mb-4 text-center font-bold tracking-widest outline-none focus:border-[#5ba394] text-black placeholder:text-black/40"
+                 />
+                 
+                 <button className="w-full py-3 bg-black text-white rounded-xl font-bold font-['Permanent_Marker',_cursive] uppercase tracking-wider shadow-lg hover:bg-zinc-900 transition-colors">
+                   VALIDAR
+                 </button>
+              </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+             {/* SEPARADOR GRAFITERO SUPERIOR */}
+      <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
+        <div 
+          className="w-full h-[60px] md:h-[160px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          /* bg-[#e0f2f1] debe ser el color de la sección ANTERIOR a esta */
+        />
+      </div>
     </section>
   );
 }

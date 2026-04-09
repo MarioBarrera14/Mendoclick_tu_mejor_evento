@@ -1,8 +1,8 @@
 import {
   Hero,
-  Countdown,
+  DetailModal,
   Itinerary,
-  Details,
+  EventDetails,
   RSVP,
   Footer,
   Envelope,
@@ -63,39 +63,28 @@ export default function NightLightsDemoPage() {
     <main className="min-h-screen bg-[#0a0a0a]">
       {/* Pasamos los datos hardcodeados a cada componente como si vinieran de DB */}
     {/*  <Envelope musicUrl={dbDemo.config.musicaUrl}>*/}
-        <Navbar />
-        
+       <Navbar/>
         <Hero 
          
           heroImage={dbDemo.config.heroImage} 
         />
 
-        <Countdown 
-          eventDate={eventDate} 
-          eventTime={eventTime} 
-        />
 
         {/* Carousel con placeholders si no hay fotos reales todavía */}
      <FotoCarousel 
  
   videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
 />
-        <Details 
-          dressCode={dbDemo.config.dressCode}
-          dressDescription={dbDemo.config.dressDescription}
-          alias={dbDemo.config.regalo.alias}
-          cbu={dbDemo.config.regalo.cbu}
-          bankName={dbDemo.config.regalo.banco}
-          holderName={dbDemo.config.regalo.titular}
-        />
-
+        <EventDetails    />
+ 
+        <RSVP/>
+        <DetailModal/>
         <Itinerary 
         />
 <Witnesses/>
         {/* Usamos el link de canciones del form directamente */}
         <MusicSuggestion eventId={""}/>    
-        
-        <RSVP/>
+       
         
         <Footer />
      {/* </Envelope>*/}

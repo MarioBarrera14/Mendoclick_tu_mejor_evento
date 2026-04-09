@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { bodaTemplateConfig as localConfig } from "@/data/event-config-bodas";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface HeroProps {
   eventName?: string | null;
@@ -9,114 +11,118 @@ interface HeroProps {
 }
 
 export function Hero({ eventName, heroImage }: HeroProps) {
-  const rawNames = eventName || localConfig.personal.nombre || "Novia & Novio";
+  const rawNames = eventName || localConfig.personal.nombre || "Ariadna & Mario";
   const namesArray = rawNames.split(/[&,]/);
-  const firstName = namesArray[0]?.trim() || "Novia";
-  const lastName = namesArray[1]?.trim() || "Novio";
+  const firstName = namesArray[0]?.trim() || "Ariadna";
+  const lastName = namesArray[1]?.trim() || "Mario";
 
   const currentImage = (heroImage && heroImage !== "") 
     ? heroImage 
     : localConfig.imagenes.hero;
 
+  const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date("2026-09-12T20:00:00");
+    const timer = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate.getTime() - now.getTime();
+      if (difference <= 0) {
+        clearInterval(timer);
+      } else {
+        setTimeLeft({
+          dias: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          min: Math.floor((difference / 1000 / 60) % 60),
+          seg: Math.floor((difference / 1000) % 60),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden bg-[#94a994]">
+    <section className="relative h-screen flex flex-col items-center justify-between overflow-hidden bg-[#38b2ac] font-['Permanent_Marker',_cursive]">
       
-      {/* CAPA DE IMAGEN */}
+      {/* IMAGEN DE FONDO */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           <motion.div 
             key={currentImage} 
             className="relative w-full h-full"
-            initial={{ scale: 1.15, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 3, ease: [0.33, 1, 0.68, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
           >
-            <img
+            <Image
               src={currentImage}
               alt="Portada de Boda"
-              className="w-full h-full object-cover"
-            />
-            
-            <div 
-              className="absolute inset-0 z-10" 
-              style={{ background: 'radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 100%)' }} 
-            />
-
-            <div 
-              className="absolute inset-0 z-20 pointer-events-none" 
-              style={{
-                background: `linear-gradient(to bottom, 
-                  rgba(0,0,0,0.3) 10%, 
-                  transparent 89%, 
-                  rgba(148, 169, 148, 0.6) 99%, 
-                  rgba(148, 169, 148, 1) 100%)`
-              }}
+              fill
+              className="object-cover object-center brightness-[0.85]"
+              priority
             />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* CONTENIDO DE TEXTO CENTRALIZADO */}
-      <div className="relative z-30 text-center px-6 w-full max-w-5xl mb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="flex flex-col items-center"
-        >
-          {/* LÍNEA SUPERIOR DINÁMICA */}
-          <div className="w-[1px] h-16 md:h-24 bg-white/40 mb-6" />
+      {/* GRAFFITI SUPERIOR */}
+      <div className="absolute top-0 left-0 w-full z-40 pointer-events-none">
+        <div className="w-full h-[100px] md:h-[180px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+      </div>
 
-          {/* NOMBRES RESPONSIVE: text-5xl en mobile, 8xl/9xl en desktop */}
-          <h1 className="font-script text-5xl md:text-8xl lg:text-9xl text-white leading-tight drop-shadow-2xl flex flex-wrap items-center justify-center gap-x-4 md:gap-x-8">
-            <span className="whitespace-nowrap">{firstName}</span>
-            <span className="text-2xl md:text-5xl lg:text-6xl inline-block transform translate-y-1 md:translate-y-3 opacity-90">
-              ♥
-            </span>
-            <span className="whitespace-nowrap">{lastName}</span>
+      {/* CONTENIDO CENTRAL - Bajado mediante un margin top mayor */}
+      <div className="relative z-30 flex flex-col items-center text-center px-4 mt-[25vh] md:mt-[30vh]">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative w-14 h-14 md:w-20 md:h-20 mb-2"
+        >
+          <Image 
+            src="/images/img-grafitis/graffiti-corazon.png" 
+            alt="Corazon Graffiti"
+            fill
+            className="object-contain drop-shadow-xl"
+          />
+        </motion.div>
+
+        <div className="flex flex-col items-center gap-0">
+          <p className="text-white text-base md:text-xl tracking-[0.3em] drop-shadow-lg font-sans font-bold leading-none">
+            12 . 09 . 2026
+          </p>
+
+          <h1 className="text-5xl md:text-7xl lg:text-8xl text-white leading-[1.1] drop-shadow-2xl uppercase tracking-tighter whitespace-nowrap">
+            {firstName} & {lastName}
           </h1>
 
-          {/* TÍTULO */}
-          <motion.h2
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="text-[11px] md:text-sm text-white font-light tracking-[0.4em] md:tracking-[0.6em] uppercase mt-8 drop-shadow-md border-y border-white/20 py-2 px-4"
-          >
-            {localConfig.personal.titulo}
-          </motion.h2>
-        </motion.div>
+          <h2 className="text-white text-xl md:text-3xl tracking-wide drop-shadow-lg opacity-95 leading-none">
+            ¡Nuestra Boda!
+          </h2>
+        </div>
       </div>
-{/* INDICADOR DE SCROLL: Centrado absoluto garantizado */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.5, duration: 1 }}
-        // Agregamos flex y items-center al contenedor absoluto
-        className="absolute bottom-10 left-0 right-0 mx-auto w-fit z-40 cursor-pointer group flex flex-col items-center"
-        onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-      >
-        <div className="flex flex-col items-center gap-3">
-          {/* Texto con espaciado uniforme */}
-          <span className="text-[9px] text-white/60 uppercase tracking-[0.5em] font-light group-hover:text-white transition-colors text-center">
-            Desliza
-          </span>
 
-          {/* Línea animada */}
-          <div className="relative w-[1px] h-14 overflow-hidden bg-white/20">
-            <motion.div 
-              animate={{ y: ["-100%", "100%"] }} 
-              transition={{ 
-                repeat: Infinity, 
-                duration: 2, 
-                ease: "easeInOut" 
-              }}
-              className="w-full h-full bg-gradient-to-b from-transparent via-white to-transparent" 
-            />
+      {/* CONTADOR Y GRAFFITI INFERIOR PEQUEÑOS Y AL PIE */}
+      <div className="relative w-full z-50 flex flex-col items-center">
+        {/* Contador pegado al separador */}
+        <div className="mb-[-20px] md:mb-[-40px] text-center relative z-10 translate-y-[-10px]">
+          <p className="text-white text-[10px] md:text-xs mb-1 font-sans tracking-[0.4em] font-black uppercase opacity-90">Faltan</p>
+          <div className="flex gap-4 md:gap-10 items-end justify-center text-white">
+            {[
+              { val: timeLeft.dias, lab: "Días" },
+              { val: timeLeft.horas, lab: "Horas" },
+              { val: timeLeft.min, lab: "Mins" },
+              { val: timeLeft.seg, lab: "Segs" }
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center min-w-[45px] md:min-w-[60px]">
+                <span className="text-2xl md:text-5xl leading-none">{item.val}</span>
+                <span className="text-[7px] md:text-[9px] font-sans mt-1 tracking-widest font-bold opacity-80 uppercase">{item.lab}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </motion.div>
- 
+
+        {/* GRAFFITI INFERIOR - Al borde inferior de la pantalla */}
+        <div className="w-full h-[80px] md:h-[120px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]" />
+      </div>
     </section>
   );
 }
