@@ -41,10 +41,30 @@ const allDesigns = [
   { id: '01', title: 'Night Lights', img: '/img_demo/plantilla1_15.png', link: '/demo/night-lights', tag: 'MODERN', category: '15_AÑOS' },
   { id: '02', title: 'Neon Party', img: '/img_demo/plantilla2_15.png', link: '/demo/neon-party', tag: 'VIBRANT', category: '15_AÑOS' },
   { id: '03', title: 'Golden B-Day', img: '/img_demo/plantilla3_15.png', link: '/demo/golden-bday', tag: 'LUXURY', category: '15_AÑOS' },
-  { id: '04', title: 'Elegance Dark', img: '/img_boda/plantilla4.jpg', link: '/demo/bodas-elite', tag: 'WEDDING', category: 'BODAS' },
-  { id: '05', title: 'Retro Vinyl', img: '/img_boda/plantilla5.png', link: '/demo/bodas-rockeras', tag: 'VINTAGE', category: 'BODAS' },
-  { id: '06', title: 'Olive Garden', img: '/img_boda/plantilla6.jpg', link: '/demo/bodas-premium', tag: 'ELEGANT', category: 'BODAS' },
-];
+{ 
+  id: '04', 
+  title: 'GOLDEN NOIR', 
+  img: '/img_boda/plantilla4.jpg', 
+  link: '/demo/bodas-elite', 
+  tag: 'PREMIUM', // Cambié WEDDING por PREMIUM porque la categoría ya es BODAS
+  category: 'BODAS' 
+},
+  { 
+  id: '05', 
+  title: 'RETRO VINYL', // En mayúsculas para mantener consistencia con 'GRAFFITI URBANO'
+  img: '/img_boda/plantilla5.png', 
+  link: '/demo/bodas-rockeras', 
+  tag: 'VINTAGE', 
+  category: 'BODAS' 
+},
+  { 
+  id: '06', 
+  title: 'GRAFFITI URBANO', // Corregido a doble 'f' para estilo artístico
+  img: '/img_boda/plantilla6.jpg', 
+  link: '/demo/bodas-grafitis', 
+  tag: 'URBANO', 
+  category: 'BODAS' 
+},];
 
 export default function LandingPage(): JSX.Element {
   const [isManager, setIsManager] = useState(false);
