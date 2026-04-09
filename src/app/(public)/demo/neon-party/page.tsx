@@ -12,7 +12,7 @@ import {
 } from "@/components/templates/neon-party";
 import { Metadata } from "next";
 
-// Simulación de la respuesta de la base de datos (Hardcoded)
+// Simulación de la respuesta de la base de datos
 const dbDemo = {
   id: "demo-15",
   slug: "luz-jazmin-xv",
@@ -20,8 +20,16 @@ const dbDemo = {
   tipoEvento: "XV Años",
   fecha: new Date("2026-12-19T19:00:00"),
   config: {
-    heroImage: "/cumple.jpg",
-    musicaUrl: "/audio/Pitbull x Play N Skillz Party of a Lifetime Lyric Video.mp3", // Si tienes un audio de fondo
+    heroImage: "/cumple.jpg", 
+    
+    // ============================================================
+    // CORRECCIÓN DE RUTA DE VIDEO AQUÍ
+    // Tu archivo está en: public\movie\esfe1.mp4
+    // La ruta para Next.js es: "/movie/esfe1.mp4"
+    // ============================================================
+    heroVideo: "/movie/Video_de_Esferas_de_Espejos.mp4", 
+    
+    musicaUrl: "/audio/Pitbull x Play N Skillz Party of a Lifetime Lyric Video.mp3",
     personal: {
       titulo: "¡MIS XV!",
       subtitulo: "¡La fiesta del año!",
@@ -30,7 +38,7 @@ const dbDemo = {
       lugar: "Howard Johnson",
       subtitulo: "By Wyndham Cariló",
       direccion: "RP11 km 400, Cariló",
-      googleMaps: "https://www.google.com/maps/place/Howard+Johnson+by+Wyndham+Carilo+Convention+Center/@-37.1511601,-56.923903,17z",
+      googleMaps: "https://goo.gl/maps/tu-link-real-a-howard-johnson", // Link real opcional
       hora: "19:00 HS"
     },
     regalo: {
@@ -43,68 +51,72 @@ const dbDemo = {
       fechaLimite: "20/08/2026",
       formUrl: "https://forms.gle/T7F4DHWv2kTZhitW6"
     },
-    cancionesUrl: "https://docs.google.com/forms/d/e/1FAIpQLSeZa1Df3gKTLRivE71qCSI02a9Pa_UTQBnXu22pJMpo51nsOQ/viewform",
-    dressCode: "Elegante Sport",
+    // Corrección del link de canciones para que no sea un placeholder
+    cancionesUrl: "https://forms.gle/tu-form-de-canciones", 
+     dressCode: "Elegante Sport",
     dressDescription: "El dress code de la fiesta es elegante sport.",
   }
 };
 
-// Metadata para la demo
 export const metadata: Metadata = {
-  title: "Neon Party - Demo | MendoClick",
+  title: `Neon Party - ${dbDemo.nombre} | MendoClick`,
   description: "Plantilla vibrante con colores neon y efectos brillantes",
-  
 };
 
 export default async function NeonPartyDemoPage() {
-    const eventDate = "2026-12-19";
+  // Extraemos fecha y hora para el Countdown
+  const eventDate = "2026-12-19";
   const eventTime = "19:00";
+
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
-       <Envelope musicUrl={dbDemo.config.musicaUrl}>
-   <Navbar eventName={dbDemo.nombre} isDemo={true} />
-            
-            <Hero 
-              eventName={dbDemo.nombre} 
-              heroImage={dbDemo.config.heroImage} 
-            />
-    
-            <Countdown 
-              eventDate={eventDate} 
-              eventTime={eventTime} 
-            />
-    
-            {/* Carousel con placeholders si no hay fotos reales todavía */}
-         <FotoCarousel 
-      images={JSON.stringify([
-        "/img_demo/8.webp", 
-        "/img_demo/5.webp", 
-        "/img_demo/6.webp", 
-        "/img_demo/7.webp"
-      ])} 
-      videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
-    />
-            <Details 
-              dressCode={dbDemo.config.dressCode}
-              dressDescription={dbDemo.config.dressDescription}
-              alias={dbDemo.config.regalo.alias}
-              cbu={dbDemo.config.regalo.cbu}
-              bankName={dbDemo.config.regalo.banco}
-              holderName={dbDemo.config.regalo.titular}
-            />
-    
-            <Location 
-              venueName={dbDemo.config.ubicacion.lugar}
-              venueAddress={dbDemo.config.ubicacion.direccion}
-              mapLink={dbDemo.config.ubicacion.googleMaps}
-            />
-    
-            {/* Usamos el link de canciones del form directamente */}
-            <MusicSuggestion eventId={""}/>    
-            
-            <RSVP/>
-            
-            <Footer />
+      {/* El sobre maneja la música y el inicio de la experiencia */}
+      <Envelope musicUrl={dbDemo.config.musicaUrl}>
+        
+        <Navbar eventName={dbDemo.nombre} isDemo={true} />
+        
+        {/* HERO: Ahora con el video de fondo y la foto en estrella */}
+        <Hero 
+          eventName={dbDemo.nombre} 
+          heroImage={dbDemo.config.heroImage} 
+          heroVideo={dbDemo.config.heroVideo} 
+        />
+        
+     
+
+        {/* Carousel de fotos con el video adicional */}
+        <FotoCarousel 
+          images={JSON.stringify([
+            "/img_demo/8.webp", 
+            "/img_demo/5.webp", 
+            "/img_demo/6.webp", 
+            "/img_demo/7.webp"
+          ])} 
+          // Asegúrate que este video también exista en public\movie\
+          videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
+        />
+
+        <Details 
+          dressCode={dbDemo.config.dressCode}
+          dressDescription={dbDemo.config.dressDescription}
+          alias={dbDemo.config.regalo.alias}
+          cbu={dbDemo.config.regalo.cbu}
+          bankName={dbDemo.config.regalo.banco}
+          holderName={dbDemo.config.regalo.titular}
+        />
+
+        <Location 
+          venueName={dbDemo.config.ubicacion.lugar}
+          venueAddress={dbDemo.config.ubicacion.direccion}
+          mapLink={dbDemo.config.ubicacion.googleMaps}
+        />
+
+        {/* Sugerencia de música */}
+        <MusicSuggestion eventId={dbDemo.slug}/>    
+        
+        <RSVP />
+        
+        <Footer />
       </Envelope>
     </main>
   );
