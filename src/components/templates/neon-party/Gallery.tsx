@@ -10,7 +10,16 @@ interface FotoCarouselProps {
   images?: string | null;
   videoUrl?: string | null;
 }
-
+const NeonDivider = () => (
+  <div className="absolute bottom-0 left-0 w-full h-[4px] z-[10]">
+    {/* Resplandor difuso (Glow) */}
+    <div className="absolute inset-0 bg-purple-500 blur-[6px] opacity-80" />
+    {/* Línea central brillante */}
+    <div className="absolute inset-0 bg-white opacity-90" />
+    {/* Luz ambiental hacia arriba */}
+    <div className="absolute bottom-0 left-0 w-full h-[20px] bg-gradient-to-t from-purple-600/20 to-transparent" />
+  </div>
+);
 export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
@@ -185,7 +194,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
+    <NeonDivider />
     </section>
   );
 }

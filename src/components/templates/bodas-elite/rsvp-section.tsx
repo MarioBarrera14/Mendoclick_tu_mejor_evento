@@ -5,16 +5,13 @@ import {
   CalendarCheck, X, Loader2, KeyRound 
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
-// Componente de líneas de velocidad sutiles para coherencia visual
+// Componente de líneas de velocidad con Tailwind puro
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
@@ -115,10 +112,11 @@ export function RSVP() {
             <div className="absolute inset-5 md:inset-6 border border-black/80 rounded-full z-10 pointer-events-none" />
             
             <div className="relative w-36 h-36 md:w-48 md:h-48 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] bg-white shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] z-20 aspect-square">
-              <img 
+              <Image 
                 src="/img_boda/gallery-6.jpg" 
                 alt="Pareja" 
-                className="w-full h-full object-cover grayscale contrast-[1.1] brightness-[1.05] rounded-full" 
+                fill
+                className="object-cover grayscale contrast-[1.1] brightness-[1.05]" 
               />
               <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)] z-30 rounded-full pointer-events-none" />
             </div>
@@ -134,7 +132,7 @@ export function RSVP() {
             </p>
 
             <motion.button 
-              whileHover={{ scale: 1.05, translateY: -2, boxShadow: "0_20px_40px_-10px_rgba(181,164,122,0.3)" }} 
+              whileHover={{ scale: 1.05, translateY: -2 }} 
               whileTap={{ scale: 0.98 }} 
               onClick={() => setIsOpen(true)} 
               className="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-[#b5a47a] via-[#e2d1a4] to-[#b5a47a] text-black tracking-[0.3em] text-[10px] uppercase font-black rounded-xl shadow-2xl transition-all flex items-center justify-center gap-3 mx-auto border border-[#b5a47a]/50"

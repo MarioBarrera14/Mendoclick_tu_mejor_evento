@@ -1,8 +1,22 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { CalendarCheck, X, Loader2, KeyRound, CheckCircle2, AlertCircle, PartyPopper, Heart, MessageSquareHeart, Zap } from "lucide-react";
+import { X, Loader2, KeyRound, CheckCircle2, AlertCircle, PartyPopper, Heart, MessageSquareHeart, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+
+
+// Componente de la línea de neón fija
+const NeonDivider = () => (
+  <div className="absolute bottom-0 left-0 w-full h-[4px] z-[10]">
+    {/* Resplandor difuso (Glow) */}
+    <div className="absolute inset-0 bg-purple-500 blur-[6px] opacity-80" />
+    {/* Línea central brillante */}
+    <div className="absolute inset-0 bg-white opacity-90" />
+    {/* Luz ambiental hacia arriba */}
+    <div className="absolute bottom-0 left-0 w-full h-[20px] bg-gradient-to-t from-purple-600/20 to-transparent" />
+  </div>
+);
 
 export function RSVP() {
   const [mounted, setMounted] = useState(false);
@@ -95,67 +109,98 @@ export function RSVP() {
   if (!mounted) return null;
 
   return (
-    <section className="relative py-32 bg-[#0c001a] overflow-hidden">
-            {/* --- DIVISOR ONDULADO SUPERIOR (Conecta con RSVP) --- */}
-      <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-30">
-        <svg 
-          className="relative block w-[calc(160%+1.3px)] h-[60px] md:h-[100px]" 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none"
-        >
-          <path 
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
-            fill="#000000" 
-          />
-        </svg>
-      </div>
-      {/* --- FONDO CON GRID (Igual a Detalles y Footer) --- */}
+    <section className="relative py-24 md:py-40 bg-[#0c001a] overflow-hidden">
+      
+      {/* --- FONDO CON TU IMAGEN NEONBAR --- */}
       <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 opacity-[0.15]" 
-          style={{ 
-            backgroundImage: `linear-gradient(#9333ea 1px, transparent 1px), linear-gradient(90deg, #9333ea 1px, transparent 1px)`,
-            backgroundSize: '45px 45px' 
-          }} 
+        <Image 
+          src="/neonbar.png" 
+          alt="Neon Background" 
+          fill 
+          className="object-cover opacity-50"
+          priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a] opacity-90" />
+        <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      <div className="container mx-auto px-6 text-center relative z-20">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="flex flex-col items-center mb-8">
-           <Zap size={24} className="text-purple-500 mb-4 animate-pulse" fill="currentColor" />
-           <p className="text-purple-400 font-black tracking-[0.5em] mb-4 uppercase text-[10px] italic">
-            Confirma tu lugar
-          </p>
-          <h2 className="text-6xl md:text-8xl font-black italic text-white tracking-tighter uppercase leading-[0.8]">
-            ¡No podés <br /> <span className="text-purple-600">faltar!</span>
-          </h2>
-        </motion.div>
-        
-        <motion.button
-          whileHover={{ scale: 1.05, rotate: -1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsOpen(true)}
-          className="mt-10 px-16 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(147,51,234,0.5)] hover:bg-purple-500 italic"
-        >
-          CONFIRMAR MI ASISTENCIA
-        </motion.button>
+      <div className="container mx-auto px-6 relative z-20">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20">
+          
+          {/* --- COLUMNA IMAGEN (IZQUIERDA) --- */}
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="relative w-full max-w-sm aspect-[3/4] group cursor-pointer"
+          >
+            {/* Resplandor neón exterior */}
+            <div className="absolute -inset-4 bg-purple-600/30 rounded-[3rem] blur-2xl group-hover:bg-purple-500/50 transition-all duration-700" />
+            
+            <div className="relative w-full h-full rounded-[3rem] overflow-hidden border-2 border-purple-500/40 shadow-2xl bg-[#0c001a]">
+              <Image 
+                src="/img_demo/3.webp" 
+                alt="Quinceañera"
+                fill
+                className="object-cover transition-all duration-700 scale-105 group-hover:scale-100 opacity-100 brightness-100"
+                style={{ filter: "none" }} // Sin filtros de color
+              />
+              
+              {/* Overlay suave para que no se corte bruscamente abajo */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0c001a]/80 via-transparent to-transparent opacity-60 pointer-events-none" />
+            </div>
+            
+            {/* Detalle flotante icono Zap */}
+            <div className="absolute -bottom-6 -right-6 bg-purple-600 p-4 rounded-2xl shadow-xl shadow-purple-900/50 z-30 group-hover:scale-110 transition-transform duration-500">
+              <Zap size={24} className="text-white fill-white" />
+            </div>
+          </motion.div>
+
+          {/* --- COLUMNA TEXTO / CARD (DERECHA) --- */}
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-xl"
+          >
+            <p className="text-purple-400 font-black tracking-[0.5em] mb-6 uppercase text-xs italic drop-shadow-lg">
+              R.S.V.P.
+            </p>
+            <h2 className="text-6xl md:text-8xl font-black italic text-white tracking-tighter uppercase leading-[0.8] mb-8 drop-shadow-2xl">
+              ¡No podés <br /> <span className="text-purple-600">faltar!</span>
+            </h2>
+            <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-10 leading-relaxed max-w-md">
+              Queremos compartir esta noche mágica con vos. Por favor, confirma tu asistencia antes del 15 de Mayo.
+            </p>
+
+            <motion.button
+              whileHover={{ scale: 1.05, x: 5 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsOpen(true)}
+              className="px-12 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(147,51,234,0.5)] hover:bg-purple-500 italic flex items-center gap-4"
+            >
+              CONFIRMAR MI ASISTENCIA <Heart size={16} fill="currentColor" />
+            </motion.button>
+          </motion.div>
+
+        </div>
       </div>
 
+      {/* --- MODAL FORMULARIO --- */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={handleClose}
-              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/95 backdrop-blur-2xl"
             />
 
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 50 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.9, y: 50 }}
-              className="relative w-full max-w-lg bg-[#0c001a] rounded-[3rem] shadow-[0_0_60px_rgba(147,51,234,0.2)] overflow-hidden border border-purple-500/30"
+              className="relative w-full max-w-lg bg-[#0c001a] rounded-[3rem] shadow-[0_0_80px_rgba(147,51,234,0.3)] overflow-hidden border border-purple-500/30"
             >
               {!isValidated ? (
                 <div className="p-10 text-center">
@@ -278,6 +323,7 @@ export function RSVP() {
           </div>
         )}
       </AnimatePresence>
+          <NeonDivider />
     </section>
   );
 }

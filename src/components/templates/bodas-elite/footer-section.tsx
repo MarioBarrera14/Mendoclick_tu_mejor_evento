@@ -4,15 +4,11 @@ import { motion } from "framer-motion";
 import { eventConfig } from "@/data/event-config";
 import { MessageCircle, ArrowUpRight, Instagram, ChevronUp } from "lucide-react";
 
-// Componente de líneas de velocidad sutiles
+// Componente de líneas de velocidad con Tailwind puro
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
@@ -31,7 +27,8 @@ export function Footer() {
       
       {/* FONDO UNIFICADO */}
       <div 
-        className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"        />
+        className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
+      />
       
       {/* OVERLAY DE LEGIBILIDAD */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
@@ -139,8 +136,8 @@ export function Footer() {
         </div>
       </div>
 
-      {/* MARCA DE AGUA MÁS PEQUEÑA */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[12vw] font-serif italic text-[#b5a47a]/[0.10] select-none pointer-events-none whitespace-nowrap">
+      {/* MARCA DE AGUA MÁS PEQUEÑA (Tailwind puro) */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[12vw] font-serif italic text-[#b5a47a]/10 select-none pointer-events-none whitespace-nowrap">
         {footer.marca}
       </div>
     </footer>

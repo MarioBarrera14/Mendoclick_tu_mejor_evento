@@ -10,15 +10,11 @@ interface MusicSuggestionProps {
   eventId: string;
 }
 
-// Componente de líneas de velocidad sutiles para coherencia visual
+
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
@@ -76,14 +72,14 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
       />
       
-      {/* OVERLAY CORREGIDO (via-black/40) */}
+      {/* OVERLAY CORREGIDO */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
 
       {/* LÍNEAS DE VELOCIDAD */}
       <SpeedLinesBackground />
 
       <div className="container mx-auto px-6 relative z-10 flex justify-center">
-        {/* TARJETA PRINCIPAL CON MARCO REDONDO TIPO ARTE */}
+        {/* TARJETA PRINCIPAL */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -91,10 +87,10 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           className="flex flex-col items-center group cursor-pointer relative"
           onClick={() => setIsOpen(true)}
         >
-          {/* Resplandor radial en hover */}
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-radial from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full blur-2xl z-0 pointer-events-none" />
 
-          {/* ESTRUCTURA DE MARCO CIRCULAR */}
+          <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle,rgba(0,0,0,0.2)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full blur-2xl z-0 pointer-events-none" />
+
+
           <div className="relative z-10 bg-[#fcfaf2] p-3 md:p-4 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] group-hover:shadow-[0_35px_65px_-12px_rgba(0,0,0,0.9)] mb-6 aspect-square flex items-center justify-center">
             
             <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
@@ -107,7 +103,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
             </div>
           </div>
 
-          {/* TEXTO INFORMATIVO CON SOMBRAS */}
+          {/* TEXTO INFORMATIVO */}
           <div className="text-center px-4 relative z-10">
             <h2 className="text-xl md:text-3xl font-serif italic text-white mb-2 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-500">
               ¿Bailamos?

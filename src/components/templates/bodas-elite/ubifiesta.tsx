@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, MapPin, Church, Wine, X } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 interface Location {
   icon: React.ReactNode;
@@ -15,15 +16,11 @@ interface Location {
   googleMapsUrl: string;
 }
 
-// Componente de líneas de velocidad sutiles para coherencia visual
+// Componente de líneas de velocidad con Tailwind puro
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
@@ -40,25 +37,20 @@ function LocationCard({ location, onOpen }: { location: Location; onOpen: () => 
       {/* ESTRUCTURA DE MARCO REDONDO TIPO ARTE */}
       <div className="relative bg-[#fcfaf2] p-2 md:p-3 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] group-hover:shadow-[0_35px_65px_-12px_rgba(0,0,0,0.9)] mb-6 aspect-square flex items-center justify-center z-10">
         
-        {/* Sombra de profundidad en el paspartú redondo */}
         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
-        
-        {/* Borde metálico oscuro interior redondo (filete) */}
         <div className="absolute inset-4 md:inset-5 border border-black/80 rounded-full z-10 pointer-events-none" />
         
-        {/* Marco Dorado Redondo que contiene la foto */}
         <div className="relative w-32 h-32 md:w-44 md:h-44 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] z-20 transition-all duration-700 aspect-square">
-          <img 
+          <Image 
             src={location.image} 
             alt={location.placeName} 
-            className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100 rounded-full"
+            fill
+            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100"
           />
-          {/* Sombra de profundidad interna redonda */}
           <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(0,0,0,0.7)] z-30 rounded-full pointer-events-none" />
         </div>
       </div>
 
-      {/* TEXTO DEBAJO DEL MARCO CON SOMBRAS PARA LEGIBILIDAD */}
       <div className="text-center px-2 relative z-10">
         <div className="mb-2 text-[#b5a47a] flex justify-center drop-shadow-md transition-transform duration-500 group-hover:scale-110">
           {location.icon}
@@ -104,15 +96,12 @@ export function LocationsSection() {
   return (
     <section className="relative py-20 md:py-28 bg-transparent overflow-hidden">
       
-      {/* FONDO UNIFICADO */}
       <div 
         className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
       />
       
-      {/* OVERLAY DE LEGIBILIDAD (via-black/40) */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
 
-      {/* LÍNEAS DE VELOCIDAD */}
       <SpeedLinesBackground />
 
       <div className="container mx-auto px-6 relative z-10">
@@ -123,7 +112,6 @@ export function LocationsSection() {
         </div>
       </div>
 
-      {/* MODAL PREMIUM */}
       <AnimatePresence>
         {selectedLocation && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -172,6 +160,7 @@ export function LocationsSection() {
                     <a 
                       href={selectedLocation.googleMapsUrl}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center justify-center gap-3 bg-black text-white py-4 rounded-xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-gray-800 transition-all shadow-lg active:scale-95"
                     >
                       <MapPin size={14} /> Cómo llegar

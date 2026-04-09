@@ -12,21 +12,26 @@ import {
   MapPin, 
   Users 
 } from "lucide-react";
+import React from "react";
 
+// Componente de líneas de velocidad con Tailwind puro
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
 
+interface ItineraryStep {
+  time: string;
+  title: string;
+  icon: React.ReactNode;
+  side: "left" | "right";
+}
+
 export function Itinerary() {
-  const steps = [
+  const steps: ItineraryStep[] = [
     { time: "20:00hs", title: "Ceremonia", icon: <Heart size={14} />, side: "left" },
     { time: "21:00hs", title: "Recepción", icon: <Users size={14} />, side: "right" },
     { time: "22:00hs", title: "Entrada", icon: <PartyPopper size={14} />, side: "left" },
@@ -39,7 +44,6 @@ export function Itinerary() {
   return (
     <section className="relative bg-transparent text-white py-16 md:py-24 px-6 overflow-hidden z-10 font-sans">
       
-      {/* FONDO UNIFICADO */}
       <div 
         className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
       />
@@ -67,10 +71,10 @@ export function Itinerary() {
         </h2>
       </motion.div>
 
-      {/* --- LÍNEA DE TIEMPO CENTRADA EN MÓVIL Y DESKTOP --- */}
+      {/* --- LÍNEA DE TIEMPO --- */}
       <div className="relative w-full max-w-4xl mx-auto z-10">
         
-        {/* Línea Central (Ahora centrada también en móvil) */}
+        {/* Línea Central */}
         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#b5a47a]/20 -translate-x-1/2" />
 
         <div className="flex flex-col space-y-12 md:space-y-14"> 
@@ -81,10 +85,10 @@ export function Itinerary() {
                 item.side === "left" ? "md:flex-row-reverse" : "md:flex-row"
               }`}
             >
-              {/* Espaciador para alternar en desktop */}
+              {/* Espaciador para desktop */}
               <div className="hidden md:block w-1/2" />
               
-              {/* ICONO ENMARCADO REDONDO (Centrado en móvil) */}
+              {/* ICONO ENMARCADO REDONDO */}
               <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
                 <div className="bg-[#fcfaf2] p-1.5 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.8)] border border-white/5 aspect-square flex items-center justify-center">
                   <div className="absolute inset-0 shadow-[inset_0_0_8px_rgba(0,0,0,0.1)] rounded-full" />
@@ -94,11 +98,10 @@ export function Itinerary() {
                 </div>
               </div>
 
-              {/* TEXTO CENTRADO EN MÓVIL / ALTERNADO EN DESKTOP */}
+              {/* TEXTO ALTERNADO */}
               <div className={`w-full md:w-1/2 flex flex-col items-center ${
                 item.side === "left" ? "md:items-end md:pr-12" : "md:items-start md:pl-12"
               }`}>
-                {/* Contenedor de texto con ancho fijo en móvil para que no choque con el icono */}
                 <div className={`text-center max-w-[140px] sm:max-w-none ${item.side === "left" ? "md:text-right" : "md:text-left"} ${index % 2 === 0 ? "mr-auto pr-8 md:pr-0 md:mr-0" : "ml-auto pl-8 md:pl-0 md:ml-0"} md:mx-0`}>
                   <span className="block text-[10px] font-bold text-[#b5a47a] uppercase tracking-widest drop-shadow-sm">
                     {item.time}

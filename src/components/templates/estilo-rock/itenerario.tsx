@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { 
   Heart, 
   Utensils, 
@@ -28,25 +29,26 @@ const events: Event[] = [
 
 export default function ItinerarioRetroFinal() {
   return (
-    <section className="relative min-h-screen bg-[#121212] text-white overflow-hidden flex flex-col justify-center font-sans py-10 md:py-10">
-      {/* Fondo de puntos */}
+    <section className="relative min-h-screen bg-[#121212] text-white overflow-hidden flex flex-col justify-center font-sans py-10">
+      
+      {/* Fondo de puntos (Sin style inline) */}
       <div 
-        className="absolute inset-0 opacity-20 pointer-events-none" 
-        style={{ 
-          backgroundImage: 'radial-gradient(circle, #78f7f7 1px, transparent 1px)', 
-          backgroundSize: '22px 22px' 
-        }} 
+        className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle,#78f7f7_1px,transparent_1px)] bg-[size:22px_22px]" 
       />
 
       <div className="container mx-auto px-6 relative z-10 max-w-4xl">
+        
         {/* Encabezado */}
         <div className="text-center mb-10 md:mb-12">
-          <img 
-            src="/img-rock/reloj.png" 
-            alt="Reloj" 
-            className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-1 object-contain"
-          />
-          <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-[#b43c3c] drop-shadow-[3px_3px_0px_#f4e9d8] md:drop-shadow-[4px_4px_0px_#f4e9d8] uppercase leading-none">
+          <div className="relative w-12 h-12 md:w-14 md:h-14 mx-auto mb-1">
+            <Image 
+              src="/img-rock/reloj.png" 
+              alt="Reloj" 
+              fill
+              className="object-contain"
+            />
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-[#b43c3c] [text-shadow:3px_3px_0px_#f4e9d8] md:[text-shadow:4px_4px_0px_#f4e9d8] uppercase leading-none">
             Itinerario
           </h2>
         </div>
@@ -70,7 +72,7 @@ export default function ItinerarioRetroFinal() {
                     isLeft ? "md:flex-row" : "md:flex-row-reverse"
                   } flex-row`}
                 >
-                  {/* Contenedor del Globo: md:w-1/2 para que llegue justo al centro */}
+                  {/* Contenedor del Globo */}
                   <div className={`w-full md:w-1/2 flex ${isLeft ? "md:justify-end md:pr-12" : "md:justify-start md:pl-12"} justify-start pl-12 md:pl-0 z-10`}>
                     <div className={`
                       bg-white border-[2.5px] border-dashed border-[#33aba1] 
@@ -107,7 +109,7 @@ export default function ItinerarioRetroFinal() {
                     {event.icon}
                   </div>
 
-                  {/* Espaciador Desktop (Lado vacío) */}
+                  {/* Espaciador Desktop */}
                   <div className="hidden md:block md:w-1/2" />
                 </motion.div>
               );

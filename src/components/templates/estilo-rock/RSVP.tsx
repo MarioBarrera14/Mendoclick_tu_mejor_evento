@@ -2,8 +2,7 @@
 
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { 
-  X, Loader2, CheckCircle2, 
-  Star, Ticket
+  X, Loader2, Star, Ticket
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -22,7 +21,6 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
-  const [alreadyResponded, setAlreadyResponded] = useState(false);
   const [familyCode, setFamilyCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [guestInfo, setGuestInfo] = useState<any>(null);
@@ -45,7 +43,6 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
 
   const resetAll = () => {
     setIsValidated(false);
-    setAlreadyResponded(false);
     setFamilyCode("");
     setErrorMessage("");
     setGuestInfo(null);
@@ -71,11 +68,6 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
       );
 
       if (invitadoEncontrado) {
-        if (invitadoEncontrado.status !== "PENDING" && invitadoEncontrado.status !== null) {
-          setAlreadyResponded(true);
-          setIsValidated(true);
-          return;
-        }
         setGuestInfo(invitadoEncontrado);
         setIsValidated(true);
         setFormData(prev => ({ ...prev, name: invitadoEncontrado.apellido }));
@@ -93,11 +85,6 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
     if (!formData.name || !formData.attendance) return;
     setIsSubmitting(true);
     try {
-      const dietaFinal = formData.dietary.length > 0 ? formData.dietary.join(", ") : "Ninguna";
-      const infoFinal = formData.message 
-        ? `${dietaFinal} | Mensaje: ${formData.message}` 
-        : dietaFinal;
-
       const response = await fetch("/api/guests", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -105,10 +92,10 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
           code: familyCode.toUpperCase().trim(),
           name: formData.name,
           status: formData.attendance === "YES" ? "CONFIRMED" : "CANCELLED",
-          dietary: infoFinal,
+          dietary: formData.message,
         }),
       });
-      if (response.ok) setAlreadyResponded(true);
+      if (response.ok) setIsOpen(false);
     } catch (error) {
       console.error(error);
     } finally {
@@ -122,15 +109,9 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
   return (
     <section className="relative py-24 md:py-32 bg-[#1a1a1a] overflow-hidden font-sans">
       
-      {/* 1. FONDO DE RAYOS */}
+      {/* 1. FONDO DE RAYOS (Refactorizado sin style inline) */}
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none flex items-center justify-center">
-        <div className="w-[150%] h-[150%] animate-[spin_60s_linear_infinite]" 
-             style={{ 
-               background: `conic-gradient(from 0deg, transparent 0deg 10deg, #b02a30 10deg 20deg, transparent 20deg 30deg, #4fb0a2 30deg 40deg)`,
-               backgroundRepeat: 'repeat',
-               maskImage: 'radial-gradient(circle, black 30%, transparent 70%)'
-             }}>
-        </div>
+        <div className="w-[150%] h-[150%] animate-[spin_60s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg_10deg,#b02a30_10deg_20deg,transparent_20deg_30deg,#4fb0a2_30deg_40deg)] [mask-image:radial-gradient(circle,black_30%,transparent_70%)]" />
       </div>
 
       <div className="container mx-auto px-6 relative z-10 flex justify-center">
@@ -145,17 +126,17 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
           <div className="absolute -top-6 -left-6 text-[#b02a30] text-5xl hidden md:block animate-pulse">✦</div>
           <div className="absolute -bottom-6 -right-6 text-[#4fb0a2] text-5xl hidden md:block animate-pulse">✦</div>
 
-          {/* PARTE IZQUIERDA: FOTO */}
+          {/* PARTE IZQUIERDA: FOTO (Next/Image) */}
           <div className="w-full md:w-1/2 h-[400px] md:h-[600px] relative p-6 bg-white border-r-4 border-black">
             <div className="w-full h-full relative border-2 border-black overflow-hidden group">
-              <img 
+              <Image 
                 src="/img_boda/gallery-2.jpg" 
                 alt="Pareja Rock" 
-                className="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 transition-all duration-700" 
+                fill
+                className="object-cover grayscale brightness-90 group-hover:grayscale-0 transition-all duration-700" 
               />
               <div className="absolute bottom-6 left-6 right-6">
-                <h3 className="font-black text-white text-4xl md:text-5xl uppercase italic tracking-tighter leading-none"
-                    style={{ textShadow: '3px 3px 0px #000' }}>
+                <h3 className="font-black text-white text-4xl md:text-5xl uppercase italic tracking-tighter leading-none [text-shadow:3px_3px_0px_#000]">
                   Confirmar<br/>Asistencia
                 </h3>
               </div>
@@ -182,7 +163,7 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
 
             <button 
               onClick={() => setIsOpen(true)} 
-              className={`${buttonBase} ${buttonBorder} bg-[#b02a30] px-14 py-4 text-lg`}
+              className={`${buttonBase} ${buttonBorder} bg-[#b02a30] px-14 py-4 text-lg appearance-none outline-none`}
             >
               CONFIRMAR
             </button>
@@ -206,7 +187,7 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
               exit={{ scale: 0.5, y: 100, rotate: -5 }} 
               className="relative w-full max-w-xl bg-[#fdfcf0] border-4 border-black p-8 shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] overflow-y-auto max-h-[90vh]"
             >
-              <button onClick={handleClose} className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform">
+              <button onClick={handleClose} className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform appearance-none">
                 <X size={32} strokeWidth={3} />
               </button>
 
@@ -229,7 +210,7 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
                     <button 
                         onClick={handleValidateCode}
                         disabled={isSubmitting}
-                        className={`${buttonBase} ${buttonBorder} bg-[#4fb0a2] w-full py-4 disabled:opacity-50`}
+                        className={`${buttonBase} ${buttonBorder} bg-[#4fb0a2] w-full py-4 disabled:opacity-50 appearance-none`}
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : "ACCEDER AL SHOW"}
                     </button>
@@ -275,7 +256,7 @@ export function RSVP({ confirmationDeadline = "10/08/2026" }: RSVPProps) {
                         <button 
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className={`${buttonBase} ${buttonBorder} bg-[#b02a30] w-full py-4`}
+                            className={`${buttonBase} ${buttonBorder} bg-[#b02a30] w-full py-4 appearance-none`}
                         >
                             {isSubmitting ? <Loader2 className="animate-spin" /> : "ENVIAR CONFIRMACIÓN"}
                         </button>

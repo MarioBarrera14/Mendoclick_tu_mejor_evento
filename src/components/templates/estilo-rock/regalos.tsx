@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Copy, Check, X, CheckCircle2, Ticket } from "lucide-react";
+import { Copy, X, CheckCircle2, Ticket } from "lucide-react";
 
 interface WeddingDetailsProps {
   dressCode?: string | null;
@@ -18,7 +18,7 @@ interface WeddingDetailsProps {
 const buttonBase = "relative text-white px-8 py-3 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 group z-10";
 const buttonBorder = "after:content-[''] after:absolute after:inset-0 after:border-2 after:border-black after:translate-x-1.5 after:translate-y-1.5 after:-z-10 after:transition-transform hover:after:translate-x-0 hover:after:translate-y-0";
 
-// --- MODAL ---
+// --- MODAL REFACTORIZADO ---
 function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   return (
     <AnimatePresence>
@@ -37,10 +37,10 @@ function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; on
             exit={{ opacity: 0, scale: 0.9, rotate: 2 }}
             className="fixed inset-0 m-auto w-[90%] max-w-lg h-fit bg-[#fdfcf0] p-8 md:p-12 z-[101] border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] text-center"
           >
-            <button onClick={onClose} className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform">
+            <button onClick={onClose} className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform appearance-none">
               <X className="w-8 h-8 stroke-[3px]" />
             </button>
-            <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black mb-6 italic" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
+            <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black mb-6 italic [text-shadow:2px_2px_0px_rgba(0,0,0,0.1)]">
               {title}
             </h3>
             <div className="text-black font-medium leading-relaxed">{children}</div>
@@ -51,7 +51,7 @@ function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; on
   );
 }
 
-// --- BOTÓN COPIAR ACTUALIZADO ---
+// --- BOTÓN COPIAR REFACTORIZADO ---
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
@@ -64,13 +64,19 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   return (
     <button 
       onClick={handleCopy} 
-      className={`${buttonBase} ${buttonBorder} bg-white !text-black w-full mb-5`}
+      className={`${buttonBase} ${buttonBorder} bg-white !text-black w-full mb-5 appearance-none outline-none`}
     >
       <div className="flex flex-col items-center">
-        <span className="text-[10px] text-black/60 uppercase tracking-widest font-black leading-none mb-1">{label}</span>
+        <span className="text-[10px] text-black/60 uppercase tracking-widest font-black leading-none mb-1">
+          {label}
+        </span>
         <div className="flex items-center gap-3">
           <span className="font-bold tracking-tight">{text}</span>
-          {copied ? <CheckCircle2 className="w-4 h-4 text-green-600 stroke-[3px]" /> : <Copy className="w-4 h-4 text-black/40" />}
+          {copied ? (
+            <CheckCircle2 className="w-4 h-4 text-green-600 stroke-[3px]" />
+          ) : (
+            <Copy className="w-4 h-4 text-black/40" />
+          )}
         </div>
       </div>
     </button>
@@ -109,16 +115,12 @@ export default function WeddingDetailsSection({
   if (!mounted) return null;
 
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center bg-[#1a1a1a] py-20 px-4 md:px-10 overflow-hidden">
+    <section className="relative min-h-screen w-full flex items-center justify-center bg-[#1a1a1a] py-20 px-4 md:px-10 overflow-hidden font-sans">
       
-      {/* FONDO DE PUNTOS BLANCOS */}
+      {/* FONDO DE PUNTOS BLANCOS (Sin style inline) */}
       <div 
-        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle, white 1px, transparent 1px)`,
-          backgroundSize: '24px 24px'
-        }}
-      ></div>
+        className="absolute inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[size:24px_24px]"
+      />
 
       <div className="relative z-10 flex flex-col md:flex-row gap-12 max-w-6xl w-full items-stretch">
         
@@ -131,12 +133,17 @@ export default function WeddingDetailsSection({
           viewport={{ once: true, amount: 0.1 }}
           className={`${cardBaseStyles} border-[#b02a30]`}
         >
-          <h2 className="text-center text-[#b02a30] text-5xl md:text-6xl font-black uppercase tracking-tighter mb-6 italic" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
+          <h2 className="text-center text-[#b02a30] text-5xl md:text-6xl font-black uppercase tracking-tighter mb-6 italic [text-shadow:2px_2px_0px_rgba(0,0,0,0.1)]">
             Regalos
           </h2>
           <div className="flex-grow flex flex-col items-center justify-center">
             <div className="relative w-24 h-24 mb-6">
-              <Image src="/img-rock/gift-rockabilly.png" alt="Regalo" width={96} height={96} className="object-contain" />
+              <Image 
+                src="/img-rock/gift-rockabilly.png" 
+                alt="Regalo" 
+                fill 
+                className="object-contain" 
+              />
             </div>
             <p className="text-center text-gray-800 font-bold text-lg leading-tight mb-4 uppercase tracking-tighter">
               Nuestro mejor regalo es que nos acompañes, pero si lo deseás...
@@ -145,7 +152,7 @@ export default function WeddingDetailsSection({
           <div className="flex justify-center mt-6">
             <button 
                 onClick={() => setActiveModal("gift")}
-                className={`${buttonBase} ${buttonBorder} bg-[#b02a30] w-full sm:w-auto`}
+                className={`${buttonBase} ${buttonBorder} bg-[#b02a30] w-full sm:w-auto appearance-none outline-none`}
             >
                 <Ticket className="w-5 h-5 rotate-12" />
                 Cuenta Bancaria
@@ -162,7 +169,7 @@ export default function WeddingDetailsSection({
           viewport={{ once: true, amount: 0.1 }}
           className={`${cardBaseStyles} border-[#4fb0a2]`}
         >
-          <h2 className="text-center text-[#4fb0a2] text-5xl md:text-6xl font-black uppercase tracking-tighter mb-6 italic" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.1)' }}>
+          <h2 className="text-center text-[#4fb0a2] text-5xl md:text-6xl font-black uppercase tracking-tighter mb-6 italic [text-shadow:2px_2px_0px_rgba(0,0,0,0.1)]">
             Dress Code
           </h2>
           <div className="flex-grow flex flex-col items-center justify-center">
@@ -181,7 +188,7 @@ export default function WeddingDetailsSection({
           <div className="flex justify-center mt-6">
             <button 
                 onClick={() => setActiveModal("dress")}
-                className={`${buttonBase} ${buttonBorder} bg-[#4fb0a2] w-full sm:w-auto`}
+                className={`${buttonBase} ${buttonBorder} bg-[#4fb0a2] w-full sm:w-auto appearance-none outline-none`}
             >
                 Ver Detalles
             </button>
@@ -209,17 +216,27 @@ export default function WeddingDetailsSection({
           Tu presencia es nuestro mayor regalo. Si deseas colaborar con nuestra luna de miel, aquí tienes los datos:
         </p>
         <div className="space-y-4">
-          <div className="bg-[#b02a30] p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8 transform -rotate-1">
+          {/* Aquí usamos animate para la rotación, evitando style inline */}
+          <motion.div 
+            animate={{ rotate: -1 }}
+            className="bg-[#b02a30] p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-8 transform"
+          >
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/80 mb-1 font-bold text-center">Titular</p>
-            <p className="text-white font-black text-xl uppercase italic text-center leading-tight">{holderName || "Mario & Pareja"}</p>
-          </div>
+            <p className="text-white font-black text-xl uppercase italic text-center leading-tight">
+              {holderName || "Mario & Pareja"}
+            </p>
+          </motion.div>
           
           <div className="space-y-6">
             <CopyButton label="CBU/CVU" text={cbu || "00000000000000000"} />
             <CopyButton label="Alias" text={alias || "ROCK.BODA.MARIO"} />
           </div>
 
-          {bankName && <p className="text-xs text-center font-black uppercase tracking-widest text-black/60 mt-4 border-t-2 border-black/5 pt-4">{bankName}</p>}
+          {bankName && (
+            <p className="text-xs text-center font-black uppercase tracking-widest text-black/60 mt-4 border-t-2 border-black/5 pt-4">
+              {bankName}
+            </p>
+          )}
         </div>
       </DetailModal>
 

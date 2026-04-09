@@ -8,15 +8,11 @@ interface CountdownProps {
   eventTime?: string | null;
 }
 
-// Componente de líneas de velocidad sutiles
+// Componente de líneas de velocidad con Tailwind puro
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
@@ -88,10 +84,9 @@ export function CountdownSection({ eventDate, eventTime }: CountdownProps) {
 
   return (
     <section id="countdown" className="relative bg-transparent pt-24 pb-44 md:pt-40 md:pb-64 overflow-hidden z-0">
-      
-      {/* FONDO UNIFICADO */}
-      <div 
-        className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"        />
+            <div 
+        className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
+      />
 
       {/* OVERLAY DE LEGIBILIDAD */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiLock, FiMail, FiEye, FiEyeOff, FiShield, FiKey, FiX, FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
@@ -53,7 +54,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f4f5] flex items-center justify-center p-6 font-sans text-zinc-900 overflow-hidden">
+    <div className="min-h-screen bg-zinc-100 flex items-center justify-center p-6 font-sans text-zinc-900 overflow-hidden">
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
@@ -74,7 +75,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] bg-rose-50 text-rose-600 p-3 rounded-xl font-black uppercase tracking-widest text-center">
+            <motion.p 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              className="text-[10px] bg-rose-50 text-rose-600 p-3 rounded-xl font-black uppercase tracking-widest text-center"
+            >
               {error}
             </motion.p>
           )}
@@ -104,7 +109,11 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900">
+              <button 
+                type="button" 
+                onClick={() => setShowPass(!showPass)} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900"
+              >
                 {showPass ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
@@ -117,11 +126,14 @@ export default function LoginPage() {
             type="submit"
             className="w-full bg-zinc-950 text-white font-black uppercase py-5 rounded-[1.8rem] hover:bg-rose-600 transition-all shadow-xl tracking-[0.2em] text-[12px] mt-4 disabled:opacity-50 flex justify-center items-center"
           >
-            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Entrar al Panel"}
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              "Entrar al Panel"
+            )}
           </motion.button>
         </form>
 
-        {/* --- LINK AL REGISTRO CON MODAL --- */}
         <div className="mt-8 text-center pt-6 border-t border-zinc-50">
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -151,9 +163,15 @@ export default function LoginPage() {
             />
             <motion.div 
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              animate={{ 
+                opacity: 1, 
+                y: 0, 
+                scale: 1,
+                x: modalError ? [0, -5, 5, -5, 5, 0] : 0 
+              }}
+              transition={{ x: { duration: 0.2, repeat: modalError ? 1 : 0 } }}
               exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="relative w-full max-w-[350px] bg-white rounded-[2rem] p-8 shadow-3xl text-center"
+              className="relative w-full max-w-[350px] bg-white rounded-[2rem] p-8 shadow-2xl text-center"
             >
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -177,7 +195,7 @@ export default function LoginPage() {
                     type="password"
                     autoFocus
                     placeholder="CÓDIGO DE SEGURIDAD"
-                    className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500 animate-shake' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all`}
+                    className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all`}
                     onChange={(e) => setMasterCode(e.target.value)}
                   />
                 </div>
@@ -193,15 +211,6 @@ export default function LoginPage() {
           </div>
         )}
       </AnimatePresence>
-
-      <style jsx global>{`
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-        .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
-      `}</style>
     </div>
   );
 }

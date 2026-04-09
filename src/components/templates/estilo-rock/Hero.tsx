@@ -17,8 +17,7 @@ const AnimatedWaveLine = () => (
     <motion.svg
       viewBox="0 0 1200 120"
       preserveAspectRatio="none"
-      className="relative block w-[300%] h-[61px] md:h-[101px] translate-y-[2px] scale-x-[1.02]"
-      style={{ shapeRendering: "geometricPrecision" }}
+      className="relative block w-[300%] h-[61px] md:h-[101px] translate-y-[2px] scale-x-[1.02] [shape-rendering:geometricPrecision]"
       animate={{ x: ["0%", "-50%"] }}
       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
     >
@@ -41,9 +40,6 @@ export function Hero({ eventName, heroImage, eventDate, eventTime }: HeroProps) 
   const firstName = namesArray[0]?.trim() || "Fanny";
   const lastName = namesArray[1]?.trim() || "Rei";
 
-  const retro3DStyle = { textShadow: `2px 2px 0px #33aba1, 4px 4px 0px #000` };
-  const retro3DStyleLarge = { textShadow: `4px 4px 0px #33aba1, 8px 8px 0px #000` };
-
   useEffect(() => {
     setMounted(true);
     const timer = setInterval(() => {
@@ -65,13 +61,9 @@ export function Hero({ eventName, heroImage, eventDate, eventTime }: HeroProps) 
   if (!mounted) return <section className="h-screen bg-white" />;
 
   return (
-    /* CAMBIO CLAVE: Cambié h-screen por min-h-screen y agregué pb-[15vh] (en mobile) y pb-[20vh] (en desktop).
-       Esto crea un "colchón" invisible de espacio al final de la sección que protege al vinilo 
-       del solapamiento de la sección siguiente, respetando todo tu diseño absolute.
-    */
     <section className="relative min-h-screen flex flex-col items-center bg-white font-sans z-10 pb-[15vh] md:pb-[20vh] overflow-visible">
       
-      {/* FONDO OPTIMIZADO CON NEXT/IMAGE */}
+      {/* FONDO OPTIMIZADO */}
       <div className="absolute inset-0 z-0 h-[85%] md:h-[90%] overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div 
@@ -114,8 +106,8 @@ export function Hero({ eventName, heroImage, eventDate, eventTime }: HeroProps) 
           <div className="relative z-10 w-[85%] md:w-[60%] flex flex-col items-center">
             <div className="relative bg-[#a02133] w-full py-3 md:py-6 flex justify-around items-center shadow-2xl">
               
-              <div className="absolute -left-3 md:-left-12 bottom-[-10px] md:bottom-[-18px] w-6 md:w-20 h-full bg-[#7a1927] -z-10 [clip-path:polygon(0%_0%,_100%_0%,_100%_100%,_0%_100%,_25%_50%)]"></div>
-              <div className="absolute -right-3 md:-right-12 bottom-[-10px] md:bottom-[-18px] w-6 md:w-20 h-full bg-[#7a1927] -z-10 [clip-path:polygon(0%_0%,_100%_0%,_75%_50%,_100%_100%,_0%_100%)]"></div>
+              <div className="absolute -left-3 md:-left-12 bottom-[-10px] md:bottom-[-18px] w-6 md:w-20 h-full bg-[#7a1927] -z-10 [clip-path:polygon(0%_0%,100%_0%,100%_100%,0%_100%,25%_50%)]"></div>
+              <div className="absolute -right-3 md:-right-12 bottom-[-10px] md:bottom-[-18px] w-6 md:w-20 h-full bg-[#7a1927] -z-10 [clip-path:polygon(0%_0%,100%_0%,75%_50%,100%_100%,0%_100%)]"></div>
 
               {[
                 { label: "DÍAS", value: timeLeft.days },
@@ -125,8 +117,7 @@ export function Hero({ eventName, heroImage, eventDate, eventTime }: HeroProps) 
               ].map((item, i) => (
                 <div key={i} className="flex flex-col items-center flex-1 border-r last:border-none border-white/10">
                   <span 
-                    className="text-2xl sm:text-4xl md:text-6xl font-black italic leading-none tracking-tighter text-white"
-                    style={retro3DStyle}
+                    className="text-2xl sm:text-4xl md:text-6xl font-black italic leading-none tracking-tighter text-white [text-shadow:2px_2px_0px_#33aba1,4px_4px_0px_#000]"
                   >
                     {item.value.toString().padStart(2, "0")}
                   </span>
@@ -140,12 +131,12 @@ export function Hero({ eventName, heroImage, eventDate, eventTime }: HeroProps) 
         </motion.div>
       </div>
 
+      {/* TÍTULO PRINCIPAL (Nombres) */}
       <div className="absolute bottom-0 translate-y-[-110px] sm:translate-y-[-140px] md:translate-y-[-200px] z-30 text-center w-full px-2 mb-2">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-black italic text-[2.4rem] sm:text-4xl md:text-5xl lg:text-6xl text-white flex flex-row items-center justify-center gap-x-2 sm:gap-x-3 rotate-[-8deg] tracking-tighter whitespace-nowrap"
-          style={retro3DStyleLarge}
+          className="font-black italic text-[2.4rem] sm:text-4xl md:text-5xl lg:text-6xl text-white flex flex-row items-center justify-center gap-x-2 sm:gap-x-3 rotate-[-8deg] tracking-tighter whitespace-nowrap [text-shadow:4px_4px_0px_#33aba1,8px_8px_0px_#000]"
         >
           <span>{firstName}</span>
           <motion.span 

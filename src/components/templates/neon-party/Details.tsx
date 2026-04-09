@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Check, X, Shirt, Gift, Zap, Sparkles } from "lucide-react";
+import { Copy, Check, X, Shirt, Gift, Zap, Plus } from "lucide-react";
 import { useState } from "react";
 
 interface DetailsProps {
@@ -13,33 +13,16 @@ interface DetailsProps {
   holderName?: string | null;
 }
 
-// --- MODAL BRUTALISTA ---
 function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100]"
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-            className="fixed inset-0 m-auto w-[92%] max-w-lg h-fit bg-[#0c001a] p-8 md:p-12 z-[101] rounded-[3rem] shadow-[0_0_50px_rgba(147,51,234,0.3)] text-center border border-purple-500/30"
-          >
-            <button onClick={onClose} className="absolute top-8 right-8 text-purple-500/50 hover:text-purple-400 transition-colors">
-              <X className="w-8 h-8" />
-            </button>
-            <div className="flex justify-center mb-4 text-purple-500">
-               <Zap size={24} fill="currentColor" />
-            </div>
-            <h3 className="text-5xl font-black italic text-white mb-8 tracking-tighter uppercase">{title}</h3>
-            <div className="text-purple-100/70 font-medium leading-relaxed">{children}</div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100]" />
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="fixed inset-0 m-auto w-[90%] max-w-md h-fit bg-[#0c001a] p-8 md:p-10 z-[101] rounded-[2.5rem] shadow-2xl border border-purple-500/30 text-center">
+            <button onClick={onClose} className="absolute top-6 right-6 text-purple-500/40 hover:text-purple-400 transition-colors"><X size={24} /></button>
+            <h3 className="text-3xl font-black italic text-white mb-6 tracking-tighter uppercase">{title}</h3>
+            <div className="text-purple-100/70 text-sm font-medium leading-relaxed">{children}</div>
           </motion.div>
         </>
       )}
@@ -47,7 +30,6 @@ function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; on
   );
 }
 
-// --- BOTÓN DE COPIAR ---
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
@@ -56,13 +38,12 @@ function CopyButton({ text, label }: { text: string; label: string }) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
   return (
-    <button onClick={handleCopy} className="group w-full py-5 bg-white/5 border border-purple-500/20 rounded-2xl hover:bg-purple-600/10 hover:border-purple-500/50 transition-all flex flex-col items-center gap-1">
-      <span className="text-[10px] text-purple-400 font-black uppercase tracking-[0.3em] mb-1">{label}</span>
-      <div className="flex items-center gap-3">
-        <span className="text-white font-mono font-bold text-lg tracking-tight">{text}</span>
-        {copied ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5 text-purple-500/40 group-hover:text-purple-400" />}
+    <button onClick={handleCopy} className="group w-full py-3 bg-white/5 border border-purple-500/20 rounded-xl hover:bg-purple-600/10 transition-all flex flex-col items-center">
+      <span className="text-[8px] text-purple-400 font-black uppercase tracking-widest">{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="text-white font-mono font-bold text-sm">{text}</span>
+        {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-purple-500/40" />}
       </div>
     </button>
   );
@@ -72,92 +53,69 @@ export function Details({ dressCode, dressDescription, cbu, alias, bankName, hol
   const [activeModal, setActiveModal] = useState<"dress" | "gift" | null>(null);
 
   return (
-    <section className="relative min-h-[80vh] flex flex-col items-center justify-center py-40 bg-[#0c001a] overflow-hidden">
-
-      {/* --- FONDO CON GRID REJILLA --- */}
+    <section className="relative min-h-[60vh] flex flex-col items-center justify-center py-16 bg-[#0c001a] overflow-hidden">
+      
+      {/* --- FONDO CON IMAGEN Y OVERLAY --- */}
       <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 opacity-[0.15]" 
-          style={{ 
-            backgroundImage: `linear-gradient(#9333ea 1px, transparent 1px), linear-gradient(90deg, #9333ea 1px, transparent 1px)`,
-            backgroundSize: '45px 45px' 
-          }} 
+        <img 
+          src="/regalosyropa.png" 
+          alt="Fondo Detalles" 
+          className="w-full h-full object-cover opacity-30 grayscale-[0.2]" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+        {/* Degradado para fundir con el resto del sitio */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a]" />
+        <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      <div className="container mx-auto px-6 relative z-30 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-24"
-          >
-            <h2 className="text-6xl md:text-9xl font-black italic text-white leading-none uppercase tracking-tighter">
-              The <span className="text-purple-600">Info</span>
-            </h2>
-            <div className="flex items-center justify-center gap-3 mt-4">
-               <div className="h-[2px] w-12 bg-purple-600" />
-               <p className="text-purple-400 tracking-[0.6em] text-[10px] md:text-xs uppercase font-black italic">Detalles del Evento</p>
-               <div className="h-[2px] w-12 bg-purple-600" />
-            </div>
+      <div className="container mx-auto px-6 relative z-10">
+        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+          <h2 className="text-5xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
+            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 pr-4">Info</span>
+          </h2>
+          <p className="text-purple-400 tracking-[0.4em] text-[9px] uppercase font-black italic mt-2">Detalles del Evento</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+          {/* CARD: DRESS CODE */}
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="group bg-black/50 backdrop-blur-md border border-purple-500/20 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-purple-500/50 transition-all">
+            <Shirt size={28} className="text-purple-500 mb-4" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 italic mb-2">// Estilo</p>
+            <span className="text-4xl font-black italic text-white uppercase tracking-tighter mb-8 leading-none">{dressCode || "Elegante"}</span>
+            <button onClick={() => setActiveModal("dress")} className="mt-auto flex items-center gap-2 bg-purple-600 hover:bg-white text-white hover:text-black px-6 py-3 rounded-full transition-all text-[10px] font-black uppercase tracking-widest shadow-lg">
+              Ver Detalles <Plus size={14} />
+            </button>
           </motion.div>
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-12 md:gap-32">
-            <motion.button
-              whileHover={{ scale: 1.05, rotate: -3 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveModal("dress")}
-              className="flex flex-col items-center gap-6 group"
-            >
-              <div className="w-32 h-32 rounded-3xl border-2 border-purple-500/20 flex items-center justify-center bg-black shadow-2xl shadow-purple-900/40 group-hover:border-purple-500 transition-all duration-500 relative overflow-hidden">
-                <div className="absolute inset-0 bg-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Shirt className="w-12 h-12 text-white stroke-[1.5px] relative z-10" />
-              </div>
-              <span className="text-white tracking-[0.5em] text-xs uppercase font-black italic">Dress Code</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05, rotate: 3 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveModal("gift")}
-              className="flex flex-col items-center gap-6 group"
-            >
-              <div className="w-32 h-32 rounded-3xl border-2 border-purple-500/20 flex items-center justify-center bg-black shadow-2xl shadow-purple-900/40 group-hover:border-purple-500 transition-all duration-500 relative overflow-hidden">
-                <div className="absolute inset-0 bg-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Gift className="w-12 h-12 text-white stroke-[1.5px] relative z-10" />
-              </div>
-              <span className="text-white tracking-[0.5em] text-xs uppercase font-black italic">Regalos</span>
-            </motion.button>
-          </div>
+          {/* CARD: REGALOS */}
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="group bg-black/50 backdrop-blur-md border border-purple-500/20 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-purple-500/50 transition-all">
+            <Gift size={28} className="text-purple-500 mb-4" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 italic mb-2">// Presentes</p>
+            <span className="text-4xl font-black italic text-white uppercase tracking-tighter mb-8 leading-none">Regalos</span>
+            <button onClick={() => setActiveModal("gift")} className="mt-auto flex items-center gap-2 border-2 border-purple-600 hover:bg-purple-600 text-purple-600 hover:text-white px-6 py-2.5 rounded-full transition-all text-[10px] font-black uppercase tracking-widest">
+              Ver Cuentas <Zap size={14} fill="currentColor" />
+            </button>
+          </motion.div>
+        </div>
       </div>
 
-      {/* --- MODALES (Dress & Gift) --- */}
+      {/* MODALES */}
       <DetailModal isOpen={activeModal === "dress"} onClose={() => setActiveModal(null)} title="Dress Code">
-        <p className="text-lg text-purple-100/60 uppercase tracking-widest mb-6 font-mono font-bold">// Estilo de la noche</p>
-        <div className="my-8 inline-block px-10 py-4 bg-purple-600 text-white rounded-full shadow-[0_0_30px_rgba(147,51,234,0.5)]">
-          <strong className="font-black italic tracking-tighter text-4xl block uppercase leading-none">
-            {dressCode || "Elegante"}
-          </strong>
-        </div>
-        <p className="mt-6 text-sm italic text-purple-200/50 px-6 font-medium leading-relaxed">{dressDescription || "Tu mejor outfit para brillar conmigo."}</p>
+        <div className="bg-purple-600/10 p-5 rounded-2xl border border-purple-500/20 mb-4 text-white text-2xl font-black italic uppercase leading-none">{dressCode || "Elegante"}</div>
+        <p className="italic text-sm leading-relaxed">{dressDescription || "Tu mejor outfit para brillar conmigo en esta noche especial."}</p>
       </DetailModal>
 
       <DetailModal isOpen={activeModal === "gift"} onClose={() => setActiveModal(null)} title="Regalos">
-        <p className="mb-10 text-purple-100/70 font-medium italic">"Tu presencia es mi regalo preferido, pero si querés ayudarme con mi viaje o mis sueños..."</p>
-        <div className="space-y-6">
-          <div className="bg-white/5 p-6 rounded-[2rem] border border-purple-500/10">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-purple-500 mb-2 font-black">Titular</p>
-            <p className="text-white font-black italic text-3xl uppercase tracking-tighter">{holderName || "Luz Jazmín"}</p>
+        <p className="text-xs text-purple-200/50 italic mb-6">Tu presencia es mi mayor regalo, pero si deseas colaborar:</p>
+        <div className="space-y-3">
+          <div className="bg-white/5 p-3 rounded-xl border border-purple-500/10 text-center">
+            <p className="text-[8px] uppercase tracking-widest text-purple-400 font-black">Titular</p>
+            <p className="text-white font-black italic text-lg uppercase tracking-tight leading-none mt-1">{holderName || "Luz Jazmín"}</p>
           </div>
           <CopyButton label="Alias" text={alias || "LUZ.JAZMIN.XV"} />
           <CopyButton label="CBU / CVU" text={cbu || "0000003100000000000000"} />
-          <div className="pt-4 flex items-center justify-center gap-2">
-             <p className="text-[11px] font-black text-white tracking-[0.5em] uppercase">{bankName || "Cuenta Bancaria"}</p>
-          </div>
+          <p className="text-[9px] font-black text-white/20 tracking-widest uppercase mt-2">{bankName || "Cuenta Digital"}</p>
         </div>
       </DetailModal>
-      
     </section>
   );
 }

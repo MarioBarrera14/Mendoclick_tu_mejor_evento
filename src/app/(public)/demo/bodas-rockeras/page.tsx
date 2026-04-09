@@ -64,7 +64,7 @@ export default function NightLightsDemoPage() {
   return (
     <main className="min-h-screen bg-[#fdfcf0] overflow-x-hidden">
 {/* Pasamos los datos hardcodeados a cada componente como si vinieran de DB */}
-      {/*  <Envelope musicUrl={dbDemo.config.musicaUrl}>*/}
+    <Envelope musicUrl={dbDemo.config.musicaUrl}>
       <Navbar />
 
       <Hero
@@ -96,7 +96,7 @@ export default function NightLightsDemoPage() {
       <RSVP />
 <SeparadorEntrePaginas />
       <Footer />
-      {/* </Envelope>*/}
+      </Envelope>
     </main>
   );
 }

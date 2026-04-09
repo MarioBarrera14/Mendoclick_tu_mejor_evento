@@ -13,20 +13,28 @@ interface DetailsProps {
   holderName?: string | null;
 }
 
-// Componente de las líneas de velocidad sutiles
+// Componente de líneas de velocidad con Tailwind puro
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
 
-function DetailModal({ isOpen, onClose, title, children, icon: Icon }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode; icon?: any }) {
+function DetailModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children, 
+  icon: Icon 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  title: string; 
+  children: React.ReactNode; 
+  icon?: React.ElementType 
+}) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -45,7 +53,10 @@ function DetailModal({ isOpen, onClose, title, children, icon: Icon }: { isOpen:
             className="fixed inset-0 m-auto w-[90%] max-w-[400px] h-fit bg-white z-[101] rounded-[2rem] shadow-2xl overflow-hidden"
           >
             <div className="relative p-8 pt-12 flex flex-col items-center">
-              <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+              <button 
+                onClick={onClose} 
+                className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors"
+              >
                 <X size={24} />
               </button>
               
@@ -80,7 +91,10 @@ function CopyItem({ label, value }: { label: string; value: string }) {
   };
 
   return (
-    <div className="flex flex-col text-left group cursor-pointer bg-gray-50 p-3 rounded-xl border border-gray-100" onClick={handleCopy}>
+    <div 
+      className="flex flex-col text-left group cursor-pointer bg-gray-50 p-3 rounded-xl border border-gray-100 transition-colors hover:bg-gray-100" 
+      onClick={handleCopy}
+    >
       <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">{label}</p>
       <div className="flex justify-between items-center">
         <span className="font-bold text-gray-900 text-sm break-all">{value}</span>

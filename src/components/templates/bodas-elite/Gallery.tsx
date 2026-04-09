@@ -42,8 +42,13 @@ export function PhotoGallerySection() {
 
   const togglePlay = (): void => {
     if (videoRef.current) {
-      if (isPlaying) { videoRef.current.pause(); setIsPlaying(false); }
-      else { videoRef.current.play().catch(() => {}); setIsPlaying(true); }
+      if (isPlaying) { 
+        videoRef.current.pause(); 
+        setIsPlaying(false); 
+      } else { 
+        videoRef.current.play().catch(() => {}); 
+        setIsPlaying(true); 
+      }
     }
   };
 
@@ -52,10 +57,9 @@ export function PhotoGallerySection() {
   return (
     <section className="relative py-24 md:py-40 overflow-hidden text-white font-sans">
       
-      {/* --- FONDO --- */}
+      {/* --- FONDO CON TAILWIND --- */}
       <div 
-        className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none"
-        style={{ backgroundImage: "url('/img_boda/galeria.jpg')" }}
+        className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none bg-[url('/img_boda/galeria.jpg')]"
       />
       <div className="absolute inset-0 z-0 bg-black/70 backdrop-blur-[2px] pointer-events-none" />
 
@@ -86,14 +90,14 @@ export function PhotoGallerySection() {
                 whileHover={{ scale: 1.05, y: -10 }}
                 className="relative flex-shrink-0 cursor-pointer group px-4"
               >
-                {/* 1. Paspartú con esquinas redondeadas */}
+                {/* 1. Paspartú */}
                 <div className="relative bg-[#fcfaf2] p-4 md:p-5 rounded-2xl shadow-[0_40px_80px_-15px_rgba(0,0,0,0.9)] border border-white/10 transition-all duration-500">
                   <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] z-10 rounded-2xl pointer-events-none" />
                   
-                  {/* 2. Borde Metálico Redondeado */}
+                  {/* 2. Borde Metálico */}
                   <div className="absolute inset-6 md:inset-7 border border-black/60 z-10 rounded-xl pointer-events-none" />
                   
-                  {/* 3. Marco Dorado Redondeado */}
+                  {/* 3. Marco Dorado */}
                   <div className="relative w-[65vw] md:w-[20vw] aspect-[3/4] overflow-hidden rounded-lg border-[5px] md:border-[8px] border-[#b5a47a] shadow-[inset_0_0_30px_rgba(0,0,0,0.8)] z-20">
                     <Image
                       src={url} 
@@ -119,7 +123,7 @@ export function PhotoGallerySection() {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto"
         >
-          {/* Marco Exterior Redondeado */}
+          {/* Marco Exterior */}
           <div className="relative p-3 bg-white shadow-[0_60px_120px_-20px_rgba(0,0,0,1)] rounded-3xl border-b-4 border-r-4 border-gray-300">
             <div className="relative p-2 md:p-4 bg-[#fcfaf2] border border-black/10 rounded-2xl">
                 <div className="relative aspect-video overflow-hidden bg-black border-[6px] md:border-[10px] border-[#b5a47a] rounded-xl shadow-[inset_0_0_40px_rgba(0,0,0,0.9)] group">
@@ -127,18 +131,30 @@ export function PhotoGallerySection() {
                     ref={videoRef} 
                     src={videoUrl}
                     className="w-full h-full object-cover cursor-pointer transition-transform duration-1000 group-hover:scale-[1.02]" 
-                    loop muted={isMuted} autoPlay playsInline
+                    loop 
+                    muted={isMuted} 
+                    autoPlay 
+                    playsInline
                     onClick={() => setIsVideoModalOpen(true)}
                   />
                   
                   <div className="absolute bottom-6 right-6 flex items-center gap-5 z-30 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <button onClick={(e) => { e.stopPropagation(); togglePlay(); }} className="text-white hover:text-[#b5a47a]">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
+                      className="text-white hover:text-[#b5a47a]"
+                    >
                       {isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }} className="text-white hover:text-[#b5a47a]">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }} 
+                      className="text-white hover:text-[#b5a47a]"
+                    >
                       {isMuted ? <VolumeX size={22} /> : <Volume2 size={22} />}
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); setIsVideoModalOpen(true); }} className="text-white hover:text-[#b5a47a]">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setIsVideoModalOpen(true); }} 
+                      className="text-white hover:text-[#b5a47a]"
+                    >
                       <Maximize2 size={22} />
                     </button>
                   </div>
@@ -152,13 +168,15 @@ export function PhotoGallerySection() {
       <AnimatePresence>
         {selectedImg && (
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
             onClick={() => setSelectedImg(null)}
             className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-md p-4"
           >
              <button className="absolute top-8 right-8 text-white"><X size={40} /></button>
              <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="relative w-full h-[80vh]">
-               <Image src={selectedImg} alt="Full" fill className="object-contain" />
+                <Image src={selectedImg} alt="Full" fill className="object-contain" />
              </motion.div>
           </motion.div>
         )}

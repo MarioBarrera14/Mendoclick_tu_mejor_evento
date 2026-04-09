@@ -9,15 +9,11 @@ interface Witness {
   image: string;
 }
 
-// Componente de líneas de velocidad sutiles para coherencia visual
+
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
-      className="absolute inset-0 opacity-5"
-      style={{
-        backgroundImage: `linear-gradient(to right, white 1px, transparent 1px)`,
-        backgroundSize: '8px 100%',
-      }}
+      className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,white_1px,transparent_1px)] bg-[length:8px_100%]"
     />
   </div>
 );
@@ -33,12 +29,12 @@ export function Witnesses() {
   return (
     <section className="relative py-16 md:py-24 overflow-hidden bg-transparent">
       
-      {/* FONDO UNIFICADO: Imagen de Rosas Negras Nítida */}
+      {/* FONDO UNIFICADO */}
       <div 
         className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
       />
       
-      {/* OVERLAY: Degradado oscurecido (via-black/40) */}
+      {/* OVERLAY */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
 
       {/* LÍNEAS DE VELOCIDAD */}
@@ -62,7 +58,7 @@ export function Witnesses() {
           <div className="w-16 h-px bg-gradient-to-r from-transparent via-[#b5a47a]/40 to-transparent mt-4" />
         </motion.div>
 
-        {/* GRILLA DE TESTIGOS ENMARCADOS REDONDOS */}
+        {/* GRILLA DE TESTIGOS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-14 max-w-5xl mx-auto">
           {witnesses.map((witness, index) => (
             <motion.div
@@ -73,10 +69,10 @@ export function Witnesses() {
               transition={{ delay: index * 0.1, duration: 0.6 }}
               className="flex flex-col items-center group relative"
             >
-              {/* Resplandor radial en hover */}
-              <div className="absolute inset-x-0 top-0 h-40 bg-gradient-radial from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full blur-2xl z-0 pointer-events-none" />
+              {/* Resplandor radial en hover (Tailwind puro) */}
+              <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle,rgba(0,0,0,0.2)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full blur-2xl z-0 pointer-events-none" />
 
-              {/* ESTRUCTURA DE MARCO REDONDO TIPO ARTE */}
+              {/* ESTRUCTURA DE MARCO REDONDO */}
               <div className="relative z-10 bg-[#fcfaf2] p-2 md:p-3 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] group-hover:shadow-[0_30px_60px_-10px_rgba(0,0,0,0.9)] mb-6 aspect-square flex items-center justify-center">
                 
                 <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
@@ -86,21 +82,21 @@ export function Witnesses() {
                   <Image 
                     src={witness.image} 
                     alt={witness.name} 
-                    width={160}
-                    height={160}
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110 rounded-full aspect-square" 
+                    fill
+                    sizes="(max-width: 768px) 128px, 160px"
+                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" 
                   />
                   <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(0,0,0,0.7)] z-30 rounded-full pointer-events-none" />
                 </div>
               </div>
 
-              {/* TEXTO ESTILIZADO CON SOMBRAS */}
+              {/* TEXTO ESTILIZADO */}
               <div className="text-center px-2 relative z-10">
                 <h3 className="text-lg md:text-xl font-serif italic text-white mb-1 tracking-tight leading-snug drop-shadow-md group-hover:drop-shadow-lg transition-all duration-500">
                   {witness.name}
                 </h3>
                 <div className="w-6 h-px bg-[#b5a47a]/30 mx-auto mb-1.5 shadow-sm" />
-                <p className="text-[8px] md:text-[9px] tracking-[0.2em] uppercase font-bold text-[#b5a47a] leading-tight opacity-80 group-hover:opacity-100 transition-all drop-shadow-sm">
+                <p className="text-[8px] md:text-[9px] tracking-[0.2em] uppercase font-bold text-[#b5a47a] leading-tight opacity-80 group-hover:opacity-100 transition-all drop-shadow-sm font-sans">
                   {witness.role}
                 </p>
               </div>
