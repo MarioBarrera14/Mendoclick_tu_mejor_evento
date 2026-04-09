@@ -8,7 +8,9 @@ import {
   PhotoGallerySection,
   MusicSuggestion,
   Navbar,
+  LocationsSection,
   Witnesses,
+  SeparadorEntrePaginas,
 } from "@/components/templates/bodas-elite";
 import { Metadata } from "next";
 
@@ -26,21 +28,26 @@ export default function WeddingPage() {
 
       {/* El Countdown suele ir inmediatamente después para generar expectativa */}
       <CountdownSection />
-
-      {/* Detalles del evento: Fecha, hora y lugar */}
-      <Itinerary />
-<Witnesses/>
-      {/* Galería de fotos para emocionar a los invitados */}
+      <SeparadorEntrePaginas/>
+ {/* Galería de fotos para emocionar a los invitados */}
       <PhotoGallerySection />
-
+      <SeparadorEntrePaginas/>
+     
+      <Itinerary />
+      <SeparadorEntrePaginas/>
+      <LocationsSection/>
+      <SeparadorEntrePaginas/>
+<Witnesses/>
+     
+<SeparadorEntrePaginas/>
 <MusicSuggestion eventId={""}/>
       {/* Información práctica: Cómo ir y cómo vestirse */}
-
+<SeparadorEntrePaginas/>
       <Details />
-
+<SeparadorEntrePaginas/>
       {/* Regalos y Confirmación (RSVP) suelen ir al final */}
       <RSVP />
-
+<SeparadorEntrePaginas/>
       <Footer />
     </main>
   );
