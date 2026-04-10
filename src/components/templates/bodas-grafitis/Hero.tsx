@@ -42,7 +42,7 @@ export function Hero({ eventName, heroImage }: HeroProps) {
   }, []);
 
   return (
-    <section className="relative h-screen flex flex-col items-center justify-between overflow-hidden bg-[#38b2ac] font-['Permanent_Marker',_cursive]">
+    <section className="relative h-screen flex flex-col items-center justify-end overflow-hidden bg-[#38b2ac] font-['Permanent_Marker',_cursive]">
       
       {/* IMAGEN DE FONDO */}
       <div className="absolute inset-0 z-0">
@@ -70,12 +70,15 @@ export function Hero({ eventName, heroImage }: HeroProps) {
         <div className="w-full h-[100px] md:h-[180px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
       </div>
 
-      {/* CONTENIDO CENTRAL - Bajado mediante un margin top mayor */}
-      <div className="relative z-30 flex flex-col items-center text-center px-4 mt-[25vh] md:mt-[30vh]">
+      {/* CONTENIDO COMBINADO (Nombres + Contador) */}
+      <div className="relative z-30 flex flex-col items-center text-center px-4 w-full pb-24 md:pb-32">
+        {/* pb-24 asegura que el contenido no quede tapado por el graffiti de abajo */}
+        
+        {/* Corazón */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="relative w-14 h-14 md:w-20 md:h-20 mb-2"
+          className="relative w-12 h-12 md:w-16 md:h-16 mb-2"
         >
           <Image 
             src="/images/img-grafitis/graffiti-corazon.png" 
@@ -85,8 +88,9 @@ export function Hero({ eventName, heroImage }: HeroProps) {
           />
         </motion.div>
 
-        <div className="flex flex-col items-center gap-0">
-          <p className="text-white text-base md:text-xl tracking-[0.3em] drop-shadow-lg font-sans font-bold leading-none">
+        {/* Bloque Nombres */}
+        <div className="flex flex-col items-center mb-6">
+          <p className="text-white text-sm md:text-lg tracking-[0.3em] drop-shadow-lg font-sans font-bold leading-none">
             12 . 09 . 2026
           </p>
 
@@ -94,16 +98,13 @@ export function Hero({ eventName, heroImage }: HeroProps) {
             {firstName} & {lastName}
           </h1>
 
-          <h2 className="text-white text-xl md:text-3xl tracking-wide drop-shadow-lg opacity-95 leading-none">
+          <h2 className="text-white text-lg md:text-2xl tracking-wide drop-shadow-lg opacity-95 leading-none mt-1">
             ¡Nuestra Boda!
           </h2>
         </div>
-      </div>
 
-      {/* CONTADOR Y GRAFFITI INFERIOR PEQUEÑOS Y AL PIE */}
-      <div className="relative w-full z-50 flex flex-col items-center">
-        {/* Contador pegado al separador */}
-        <div className="mb-[-20px] md:mb-[-40px] text-center relative z-10 translate-y-[-10px]">
+        {/* Bloque Contador */}
+        <div className="text-center">
           <p className="text-white text-[10px] md:text-xs mb-1 font-sans tracking-[0.4em] font-black uppercase opacity-90">Faltan</p>
           <div className="flex gap-4 md:gap-10 items-end justify-center text-white">
             {[
@@ -119,10 +120,13 @@ export function Hero({ eventName, heroImage }: HeroProps) {
             ))}
           </div>
         </div>
-
-        {/* GRAFFITI INFERIOR - Al borde inferior de la pantalla */}
-        <div className="w-full h-[80px] md:h-[120px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]" />
       </div>
+
+      {/* GRAFFITI INFERIOR - CORRECCIÓN: Fuera del div de contenido para pantalla completa */}
+      <div className="absolute bottom-0 left-0 w-full z-40 pointer-events-none">
+        <div className="w-full h-[120px] md:h-[200px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]" />
+      </div>
+
     </section>
   );
 }

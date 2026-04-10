@@ -20,7 +20,7 @@ const dbDemo = {
   tipoEvento: "Nos Casamos",
   fecha: new Date("2027-12-19T19:00:00"),
   config: {
-    heroImage: "/img_boda/bode_casado.jpg",
+    heroImage: "/img_boda/grafiteros.webp",
     musicaUrl: "/audio/Pitbull x Play N Skillz Party of a Lifetime Lyric Video.mp3", // Si tienes un audio de fondo
     personal: {
       titulo: "¡Nuestra Boda!",
