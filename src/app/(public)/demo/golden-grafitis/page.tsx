@@ -10,7 +10,7 @@ import {
   MusicSuggestion,
   Navbar,
   Witnesses,
-} from "@/components/templates/golden-bday";
+} from "@/components/templates/golden-grafitis";
 import { Metadata } from "next";
 
 // Simulación de la respuesta de la base de datos (Hardcoded)
