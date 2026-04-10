@@ -1,6 +1,6 @@
 import {
   Hero,
-  Countdown,
+  Itinerary,
   Location,
   Details,
   RSVP,
@@ -95,7 +95,7 @@ export default async function NeonPartyDemoPage() {
           // Asegúrate que este video también exista en public\movie\
           videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
         />
-
+<Itinerary/>
         <Details 
           dressCode={dbDemo.config.dressCode}
           dressDescription={dbDemo.config.dressDescription}

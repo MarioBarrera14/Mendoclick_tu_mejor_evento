@@ -10,16 +10,14 @@ interface CountdownProps {
 
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex flex-col items-center min-w-[75px] md:min-w-[120px] relative z-20">
-      <motion.span 
-        key={value}
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="text-5xl md:text-7xl font-serif text-amber-50 tracking-tighter drop-shadow-[0_0_15px_rgba(251,191,36,0.4)]"
-      >
-        {value.toString().padStart(2, "0")}
-      </motion.span>
-      <span className="text-[10px] md:text-xs text-amber-200/50 tracking-[0.4em] uppercase mt-2 font-bold">
+    <div className="flex flex-col items-center gap-2 md:gap-3 flex-1 min-w-[70px] max-w-[100px]">
+      {/* Tamaño reducido: w-16 en móvil, w-24 en desktop */}
+      <div className="w-16 h-16 md:w-24 md:h-24 bg-white/50 backdrop-blur-md border border-[#4B664B]/10 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+        <span className="text-2xl md:text-5xl font-serif text-[#4B664B]">
+          {value.toString().padStart(2, "0")}
+        </span>
+      </div>
+      <span className="text-[8px] md:text-xs text-[#4B664B]/70 tracking-[0.2em] md:tracking-[0.3em] uppercase font-bold">
         {label}
       </span>
     </div>
@@ -58,60 +56,72 @@ export function Countdown({ eventDate, eventTime }: CountdownProps) {
     return () => clearInterval(timer);
   }, [finalDate, finalTime]);
 
+  const wavePath = "M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z";
+
   if (!mounted) return null;
 
   return (
-    <section className="relative min-h-[70vh] flex flex-col items-center justify-center pt-32 pb-48 overflow-visible bg-[#1e0f00]">
-      
-      {/* FONDO DE GRADIENTE CINEMATOGRÁFICO */}
-      <div 
-        className="absolute inset-0 z-10 pointer-events-none"
-        style={{
-          background: "linear-gradient(to bottom, rgba(116, 73, 17, 1) 0%, rgba(30, 15, 0, 1) 100%)"
-        }}
-      />
+    <section 
+      className="relative pt-20 pb-32 md:pt-32 md:pb-48 overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/footers.jpg')" }}
+    >
+      <div className="absolute inset-0 bg-[#94a994]/50 z-0" />
 
-      <div className="container mx-auto px-4 relative z-20 text-center">
-        <div className="mb-16 space-y-4">
-          <motion.p 
-            initial={{ opacity: 0, letterSpacing: "0.2em" }}
-            whileInView={{ opacity: 1, letterSpacing: "0.5em" }}
-            className="text-amber-200/60 text-[10px] md:text-xs uppercase font-semibold"
-          >
-            {formattedDate}
-          </motion.p>
-          <h2 className="font-serif italic text-4xl md:text-7xl text-amber-50 drop-shadow-2xl">
-            ¡La fiesta del año!
-          </h2>
-          <div className="pt-8 flex flex-col items-center gap-2">
-            <div className="h-8 w-[1px] bg-gradient-to-b from-amber-500/50 to-transparent" />
-            <p className="text-amber-400/40 text-[9px] tracking-[0.6em] uppercase font-black">Cuenta Regresiva</p>
+      <div className="container mx-auto px-4 relative z-20">
+        {/* Tarjeta achicada: max-w-2xl y padding reducido en móvil */}
+        <div className="max-w-2xl mx-auto bg-white/20 backdrop-blur-md rounded-[2rem] md:rounded-[3rem] p-6 py-10 md:p-12 shadow-xl border border-white/40 text-center">
+          
+          <div className="mb-8 md:mb-12 space-y-2">
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-[#4B664B] tracking-[0.3em] text-[10px] md:text-xs uppercase font-black"
+            >
+              {formattedDate}
+            </motion.p>
+            <h2 className="font-serif italic text-3xl md:text-5xl text-[#4B664B] leading-tight px-2">
+              ¡La fiesta del año!
+            </h2>
+            <div className="pt-4">
+              <p className="text-[#4B664B]/40 text-[10px] md:text-[13px] tracking-[0.4em] uppercase font-bold">Faltan..</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex justify-center items-center gap-4 md:gap-12 bg-white/5 backdrop-blur-sm py-10 px-6 md:px-12 rounded-3xl border border-white/10 shadow-2xl">
-          <CountdownUnit value={timeLeft.days} label="Días" />
-          <div className="h-10 w-[1px] bg-white/10 hidden md:block" />
-          <CountdownUnit value={timeLeft.hours} label="Horas" />
-          <div className="h-10 w-[1px] bg-white/10 hidden md:block" />
-          <CountdownUnit value={timeLeft.minutes} label="Minutos" />
-          <div className="h-10 w-[1px] bg-white/10 hidden md:block" />
-          <CountdownUnit value={timeLeft.seconds} label="Segundos" />
+          {/* Grid responsive para los contadores */}
+          <div className="flex flex-row justify-center items-center gap-2 md:gap-6 max-w-md mx-auto">
+            <CountdownUnit value={timeLeft.days} label="Días" />
+            <CountdownUnit value={timeLeft.hours} label="Horas" />
+            <CountdownUnit value={timeLeft.minutes} label="Min" />
+            <CountdownUnit value={timeLeft.seconds} label="Seg" />
+          </div>
         </div>
       </div>
 
-      {/* --- SEPARADOR DE ONDAS SVG --- */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-50 transform translate-y-[98%]">
-        <svg 
+      {/* --- OLAS INFERIORES ADAPTADAS --- */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-10">
+        <motion.svg 
           viewBox="0 0 1200 120" 
           preserveAspectRatio="none" 
-          className="relative block w-full h-[80px] md:h-[150px]"
+          className="relative block w-[200%] h-[50px] md:h-[100px]"
+          style={{ rotate: 180 }}
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 30, ease: "linear", repeat: Infinity }}
         >
-          <path 
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
-            fill="#1e0f00" // <--- Aquí está el truco: color exacto del fondo de la galería
-          ></path>
-        </svg>
+          <path d={wavePath} fill="#ffffff" fillOpacity="0.25" />
+          <path d={wavePath} x="1200" fill="#ffffff" fillOpacity="0.25" />
+        </motion.svg>
+
+        <motion.svg 
+          viewBox="0 0 1200 120" 
+          preserveAspectRatio="none" 
+          className="absolute bottom-0 left-0 block w-[200%] h-[40px] md:h-[80px]"
+          style={{ rotate: 180 }}
+          animate={{ x: ["-50%", "0%"] }}
+          transition={{ duration: 25, ease: "linear", repeat: Infinity }}
+        >
+          <path d={wavePath} fill="#F9FAF7" />
+          <path d={wavePath} x="1200" fill="#F9FAF7" />
+        </motion.svg>
       </div>
     </section>
   );

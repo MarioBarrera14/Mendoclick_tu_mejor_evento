@@ -1,8 +1,10 @@
 "use client";
 
-import { motion, AnimatePresence, Variants } from "framer-motion"; // Importamos Variants
+import { motion, AnimatePresence } from "framer-motion";
 import { eventConfig as localConfig } from "@/data/event-config";
-import { Sparkles } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface HeroProps {
   eventName?: string | null;
@@ -10,92 +12,118 @@ interface HeroProps {
 }
 
 export function Hero({ eventName, heroImage }: HeroProps) {
-  const displayName = eventName || localConfig.personal.nombre;
-  const currentImage = heroImage || localConfig.imagenes.hero;
+  const rawNames = eventName || localConfig.personal.nombre || "Ariadna";
+  const namesArray = rawNames.split(/[&,]/);
+  const firstName = namesArray[0]?.trim() || "Ariadna";
+  
 
-  // DEFINICIÓN DE VARIANTES CON TIPO EXPLÍCITO PARA EVITAR ERRORES
-  const balloonVariants: Variants = {
-    initial: { y: 20, opacity: 0 },
-    animate: (delay: number) => ({
-      y: [-20, 20, -20],
-      opacity: 1,
-      transition: {
-        y: {
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: delay,
-        },
-        opacity: { duration: 1, delay: delay },
-      },
-    }),
-  };
+
+  const currentImage = (heroImage && heroImage !== "") 
+    ? heroImage 
+    : localConfig.imagenes.hero;
+
+  const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date("2026-09-12T20:00:00");
+    const timer = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate.getTime() - now.getTime();
+      if (difference <= 0) {
+        clearInterval(timer);
+      } else {
+        setTimeLeft({
+          dias: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          min: Math.floor((difference / 1000 / 60) % 60),
+          seg: Math.floor((difference / 1000) % 60),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <section
-      className="relative w-full min-h-screen flex justify-center overflow-hidden"
-      style={{
-        backgroundImage: "url('/fon.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* CAPAS DE DEGRADADO */}
-      <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: "radial-gradient(circle, rgba(153, 45, 45, 0) 50%, rgba(217, 119, 6, 0.43) 100%)" }} />
-      <div className="absolute bottom-0 left-0 w-full h-40 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, rgb(116, 73, 17) 0%, rgba(69, 39, 0, 0) 100%)" }} />
+    <section className="relative h-screen flex flex-col items-center justify-between overflow-hidden bg-[#38b2ac] font-['Permanent_Marker',_cursive]">
+      
+      {/* IMAGEN DE FONDO */}
+      <div className="absolute inset-0 z-0">
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={currentImage} 
+            className="relative w-full h-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
+          >
+            <Image
+              src={currentImage}
+              alt="Portada de Boda"
+              fill
+              className="object-cover object-center brightness-[0.85]"
+              priority
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
-      <div className="relative z-10 w-full max-w-[950px] min-h-screen flex flex-col items-center justify-between py-10 pt-24 md:pt-30">
+      {/* GRAFFITI SUPERIOR */}
+      <div className="absolute top-0 left-0 w-full z-40 pointer-events-none">
+        <div className="w-full h-[100px] md:h-[180px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+      </div>
 
-        {/* TEXTO SUPERIOR */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center relative z-20">
-          <p className="tracking-[0.3em] text-[10px] text-amber-900 uppercase">You are invited to</p>
-          <h2 className="text-amber-900 text-6xl md:text-7xl font-serif">Birthday</h2>
-          <h1 className="text-7xl md:text-[110px] font-script -mt-4 text-amber-900">Party</h1>
+      {/* CONTENIDO CENTRAL - Bajado mediante un margin top mayor */}
+      <div className="relative z-30 flex flex-col items-center text-center px-4 mt-[25vh] md:mt-[30vh]">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative w-14 h-14 md:w-20 md:h-20 mb-2"
+        >
+          <Image 
+            src="/images/img-grafitis/graffiti-corazon.png" 
+            alt="Corazon Graffiti"
+            fill
+            className="object-contain drop-shadow-xl"
+          />
         </motion.div>
 
-        {/* CENTRO (FOTO Y GLOBOS) */}
-        <div className="relative flex items-center justify-center w-full">
-          <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="relative w-[260px] h-[260px] md:w-[420px] md:h-[420px] rounded-full border-[8px] border-amber-400 p-3 bg-white z-30 shadow-xl">
-            <div className="w-full h-full rounded-full overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.img key={currentImage} src={currentImage} className="w-full h-full object-cover" />
-              </AnimatePresence>
-            </div>
-          </motion.div>
+        <div className="flex flex-col items-center gap-0">
+          <p className="text-white text-base md:text-xl tracking-[0.3em] drop-shadow-lg font-sans font-bold leading-none">
+            12 . 09 . 2026
+          </p>
 
-          {/* GLOBOS - SIN ERRORES DE TS */}
-          <motion.img variants={balloonVariants} custom={0} initial="initial" animate="animate" src="/Globos.png" className="absolute left-0 top-20 w-80 z-10" />
-          <motion.img variants={balloonVariants} custom={2} initial="initial" animate="animate" src="/Globos.png" className="absolute right-0 bottom-40 w-80 scale-x-[-1] z-10" />
-          <motion.img variants={balloonVariants} custom={1} initial="initial" animate="animate" src="/glo1.png" className="absolute -left-48 -top-48 w-[320px] z-10" />
-          <motion.img variants={balloonVariants} custom={2} initial="initial" animate="animate" src="/glo1.png" className="absolute -right-48 -bottom-48 w-[320px] scale-x-[-1] z-10" />
+          <h1 className="text-5xl md:text-7xl lg:text-8xl text-white leading-[1.1] drop-shadow-2xl uppercase tracking-tighter whitespace-nowrap">
+            {firstName}
+          </h1>
+
+          <h2 className="text-white text-xl md:text-3xl tracking-wide drop-shadow-lg opacity-95 leading-none">
+            ¡Mis 15!
+          </h2>
+        </div>
+      </div>
+
+      {/* CONTADOR Y GRAFFITI INFERIOR PEQUEÑOS Y AL PIE */}
+      <div className="relative w-full z-50 flex flex-col items-center">
+        {/* Contador pegado al separador */}
+        <div className="mb-[-20px] md:mb-[-40px] text-center relative z-10 translate-y-[-10px]">
+          <p className="text-white text-[10px] md:text-xs mb-1 font-sans tracking-[0.4em] font-black uppercase opacity-90">Faltan</p>
+          <div className="flex gap-4 md:gap-10 items-end justify-center text-white">
+            {[
+              { val: timeLeft.dias, lab: "Días" },
+              { val: timeLeft.horas, lab: "Horas" },
+              { val: timeLeft.min, lab: "Mins" },
+              { val: timeLeft.seg, lab: "Segs" }
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center min-w-[45px] md:min-w-[60px]">
+                <span className="text-2xl md:text-5xl leading-none">{item.val}</span>
+                <span className="text-[7px] md:text-[9px] font-sans mt-1 tracking-widest font-bold opacity-80 uppercase">{item.lab}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* DISPLAY NAME - DISEÑO MEJORADO */}
-        <div className="text-center pb-12 relative z-30 px-4 w-full max-w-2xl">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            className="relative border-y border-amber-400/30 py-10 flex flex-col items-center justify-center bg-white/10 backdrop-blur-md rounded-[40px] shadow-[0_20px_50px_rgba(116,73,17,0.1)]"
-          >
-            <Sparkles className="absolute top-4 left-6 text-amber-600/40 animate-pulse" size={24} />
-            <Sparkles className="absolute bottom-4 right-6 text-amber-600/40 animate-bounce" size={20} />
-
-            <span className="text-[10px] tracking-[0.6em] text-amber-900/60 uppercase font-black mb-2">
-              The Queen of the Night
-            </span>
-            
-            <h3 className="text-6xl md:text-9xl font-serif italic text-amber-950 tracking-tighter leading-none drop-shadow-xl">
-              {displayName}
-            </h3>
-
-            <div className="flex items-center gap-4 mt-6">
-              <div className="h-[1px] w-8 md:w-16 bg-amber-400" />
-              <div className="w-2 h-2 rounded-full bg-amber-600 rotate-45" />
-              <div className="h-[1px] w-8 md:w-16 bg-amber-400" />
-            </div>
-          </motion.div>
-        </div>
-
+        {/* GRAFFITI INFERIOR - Al borde inferior de la pantalla */}
+        <div className="w-full h-[80px] md:h-[120px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]" />
       </div>
     </section>
   );

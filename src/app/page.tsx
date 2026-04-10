@@ -38,7 +38,7 @@ const testData = {
 };
 
 const allDesigns = [
-  { id: '01', title: 'Night Lights', img: '/img_demo/plantilla1_15.png', link: '/demo/night-lights', tag: 'MODERN', category: '15_AÑOS' },
+{ id: '01', title: 'Champagne', img: '/img_demo/plantilla1_15.png', link: '/demo/champagne', tag: 'LUXURY', category: '15_AÑOS' },
   { id: '02', title: 'Neon Party', img: '/img_demo/plantilla2_15.png', link: '/demo/neon-party', tag: 'VIBRANT', category: '15_AÑOS' },
   { id: '03', title: 'Golden B-Day', img: '/img_demo/plantilla3_15.png', link: '/demo/golden-bday', tag: 'LUXURY', category: '15_AÑOS' },
 { 

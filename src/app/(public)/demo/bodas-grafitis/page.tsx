@@ -10,7 +10,7 @@ import {
   MusicSuggestion,
   Navbar,
   Witnesses,
-} from "@/components/templates/wedding";
+} from "@/components/templates/bodas-grafitis";
 import { Metadata } from "next";
 
 // Simulación de la respuesta de la base de datos (Hardcoded)

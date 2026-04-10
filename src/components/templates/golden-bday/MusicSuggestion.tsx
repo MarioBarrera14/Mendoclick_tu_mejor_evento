@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Disc3, Music, Headset, X, Send, Loader2, KeyRound } from "lucide-react";
+import { X, Send, Loader2, KeyRound, Music as MusicIcon } from "lucide-react";
 import { submitSongSuggestions } from "@/app/api/admin/songs/route";
+import Image from "next/image";
 import Swal from "sweetalert2";
 
 interface MusicSuggestionProps {
@@ -16,8 +17,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
 
-  const bars = Array.from({ length: 40 });
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSongs((prev) => ({ ...prev, [name]: value }));
@@ -25,212 +24,184 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!guestCode.trim()) {
-      Swal.fire({
-        title: "Falta un detalle",
-        text: "Por favor, ingresa tu código de invitado",
-        icon: "info",
-        confirmButtonColor: "#B87321"
+      Swal.fire({ 
+        title: "Falta el código", 
+        text: "Ingresa tu código de invitado", 
+        icon: "info", 
+        confirmButtonColor: "#5ba394" 
       });
       return;
     }
-
-    if (!songs.tema1 && !songs.tema2 && !songs.tema3) {
-      Swal.fire({
-        title: "¡Ups!",
-        text: "Escribe al menos una canción",
-        icon: "warning",
-        confirmButtonColor: "#B87321"
-      });
-      return;
-    }
-
+    
     setIsSending(true);
-
     try {
       const result = await submitSongSuggestions(eventId, guestCode, songs);
-
       if (result.success) {
         setIsOpen(false);
         setSongs({ tema1: "", tema2: "", tema3: "" });
         setGuestCode("");
-        
-        Swal.fire({
-          title: "¡DJ Notificado!",
-          text: "Tus sugerencias fueron enviadas con éxito. 🎵",
-          icon: "success",
-          confirmButtonColor: "#B87321",
-          customClass: { popup: 'rounded-[2rem] font-serif' }
+        Swal.fire({ 
+          title: "¡DJ Notificado!", 
+          text: "Tus temas ya están en la lista. 🎵", 
+          icon: "success", 
+          confirmButtonColor: "#5ba394"
         });
       } else {
-        Swal.fire({
-          title: "Código inválido",
-          text: result.error || "El código no pertenece a la lista de invitados.",
-          icon: "error",
-          confirmButtonColor: "#5d4037"
-        });
+        Swal.fire({ title: "Error", text: result.error || "Código inválido", icon: "error", confirmButtonColor: "#d29b7b" });
       }
     } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo enviar la sugerencia",
-        icon: "error"
-      });
+      Swal.fire({ title: "Error", text: "No se pudo enviar", icon: "error", confirmButtonColor: "#d29b7b" });
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <section className="relative py-32 bg-[#fdfaf1] overflow-hidden">
+    <section className="relative py-20 overflow-hidden bg-[url('/images/img-grafitis/radio.png')] bg-cover bg-center mb-[-1px]">
       
-      {/* --- CAPA DE DEGRADADO RADIAL (Igual a Location) --- */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, rgba(216, 191, 162, 0.16) 40%, rgba(160, 119, 69, 0.4) 100%)"
-        }}
-      />
-
-      {/* ECUALIZADOR EN TONOS ORO/MARRÓN */}
-      <div className="absolute bottom-24 left-0 w-full flex justify-center items-end gap-1 px-4 opacity-20 z-0 h-20">
-        {bars.map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{ height: [Math.random() * 20 + 10, Math.random() * 80 + 20, Math.random() * 20 + 10] }}
-            transition={{ duration: Math.random() * 0.5 + 0.5, repeat: Infinity, ease: "easeInOut" }}
-            className="w-1 md:w-2 bg-[#B87321] rounded-full"
-          />
-        ))}
+      {/* SEPARADOR GRAFITERO SUPERIOR */}
+      <div className="absolute top-0 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
+        <div 
+          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          /* bg-[#e0f2f1] debe ser el color de la sección ANTERIOR a esta */
+        />
       </div>
 
-      <div className="container mx-auto px-6 relative z-30 text-center flex flex-col items-center">
-        
-        {/* ICONO DEL DISCO EN TONO ORO */}
-        <div className="relative mb-10">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="relative z-10 text-[#B87321]/30"
-          >
-            <Disc3 className="w-20 h-20 md:w-24 md:h-24 stroke-[1px]" />
-          </motion.div>
-        </div>
+      {/* Overlay oscuro para legibilidad */}
+      <div className="absolute inset-0 bg-black/50 z-0" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+      <div className="container mx-auto px-6 relative z-10 flex justify-center pt-10">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="mb-14"
+          className="max-w-xl w-full bg-white/30 backdrop-blur-xl p-8 md:p-12 shadow-2xl text-center rounded-[1rem] border border-white/30"
         >
-          <span className="text-[10px] tracking-[0.5em] text-[#B87321] uppercase font-bold mb-4 block italic">
-            Soundtrack de la Noche
-          </span>
-          <h3 className="text-5xl md:text-7xl font-serif italic text-[#5d4037] tracking-tight mb-8">
-            ¡Te invito a ser <br />mi DJ personal!
-          </h3>
-          <p className="text-[#5d4037]/60 text-sm md:text-base tracking-[0.1em] italic max-w-sm mx-auto">
-            ¿Qué canción no puede <br /> faltar en la pista?
-          </p>
-        </motion.div>
+          
+          <div className="flex justify-center mb-4">
+            <div className="relative w-16 h-16 md:w-20 md:h-20">
+              <Image 
+                src="/images/img-grafitis/musica.png" 
+                alt="Icono Baile" 
+                fill 
+                className="object-contain" 
+              />
+            </div>
+          </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsOpen(true)}
-          className="group relative inline-flex items-center gap-4 px-14 py-6 bg-[#B87321] text-white font-bold tracking-[0.3em] text-[10px] uppercase rounded-full transition-all shadow-xl shadow-[#B87321]/20"
-        >
-          <Headset className="w-4 h-4" />
-          SUGERIR MIS TEMAS
-        </motion.button>
+          <div className="mb-8">
+            <h2 className="text-5xl md:text-6xl font-['Permanent_Marker',_cursive] text-black mb-4 uppercase tracking-tighter">
+              Música
+            </h2>
+            <p className="text-black text-sm md:text-base font-medium leading-tight mb-2">
+              ¿Qué canciones son infaltables?
+            </p>
+            <p className="text-black/70 text-xs italic font-medium">
+              Ayudanos con la selección para bailar toda la noche
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsOpen(true)}
+              className="bg-[#5ba394] hover:bg-[#4d8a7d] text-white px-10 py-3 text-xs font-bold uppercase tracking-widest flex items-center gap-2 rounded-full shadow-lg transition-all font-['Permanent_Marker',_cursive]"
+            >
+              <MusicIcon size={18} />
+              Sugerir Canción
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
 
+      {/* MODAL DE SUGERENCIAS */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="absolute inset-0 bg-[#5d4037]/60 backdrop-blur-md"
-            />
-
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              className="relative w-full max-w-md bg-white/95 backdrop-blur-xl border border-[#B87321]/10 p-10 rounded-[2.5rem] shadow-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isSending && setIsOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="relative w-full max-w-md bg-white/30 backdrop-blur-xl rounded-[2rem] p-8 md:p-10 shadow-2xl z-10 border border-white/40"
             >
               <button 
                 onClick={() => setIsOpen(false)} 
-                className="absolute top-8 right-8 text-zinc-300 hover:text-[#B87321] transition-colors"
+                className="absolute top-6 right-6 text-black hover:scale-110 transition-transform disabled:opacity-50"
+                disabled={isSending}
               >
-                <X size={20} />
+                <X size={28} />
               </button>
 
-              <div className="text-center mb-10">
-                <Music className="w-10 h-10 text-[#B87321]/30 mx-auto mb-4" />
-                <h4 className="text-3xl font-serif italic text-[#5d4037]">¿Qué vamos a bailar?</h4>
+              <div className="text-center mb-6">
+                <h4 className="text-3xl font-['Permanent_Marker',_cursive] text-black uppercase tracking-tighter">
+                  DJ Playlist
+                </h4>
               </div>
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                
-                {/* CÓDIGO CON ESTILO GOLDEN */}
-                <div className="bg-[#fdfaf1] p-5 rounded-2xl border border-[#B87321]/10 mb-4">
-                  <label className="text-[9px] uppercase tracking-widest text-[#B87321] mb-2 block font-bold">Tu Código de Invitado</label>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="bg-white/40 p-4 rounded-xl border border-white/20">
+                  <label className="text-[10px] uppercase font-bold text-black/60 mb-1 block tracking-widest text-center">Código de Invitado</label>
                   <div className="flex items-center gap-3">
-                    <KeyRound size={16} className="text-[#B87321]/40" />
+                    <KeyRound size={20} className="text-[#5ba394]" />
                     <input 
                       type="text" 
                       value={guestCode}
-                      onChange={(e) => setGuestCode(e.target.value.toUpperCase())}
-                      placeholder="CÓDIGO" 
-                      className="bg-transparent border-none outline-none text-[#5d4037] font-mono tracking-widest w-full uppercase placeholder:text-zinc-300 text-lg" 
+                      onChange={(e) => setGuestCode(e.target.value)}
+                      placeholder="INGRESA TU CÓDIGO" 
+                      className="bg-transparent border-none outline-none text-black w-full uppercase placeholder:text-black/30 font-bold" 
                     />
                   </div>
                 </div>
 
-                {[1, 2, 3].map((num) => (
-                  <div key={num} className="space-y-1">
-                    <label className="text-[9px] uppercase tracking-widest text-zinc-400 mb-1 block font-bold">Tema {num}</label>
-                    <input
-                      type="text"
-                      name={`tema${num}`}
-                      value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
-                      onChange={handleChange}
-                      placeholder="Nombre de la canción..."
-                      className="w-full bg-transparent border-b border-[#B87321]/20 py-3 outline-none focus:border-[#B87321] transition-all text-[#5d4037] font-serif italic text-lg px-2"
-                    />
-                  </div>
-                ))}
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase font-bold text-black/60 tracking-widest text-center mb-2">Tus Temas Favoritos</p>
+                  {[1, 2, 3].map((num) => (
+                    <div key={num} className="bg-white/40 border border-white/20 p-3 rounded-xl flex items-center gap-2">
+                      <span className="text-[#d29b7b] font-bold text-sm">{num}.</span>
+                      <input
+                        type="text"
+                        name={`tema${num}`}
+                        value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
+                        onChange={handleChange}
+                        placeholder="Artista - Canción"
+                        className="w-full bg-transparent border-none outline-none text-black font-medium text-sm placeholder:text-black/30"
+                      />
+                    </div>
+                  ))}
+                </div>
                 
-                <button
-                  type="submit"
-                  disabled={isSending}
-                  className="w-full bg-[#B87321] text-white py-5 rounded-full font-bold text-[10px] tracking-widest uppercase mt-6 transition-all shadow-xl shadow-[#B87321]/20 flex items-center justify-center gap-3 disabled:opacity-50"
-                >
-                  {isSending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} className="fill-current" />}
-                  {isSending ? "ENVIANDO..." : "ENVIAR SUGERENCIAS"}
-                </button>
+                <div className="pt-4 flex justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={isSending}
+                    className="w-full py-3 bg-black text-white rounded-xl font-bold font-['Permanent_Marker',_cursive] flex justify-center items-center gap-2 uppercase tracking-wider shadow-lg"
+                  >
+                    {isSending ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+                    {isSending ? "ENVIANDO..." : "ENVIAR AL DJ"}
+                  </motion.button>
+                </div>
               </form>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-      
-      {/* --- ONDA INFERIOR (Igual a Location/RSVP para conectar) --- */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 transform translate-y-[1px]">
-        <svg 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none" 
-          className="relative block w-full h-[60px] md:h-[100px]" 
-          style={{ transform: 'rotate(180deg)' }}
-        >
-          <path 
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
-            fill="#fdfaf1"
-          />
-        </svg>
+       {/* SEPARADOR GRAFITERO SUPERIOR */}
+      <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
+        <div 
+          className="w-full h-[60px] md:h-[160px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          /* bg-[#e0f2f1] debe ser el color de la sección ANTERIOR a esta */
+        />
       </div>
     </section>
   );

@@ -1,0 +1,128 @@
+"use client";
+
+import { motion, AnimatePresence } from "framer-motion";
+import { bodaTemplateConfig as localConfig } from "@/data/event-config-bodas";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+
+interface HeroProps {
+  eventName?: string | null;
+  heroImage?: string | null;
+}
+
+export function Hero({ eventName, heroImage }: HeroProps) {
+  const rawNames = eventName || localConfig.personal.nombre || "Ariadna & Mario";
+  const namesArray = rawNames.split(/[&,]/);
+  const firstName = namesArray[0]?.trim() || "Ariadna";
+  const lastName = namesArray[1]?.trim() || "Mario";
+
+  const currentImage = (heroImage && heroImage !== "") 
+    ? heroImage 
+    : localConfig.imagenes.hero;
+
+  const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
+
+  useEffect(() => {
+    const targetDate = new Date("2026-09-12T20:00:00");
+    const timer = setInterval(() => {
+      const now = new Date();
+      const difference = targetDate.getTime() - now.getTime();
+      if (difference <= 0) {
+        clearInterval(timer);
+      } else {
+        setTimeLeft({
+          dias: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          min: Math.floor((difference / 1000 / 60) % 60),
+          seg: Math.floor((difference / 1000) % 60),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <section className="relative h-screen flex flex-col items-center justify-between overflow-hidden bg-[#38b2ac] font-['Permanent_Marker',_cursive]">
+      
+      {/* IMAGEN DE FONDO */}
+      <div className="absolute inset-0 z-0">
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={currentImage} 
+            className="relative w-full h-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
+          >
+            <Image
+              src={currentImage}
+              alt="Portada de Boda"
+              fill
+              className="object-cover object-center brightness-[0.85]"
+              priority
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* GRAFFITI SUPERIOR */}
+      <div className="absolute top-0 left-0 w-full z-40 pointer-events-none">
+        <div className="w-full h-[100px] md:h-[180px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+      </div>
+
+      {/* CONTENIDO CENTRAL - Bajado mediante un margin top mayor */}
+      <div className="relative z-30 flex flex-col items-center text-center px-4 mt-[25vh] md:mt-[30vh]">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative w-14 h-14 md:w-20 md:h-20 mb-2"
+        >
+          <Image 
+            src="/images/img-grafitis/graffiti-corazon.png" 
+            alt="Corazon Graffiti"
+            fill
+            className="object-contain drop-shadow-xl"
+          />
+        </motion.div>
+
+        <div className="flex flex-col items-center gap-0">
+          <p className="text-white text-base md:text-xl tracking-[0.3em] drop-shadow-lg font-sans font-bold leading-none">
+            12 . 09 . 2026
+          </p>
+
+          <h1 className="text-5xl md:text-7xl lg:text-8xl text-white leading-[1.1] drop-shadow-2xl uppercase tracking-tighter whitespace-nowrap">
+            {firstName} & {lastName}
+          </h1>
+
+          <h2 className="text-white text-xl md:text-3xl tracking-wide drop-shadow-lg opacity-95 leading-none">
+            ¡Nuestra Boda!
+          </h2>
+        </div>
+      </div>
+
+      {/* CONTADOR Y GRAFFITI INFERIOR PEQUEÑOS Y AL PIE */}
+      <div className="relative w-full z-50 flex flex-col items-center">
+        {/* Contador pegado al separador */}
+        <div className="mb-[-20px] md:mb-[-40px] text-center relative z-10 translate-y-[-10px]">
+          <p className="text-white text-[10px] md:text-xs mb-1 font-sans tracking-[0.4em] font-black uppercase opacity-90">Faltan</p>
+          <div className="flex gap-4 md:gap-10 items-end justify-center text-white">
+            {[
+              { val: timeLeft.dias, lab: "Días" },
+              { val: timeLeft.horas, lab: "Horas" },
+              { val: timeLeft.min, lab: "Mins" },
+              { val: timeLeft.seg, lab: "Segs" }
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center min-w-[45px] md:min-w-[60px]">
+                <span className="text-2xl md:text-5xl leading-none">{item.val}</span>
+                <span className="text-[7px] md:text-[9px] font-sans mt-1 tracking-widest font-bold opacity-80 uppercase">{item.lab}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* GRAFFITI INFERIOR - Al borde inferior de la pantalla */}
+        <div className="w-full h-[80px] md:h-[120px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]" />
+      </div>
+    </section>
+  );
+}

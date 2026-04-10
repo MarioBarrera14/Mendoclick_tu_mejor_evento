@@ -13,3 +13,4 @@ export { default as Envelope } from "./Envelope";
 export { FotoCarousel } from "./Gallery";
 export { MusicSuggestion } from "./MusicSuggestion";
 export { ClientSection } from "./ClientSection";
+export{Itinerary} from "./itinerario"

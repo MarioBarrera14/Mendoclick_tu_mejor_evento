@@ -1,14 +1,15 @@
 import {
   Hero,
-  Countdown,
-  Location,
-  Details,
+  DetailModal,
+  Itinerary,
+  EventDetails,
   RSVP,
   Footer,
   Envelope,
   FotoCarousel,
   MusicSuggestion,
   Navbar,
+  Witnesses,
 } from "@/components/templates/golden-bday";
 import { Metadata } from "next";
 
@@ -59,53 +60,34 @@ export default async function GoldenBdayDemoPage() {
    const eventDate = "2026-12-19";
   const eventTime = "19:00";
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-<Envelope musicUrl={dbDemo.config.musicaUrl}>
-     <Navbar eventName={dbDemo.nombre} isDemo={true} />
-            
-            <Hero 
-              eventName={dbDemo.nombre} 
-              heroImage={dbDemo.config.heroImage} 
-            />
-    
-            <Countdown 
-              eventDate={eventDate} 
-              eventTime={eventTime} 
-            />
-    
-            {/* Carousel con placeholders si no hay fotos reales todavía */}
-         <FotoCarousel 
-      images={JSON.stringify([
-        "/img_demo/9.webp", 
-        "/img_demo/10.webp", 
-        "/img_demo/11.webp",
-        "/img_demo/14.webp", 
-        "/img_demo/13.webp"
-      ])} 
-      videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
-    />
-            <Details 
-              dressCode={dbDemo.config.dressCode}
-              dressDescription={dbDemo.config.dressDescription}
-              alias={dbDemo.config.regalo.alias}
-              cbu={dbDemo.config.regalo.cbu}
-              bankName={dbDemo.config.regalo.banco}
-              holderName={dbDemo.config.regalo.titular}
-            />
-    
-            <Location 
-              venueName={dbDemo.config.ubicacion.lugar}
-              venueAddress={dbDemo.config.ubicacion.direccion}
-              mapLink={dbDemo.config.ubicacion.googleMaps}
-            />
-    
-            {/* Usamos el link de canciones del form directamente */}
-            <MusicSuggestion eventId={""}/>    
-            
-            <RSVP/>
-            
-            <Footer />
-      </Envelope>
-    </main>
+     <main className="min-h-screen bg-[#0a0a0a]">
+        {/* Pasamos los datos hardcodeados a cada componente como si vinieran de DB */}
+      {/*  <Envelope musicUrl={dbDemo.config.musicaUrl}>*/}
+         <Navbar/>
+          <Hero 
+           
+            heroImage={dbDemo.config.heroImage} 
+          />
+  
+  
+          {/* Carousel con placeholders si no hay fotos reales todavía */}
+       <FotoCarousel 
+   
+    videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
+  />
+          <EventDetails    />
+   
+          <RSVP/>
+          <DetailModal/>
+          <Itinerary 
+          />
+  <Witnesses/>
+          {/* Usamos el link de canciones del form directamente */}
+          <MusicSuggestion eventId={""}/>    
+         
+          
+          <Footer />
+       {/* </Envelope>*/}
+      </main>
   );
 }
