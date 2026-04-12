@@ -33,40 +33,81 @@ model User {
 }
 
 // 2. CONFIGURACIÓN DEL EVENTO (Lo que el cliente edita)
+// Actualización del modelo EventConfig
 model EventConfig {
   id               String   @id @default(cuid())
-  
-  // Relación con el Usuario
   userId           String   @unique
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Diseño y Multimedia
+  // --- Multimedia ---
   heroImage        String?  @default("")
   videoUrl         String?  @default("")
   musicUrl         String?  @default("")
-  carruselImages   String?  @default("[]") // Guardado como JSON string
+  carruselImages   String?  @default("[]") // Cloudinary URLs en JSON
 
-  // Datos Principales (Cuenta Regresiva / Header)
-  eventName        String   @default("Mi Evento")
+  // --- Datos Principales ---
+  eventName        String   @default("Mi Evento") // "Flor & Santi" o "Mis 15 - Olivia"
   eventDate        String   @default("2026-12-19")
   eventTime        String   @default("21:00")
   
-  // Ubicación
+  // --- Ubicaciones (Separadas para Bodas) ---
+  // Salon / Fiesta
   venueName        String   @default("Nombre del Salón")
   venueAddress     String   @default("Calle Falsa 123")
   mapLink          String   @default("")
+  
+  // Iglesia / Ceremonia (Específico para Bodas)
+// Iglesia / Ceremonia (Específico para Bodas)
+  churchName       String?  @default("")
+  churchAddress    String?  @default("")
+  churchMapLink    String?  @default("")
+  churchDate       String?  @default("") // <--- AGREGAR ESTO
+  churchTime       String?  @default("") // <--- AGREGAR ESTO
 
-  // Detalles y Regalos
+  // --- Detalles ---
   dressCode        String   @default("Elegante Sport")
   dressDescription String   @default("¡Tu presencia es lo más importante!")
-  cbu              String   @default("0000003100012345678901")
-  alias            String   @default("MI.EVENTO.ALIAS")
-  bankName         String   @default("Mercado Pago")
-  holderName       String   @default("Nombre del Titular")
+  
+  // --- Regalos / CBU ---
+  cbu              String   @default("")
+  alias            String   @default("")
+  bankName         String   @default("")
+  holderName       String   @default("")
+
+  // --- Relaciones Dinámicas ---
+  itinerary        ItineraryItem[]
+  witnesses        Witness[]
 
   updatedAt        DateTime @updatedAt
-
   @@map("event_config")
+}
+
+// 4. ITINERARIO (Los 8 puntos que mencionaste)
+model ItineraryItem {
+  id            String      @id @default(cuid())
+  time          String      // "21:00hs"
+  title         String      // "Recepción"
+  description   String?     // Opcional
+  icon          String      @default("Heart") // Nombre del icono de Lucide
+  order         Int         // Para ordenar del 1 al 8
+  
+  eventConfigId String
+  eventConfig   EventConfig @relation(fields: [eventConfigId], references: [id], onDelete: Cascade)
+
+  @@map("itinerary_items")
+}
+
+// 5. TESTIGOS / PADRINOS (Los 4 de las bodas)
+model Witness {
+  id            String      @id @default(cuid())
+  nombre        String
+  rol           String      // "Testigo del Novio", "Madrina", etc.
+  imageUrl      String?     // Foto de Cloudinary
+  
+  eventConfigId String
+  eventConfig   EventConfig @relation(fields: [eventConfigId], references: [id], onDelete: Cascade)
+
+  @@map("witnesses")
 }
 
 // 3. LOS INVITADOS (Los que confirman asistencia)

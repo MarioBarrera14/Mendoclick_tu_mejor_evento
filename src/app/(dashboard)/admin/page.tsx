@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageSquare, CheckCheck } from "lucide-react"; 
+import { MessageSquare, CheckCheck, Loader2, User, Utensils } from "lucide-react"; 
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react"; // <--- Importante para saber quién es el cliente
+import { useSession } from "next-auth/react";
 
 interface Message {
   id: string;
@@ -14,17 +14,15 @@ interface Message {
 }
 
 export default function AdminDashboard() {
-  const { data: session } = useSession(); // Obtenemos la sesión del cliente
+  const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!session?.user?.slug) return; // Si no hay sesión, no pedimos nada
-
+      if (!session?.user?.slug) return;
       setLoading(true);
       try {
-        // Le pedimos a la API solo los invitados de ESTE slug
         const response = await fetch(`/api/guests?slug=${session.user.slug}`);
         const invitados = await response.json();
         
@@ -41,71 +39,86 @@ export default function AdminDashboard() {
     };
 
     fetchMessages();
-  }, [session]); // Se ejecuta cuando la sesión está lista
+  }, [session]);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 p-4">
-      {/* HEADER ESTILO WHATSAPP */}
-      <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+    <div className="max-w-2xl mx-auto p-4 lg:p-6 font-sans text-black">
+      {/* HEADER COMPACTO MENDOCLICK */}
+      <header className="flex justify-between items-center mb-6 border-b pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 italic font-serif">Panel de Control</h1>
-          <p className="text-emerald-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            Invitación: /{session?.user?.slug}
-          </p>
+          <p className="text-red-600 font-black text-[10px] uppercase tracking-widest">MendoClick Admin</p>
+          <h1 className="text-3xl font-black uppercase italic tracking-tighter leading-none">
+            Live <span className="text-red-600">Feed</span>
+          </h1>
         </div>
-        <div className="bg-zinc-900 p-3 rounded-2xl text-rose-500 shadow-lg">
+        <div className="bg-zinc-950 p-3 rounded-2xl text-red-600 shadow-xl">
           <MessageSquare size={20} />
         </div>
-      </div>
+      </header>
 
-      {/* CONTENEDOR DE CHAT */}
-      <div className="space-y-4 bg-[#efe7dd] p-4 sm:p-6 rounded-[2.5rem] min-h-[500px] border border-zinc-200 relative overflow-hidden shadow-inner">
-        <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+      {/* CONTENEDOR DE CHAT ESTILO DASHBOARD */}
+      <div className="space-y-4 bg-zinc-50 p-4 sm:p-6 rounded-[2rem] min-h-[500px] border-2 border-zinc-200 relative overflow-hidden shadow-inner">
+        {/* Marca de agua sutil */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
+            <h2 className="text-9xl font-black -rotate-12 uppercase">Mendo<br/>Click</h2>
+        </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-[400px] text-zinc-500 font-bold uppercase text-[10px] tracking-widest">
-            Conectando con Mendoclick...
+          <div className="flex flex-col justify-center items-center h-[400px] gap-3">
+            <Loader2 className="animate-spin text-red-600" size={32} />
+            <p className="text-zinc-400 font-black uppercase text-[10px] tracking-widest">Sincronizando pases...</p>
           </div>
         ) : messages.length === 0 ? (
-          <div className="text-center py-20 text-zinc-400 font-medium italic">
-            Aún no hay confirmaciones para tu evento.
+          <div className="text-center py-20 text-zinc-400 font-black uppercase text-[10px] tracking-[0.2em] italic">
+            Esperando la primera confirmación...
           </div>
         ) : (
-          messages.map((msg, index) => (
-            <motion.div
-              key={msg.id || index}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="flex flex-col items-start"
-            >
-              <div className="relative max-w-[90%] bg-white rounded-2xl rounded-tl-none p-4 shadow-md border border-zinc-100">
-                <div className="absolute top-0 -left-2 w-0 h-0 border-t-[10px] border-t-white border-l-[10px] border-l-transparent" />
-                
-                <p className="text-[10px] font-black text-rose-500 mb-1 uppercase tracking-wider">
-                  {msg.apellido}
-                </p>
-                
-                <p className="text-zinc-800 text-sm font-medium leading-tight mb-2">
-                 {msg.dietary || "Sin restricciones alimenticias."}
-                </p>
+          <div className="relative z-10 space-y-3">
+            {messages.map((msg, index) => (
+              <motion.div
+                key={msg.id || index}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="flex flex-col items-start"
+              >
+                <div className="relative max-w-[95%] bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-zinc-300">
+                  {/* Triángulo de chat */}
+                  <div className="absolute top-0 -left-2 w-0 h-0 border-t-[10px] border-t-white border-l-[10px] border-l-transparent" />
+                  
+                  <div className="flex items-center gap-2 mb-2">
+                    <User size={12} className="text-red-600" />
+                    <p className="text-xs font-black text-black uppercase italic tracking-tight">
+                      {msg.apellido}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-start gap-2 bg-zinc-50 p-2 rounded-xl border border-zinc-100">
+                    <Utensils size={14} className="text-zinc-400 mt-0.5" />
+                    <p className="text-zinc-900 text-xs font-bold leading-tight uppercase">
+                      {msg.dietary || "Sin restricciones alimenticias."}
+                    </p>
+                  </div>
 
-                <div className="flex items-center justify-end gap-1 border-t border-zinc-50 pt-1">
-                  <span className="text-[8px] font-black text-zinc-400 uppercase">
-                    Confirmado
-                  </span>
-                  <CheckCheck size={14} className="text-blue-500" />
+                  <div className="flex items-center justify-end gap-1 mt-3 pt-2 border-t border-zinc-50">
+                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-tighter">
+                      Pase Confirmado
+                    </span>
+                    <CheckCheck size={14} className="text-red-600" />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
 
-      <p className="text-center text-[9px] text-zinc-400 uppercase tracking-[0.3em] font-black italic">
-        Mendoclick • Gestión en tiempo real
-      </p>
+      <footer className="mt-6 flex flex-col items-center gap-2">
+        <div className="h-1 w-12 bg-red-600 rounded-full opacity-30" />
+        <p className="text-[9px] text-zinc-400 uppercase tracking-[0.4em] font-black italic">
+          MendoClick Real-Time Dashboard
+        </p>
+      </footer>
     </div>
   );
 }

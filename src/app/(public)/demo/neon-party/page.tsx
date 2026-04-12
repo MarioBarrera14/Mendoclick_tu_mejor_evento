@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Hero,
   Itinerary,
@@ -10,111 +12,58 @@ import {
   MusicSuggestion,
   Navbar,
 } from "@/components/templates/neon-party";
-import { Metadata } from "next";
 
-// Simulación de la respuesta de la base de datos
-const dbDemo = {
-  id: "demo-15",
-  slug: "luz-jazmin-xv",
-  nombre: "Luz Jazmin",
-  tipoEvento: "XV Años",
-  fecha: new Date("2026-12-19T19:00:00"),
-  config: {
-    heroImage: "/cumple.jpg", 
-    
-    // ============================================================
-    // CORRECCIÓN DE RUTA DE VIDEO AQUÍ
-    // Tu archivo está en: public\movie\esfe1.mp4
-    // La ruta para Next.js es: "/movie/esfe1.mp4"
-    // ============================================================
-    heroVideo: "/movie/Video_de_Esferas_de_Espejos.mp4", 
-    
-    musicaUrl: "/audio/Pitbull x Play N Skillz Party of a Lifetime Lyric Video.mp3",
-    personal: {
-      titulo: "¡MIS XV!",
-      subtitulo: "¡La fiesta del año!",
-    },
-    ubicacion: {
-      lugar: "Howard Johnson",
-      subtitulo: "By Wyndham Cariló",
-      direccion: "RP11 km 400, Cariló",
-      googleMaps: "https://goo.gl/maps/tu-link-real-a-howard-johnson", // Link real opcional
-      hora: "19:00 HS"
-    },
-    regalo: {
-      titular: "Luz Jazmin",
-      cbu: "1254875968554455223366",
-      alias: "luz.jaz.xv",
-      banco: "Mercado Pago"
-    },
-    confirmacion: {
-      fechaLimite: "20/08/2026",
-      formUrl: "https://forms.gle/T7F4DHWv2kTZhitW6"
-    },
-    // Corrección del link de canciones para que no sea un placeholder
-    cancionesUrl: "https://forms.gle/tu-form-de-canciones", 
-     dressCode: "Elegante Sport",
-    dressDescription: "El dress code de la fiesta es elegante sport.",
-  }
-};
+import { globalQuinceConfig as localConfig } from "@/data/event-config-bodas";
 
-export const metadata: Metadata = {
-  title: `Neon Party - ${dbDemo.nombre} | MendoClick`,
-  description: "Plantilla vibrante con colores neon y efectos brillantes",
-};
-
-export default async function NeonPartyDemoPage() {
-  // Extraemos fecha y hora para el Countdown
-  const eventDate = "2026-12-19";
-  const eventTime = "19:00";
+export default function NeonPartyDemoPage() {
+  const fechaString = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
 
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
-      {/* El sobre maneja la música y el inicio de la experiencia */}
-      <Envelope musicUrl={dbDemo.config.musicaUrl}>
+      {/* 1. MÚSICA: Ahora apunta a .neon */}
+      <Envelope musicUrl={localConfig.imagenes.musicaUrl.neon}>
         
-        <Navbar eventName={dbDemo.nombre} isDemo={true} />
+        <Navbar eventName={localConfig.personal.nombre} isDemo={true} />
         
-        {/* HERO: Ahora con el video de fondo y la foto en estrella */}
-        <Hero 
-          eventName={dbDemo.nombre} 
-          heroImage={dbDemo.config.heroImage} 
-          heroVideo={dbDemo.config.heroVideo} 
-        />
+        {/* HERO: Ahora apunta a .neon */}
+        <Hero config={{
+          eventName: localConfig.personal.nombre,
+          eventDate: fechaString,
+          eventTime: localConfig.fecha.hora,
+          heroImage: localConfig.imagenes.hero.neon 
+        }} />
         
-     
-
-        {/* Carousel de fotos con el video adicional */}
+        {/* GALERÍA: Video ahora apunta a .neon */}
         <FotoCarousel 
-          images={JSON.stringify([
-            "/img_demo/8.webp", 
-            "/img_demo/5.webp", 
-            "/img_demo/6.webp", 
-            "/img_demo/7.webp"
-          ])} 
-          // Asegúrate que este video también exista en public\movie\
-          videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
-        />
-<Itinerary/>
-        <Details 
-          dressCode={dbDemo.config.dressCode}
-          dressDescription={dbDemo.config.dressDescription}
-          alias={dbDemo.config.regalo.alias}
-          cbu={dbDemo.config.regalo.cbu}
-          bankName={dbDemo.config.regalo.banco}
-          holderName={dbDemo.config.regalo.titular}
+          images={JSON.stringify(localConfig.imagenes.carrusel)} 
+          videoUrl={localConfig.imagenes.videoUrl.neon}
         />
 
-        <Location 
-          venueName={dbDemo.config.ubicacion.lugar}
-          venueAddress={dbDemo.config.ubicacion.direccion}
-          mapLink={dbDemo.config.ubicacion.googleMaps}
-        />
+        <Itinerary items={localConfig.itinerario} />
 
-        {/* Sugerencia de música */}
-        <MusicSuggestion eventId={dbDemo.slug}/>    
+        <Details config={{
+          dressCode: localConfig.dressCode.titulo,
+          dressDescription: localConfig.dressCode.descripcion,
+          cbu: localConfig.regalo.datosBancarios.cbu,
+          alias: localConfig.regalo.datosBancarios.alias,
+          bankName: localConfig.regalo.datosBancarios.banco,
+          holderName: localConfig.regalo.datosBancarios.titular
+        }} />
+
+        <Location config={{
+          venueName: localConfig.ubicacion.nombreLugar,
+          venueAddress: localConfig.ubicacion.direccion,
+          mapLink: localConfig.ubicacion.googleMapsUrl,
+        }} />
+
+        <MusicSuggestion eventId="demo-quince-neon"/>    
         
-        <RSVP />
+        {/* RSVP: Sincronizado con .neon */}
+        <RSVP config={{
+          heroImage: localConfig.imagenes.hero.neon,
+          eventDate: fechaString,
+          confirmDate: localConfig.confirmacion.fechaLimite
+        }} />
         
         <Footer />
       </Envelope>

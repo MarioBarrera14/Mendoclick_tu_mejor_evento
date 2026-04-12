@@ -185,9 +185,12 @@ export default function ClientesPage() {
                   <div className="space-y-1">
                     <label className="text-[10px] font-black uppercase text-zinc-400 ml-1">Plantilla</label>
                     <select value={editingClient.templateId} className="w-full bg-zinc-100 p-4 rounded-2xl font-black text-sm outline-none cursor-pointer" onChange={(e) => setEditingClient({...editingClient, templateId: e.target.value})}>
-                      <option value="DEMO1">Classic Night</option>
-                      <option value="DEMO2">Neon Party</option>
-                      <option value="DEMO3">Golden Luxury</option>
+                      <option value="DEMO1">Champagne 15</option>
+                      <option value="DEMO2">Neon Party 15</option>
+                      <option value="DEMO3">Graffiti Urbano 15</option>
+                      <option value="DEMO4">Golden Noir Bodas</option>
+                      <option value="DEMO5">Retro Viniyl Bodas</option>
+                      <option value="DEMO6">Graffiti Uban Bodas</option>
                     </select>
                   </div>
 

@@ -45,7 +45,7 @@ const allDesigns = [
   id: '04', 
   title: 'GOLDEN NOIR', 
   img: '/img_boda/plantilla4.jpg', 
-  link: '/demo/bodas-elite', 
+  link: '/demo/golden_noir', 
   tag: 'PREMIUM', // Cambié WEDDING por PREMIUM porque la categoría ya es BODAS
   category: 'BODAS' 
 },

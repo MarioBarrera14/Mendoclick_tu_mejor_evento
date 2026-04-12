@@ -1,7 +1,8 @@
+"use client";
+
 import {
   Hero,
-
-  ItinerarioRetro,
+  Itinerary,
   EventDetails,
   RSVP,
   Footer,
@@ -11,91 +12,84 @@ import {
   Navbar,
   SeccionTestigos,
   WeddingDetailsSection,
-  SeparadorEntrePaginas,
 } from "@/components/templates/estilo-rock";
-import { Metadata } from "next";
 
-// Simulación de la respuesta de la base de datos (Hardcoded)
-const dbDemo = {
-  id: "demo-boda",
-  slug: "Mi_boda",
-  tipoEvento: "Nos Casamos",
-  fecha: new Date("2027-12-19T19:00:00"),
-  config: {
-    heroImage:  "/img_boda/vintage.png",
-    musicaUrl: "/audio/Pitbull x Play N Skillz Party of a Lifetime Lyric Video.mp3", // Si tienes un audio de fondo
-    personal: {
-      titulo: "¡Nuestra Boda!",
-      subtitulo: "¡La fiesta del año!",
-    },
-    ubicacion: {
-      lugar: "Howard Johnson",
-      subtitulo: "By Wyndham Cariló",
-      direccion: "RP11 km 400, Cariló",
-      googleMaps: "https://www.google.com/maps/place/Howard+Johnson+by+Wyndham+Carilo+Convention+Center/@-37.1511601,-56.923903,17z",
-      hora: "19:00 HS"
-    },
-    regalo: {
-      titular: "Luz Jazmin",
-      cbu: "1254875968554455223366",
-      alias: "luz.jaz.xv",
-      banco: "Mercado Pago"
-    },
-    confirmacion: {
-      fechaLimite: "20/08/2026",
-      formUrl: "https://forms.gle/T7F4DHWv2kTZhitW6"
-    },
-    cancionesUrl: "https://docs.google.com/forms/d/e/1FAIpQLSeZa1Df3gKTLRivE71qCSI02a9Pa_UTQBnXu22pJMpo51nsOQ/viewform",
-    dressCode: "Elegante Sport",
-    dressDescription: "El dress code de la fiesta es elegante sport.",
-  }
-};
+// Importamos la data de BODA (nombres: "Juli & Mario")
+import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 
-export const metadata: Metadata = {
-  title: ` ${dbDemo.config.personal.titulo} | MendoClick`,
-  description: "Plantilla Night Lights - Demo en vivo",
-};
-
-export default function NightLightsDemoPage() {
-  // Formateo de fecha para el Countdown
-  const eventDate = "2026-12-19";
-  const eventTime = "19:00";
+export default function RetroVinylDemoPage() {
+  // 1. Preparamos los datos de fecha (YYYY-MM-DD)
+  const fechaString = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
 
   return (
-    <main className="min-h-screen bg-[#fdfcf0] overflow-x-hidden">
-{/* Pasamos los datos hardcodeados a cada componente como si vinieran de DB */}
-    <Envelope musicUrl={dbDemo.config.musicaUrl}>
-      <Navbar />
+    <main className="min-h-screen bg-[#fdfcf0] overflow-x-hidden font-serif">
+      {/* 1. MÚSICA: Ruta directa de rock */}
+      <Envelope musicUrl={localConfig.imagenes.musicaUrl.rock}>
+        
+        {/* Navbar: Usamos 'nombres' del BodaConfig */}
+        <Navbar eventName={localConfig.personal.nombres} isDemo={true} />
 
-      <Hero
+        {/* HERO: Ahora agrupado en el objeto 'config' para que el Hero lo procese correctamente */}
+        <Hero
+          config={{
+            heroImage: localConfig.imagenes.hero.rock,
+            eventName: localConfig.personal.nombres,
+            eventDate: fechaString,
+            eventTime: localConfig.fecha.hora,
+          }}
+        />
 
-        heroImage={dbDemo.config.heroImage}
-      />
+        {/* 2. VIDEO Y GALERÍA: Carrusel y video directos */}
+        <FotoCarouselRetro
+          images={JSON.stringify(localConfig.imagenes.carrusel)}
+          videoUrl={localConfig.imagenes.videoUrl.rock}
+        />
+
+        {/* Detalles del evento (Salón e Iglesia) */}
+        <EventDetails config={{
+          eventDate: fechaString,
+          eventTime: localConfig.fecha.hora,
+          venueName: localConfig.ubicacion.nombreLugar,
+          venueAddress: localConfig.ubicacion.direccion,
+          mapLink: localConfig.ubicacion.googleMapsUrl,
+          churchName: localConfig.ubicacion.iglesiaNombre,
+          churchAddress: localConfig.ubicacion.iglesiaDireccion,
+          churchMapLink: localConfig.ubicacion.iglesiaMaps
+        }} />
 
 
+        {/* Itinerario dinámico */}
+        <Itinerary items={localConfig.itinerario} /> 
 
-      {/* Carousel con placeholders si no hay fotos reales todavía */}
-      <FotoCarouselRetro
+        {/* Testigos */}
+        <SeccionTestigos items={localConfig.testigos} />
 
-        videoUrl="/movie/Video_Generado_Con_Movimiento_Natural.mp4"
-      />
-      <SeparadorEntrePaginas />
-      <EventDetails
-      />
-      <SeparadorEntrePaginas />
-      <ItinerarioRetro
-      />
-      <SeparadorEntrePaginas />
-      <SeccionTestigos />
-      <SeparadorEntrePaginas />
-      {/* Usamos el link de canciones del form directamente */}
-      <MusicSuggestion eventId={""} />
-   <SeparadorEntrePaginas />
-   <WeddingDetailsSection/>
-    <SeparadorEntrePaginas />
-      <RSVP />
-<SeparadorEntrePaginas />
-      <Footer />
+   
+
+        {/* Sección de Regalo y Dress Code */}
+        <WeddingDetailsSection config={{
+          dressCode: localConfig.dressCode.titulo,
+          dressDescription: localConfig.dressCode.descripcion,
+          cbu: localConfig.regalo.datosBancarios.cbu,
+          alias: localConfig.regalo.datosBancarios.alias,
+          bankName: localConfig.regalo.datosBancarios.banco,
+          holderName: localConfig.regalo.datosBancarios.titular
+        }} />
+
+    
+
+        <MusicSuggestion eventId="demo-boda-rock-global" />
+
+ 
+        
+        {/* RSVP: Sincronizado con la imagen rock y fechas globales */}
+        <RSVP config={{
+          heroImage: localConfig.imagenes.hero.rock,
+          eventDate: fechaString,
+          confirmDate: localConfig.confirmacion.fechaLimite
+        }}  />
+        
+        <Footer />
       </Envelope>
     </main>
   );

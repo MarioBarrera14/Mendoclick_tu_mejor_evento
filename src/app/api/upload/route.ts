@@ -13,17 +13,16 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // 1. DETERMINAMOS LA CARPETA SEGÚN EL TIPO MIME
-    let folder = 'boda/fotos'; // Por defecto fotos
+    // 1. DETERMINAMOS LA CARPETA (Tu lógica original)
+    let folder = 'boda/fotos'; 
 
     if (file.type.includes('video')) {
       folder = 'boda/videos';
     } else if (file.type.includes('audio') || file.name.endsWith('.mp3')) {
-      folder = 'boda/musica'; // Nueva carpeta para los audios de la invitación
+      folder = 'boda/musica';
     }
 
     // 2. SUBIMOS A CLOUDINARY
-    // Nota: Cloudinary maneja internamente si es 'image', 'video' o 'raw' (audio)
     const result = await uploadToCloudinary(
       buffer,
       file.name,
@@ -35,8 +34,9 @@ export async function POST(request: Request) {
       url: result.url,
       publicId: result.publicId,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error en API Upload:', error);
-    return NextResponse.json({ error: 'Error al procesar subida' }, { status: 500 });
+    // Cambié el retorno para que veas el error real de Cloudinary en el cliente
+    return NextResponse.json({ error: error.message || 'Error al procesar subida' }, { status: 500 });
   }
 }

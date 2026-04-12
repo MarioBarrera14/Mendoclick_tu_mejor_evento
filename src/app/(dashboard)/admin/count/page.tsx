@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Save, Calendar, Clock, User, MapPin, Link as LinkIcon, Home, Loader2, Trash2 } from "lucide-react";
-// Importación de tus Server Actions
-import { getEventConfig, updateEventConfig } from "@/app/api/admin/count/route";
-
-// --- IMPORTACIÓN DE SWEETALERT2 ---
+import { 
+  Save, User, Church, PartyPopper, ChevronRight, 
+  Loader2, Trash2, Link as LinkIcon 
+} from "lucide-react";
+import { getEventConfig, updateEventConfig } from "@/actions/gallery.actions"; 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -17,282 +16,269 @@ interface TimeLeft {
 }
 
 export default function CountConfigPage() {
-  // Estados de carga
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Estados de los campos (Inicializados vacíos para recibir la data de la DB)
-  const [eventDate, setEventDate] = useState<string>("");
-  const [eventTime, setEventTime] = useState<string>("");
-  const [eventName, setEventName] = useState<string>(""); 
-  const [venueName, setVenueName] = useState<string>("");
-  const [venueAddress, setVenueAddress] = useState<string>("");
-  const [mapLink, setMapLink] = useState<string>("");
+  // ESTADOS LOGÍSTICOS
+  const [eventName, setEventName] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [venueName, setVenueName] = useState("");
+  const [venueAddress, setVenueAddress] = useState("");
+  const [mapLink, setMapLink] = useState("");
+  const [churchName, setChurchName] = useState("");
+  const [churchAddress, setChurchAddress] = useState("");
+  const [churchDate, setChurchDate] = useState(""); 
+  const [churchTime, setChurchTime] = useState(""); 
+  const [churchMapLink, setChurchMapLink] = useState("");
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, mins: 0, secs: 0 });
 
-  // Utilidad de Alerta Estilizada
   const showNotification = (title: string, text: string, icon: 'success' | 'error') => {
     MySwal.fire({
-      title: <span className="font-serif italic text-2xl">{title}</span>,
-      html: <p className="text-zinc-500 text-sm">{text}</p>,
-      icon: icon,
-      iconColor: icon === 'success' ? '#10b981' : '#ef4444',
-      confirmButtonText: 'ENTENDIDO',
-      buttonsStyling: false,
+      title: <span className="font-sans font-black uppercase text-xl">{title}</span>,
+      html: <p className="text-zinc-900 font-bold">{text}</p>,
+      icon,
+      confirmButtonText: 'OK',
       customClass: {
-        popup: 'rounded-[2rem] bg-white border border-zinc-100 shadow-2xl',
-        confirmButton: 'bg-zinc-900 text-white px-8 py-3 rounded-full font-bold text-xs hover:scale-105 transition-all outline-none mt-4',
+        popup: 'rounded-3xl border-b-4 border-red-600',
+        confirmButton: 'bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs',
       }
     });
   };
 
-  // --- FUNCIÓN PARA LIMPIAR TODO ---
-  const handleClear = () => {
-    MySwal.fire({
-      title: <span className="font-serif italic text-2xl">¿Limpiar campos?</span>,
-      text: "Se borrarán los textos escritos en el formulario.",
-      icon: 'warning',
-      iconColor: '#f59e0b',
-      showCancelButton: true,
-      confirmButtonText: 'SÍ, LIMPIAR',
-      cancelButtonText: 'CANCELAR',
-      buttonsStyling: false,
-      customClass: {
-        popup: 'rounded-[2rem] bg-white border border-zinc-100 shadow-2xl',
-        confirmButton: 'bg-red-500 text-white px-8 py-3 rounded-full font-bold text-xs hover:scale-105 transition-all outline-none mx-2',
-        cancelButton: 'bg-zinc-200 text-zinc-600 px-8 py-3 rounded-full font-bold text-xs hover:scale-105 transition-all outline-none mx-2',
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setEventName("");
-        setEventDate("");
-        setEventTime("");
-        setVenueName("");
-        setVenueAddress("");
-        setMapLink("");
-      }
-    });
-  };
-
-  // 1. CARGAR DATOS DE LA BASE DE DATOS AL MONTAR
+  // 1. CARGA DE DATOS DESDE LA DB
   useEffect(() => {
     async function fetchData() {
       try {
         const config = await getEventConfig();
         if (config) {
-          setEventDate(config.eventDate || "2026-12-19");
-          setEventTime(config.eventTime || "21:00");
-          setEventName(config.eventName || "Luz Jazmín"); 
-          setVenueName(config.venueName || "Howard Johnson");
-          setVenueAddress(config.venueAddress || "RP11 km 400, Cariló");
+          setEventName(config.eventName || ""); 
+          setEventDate(config.eventDate || ""); 
+          setEventTime(config.eventTime || "");
+          setVenueName(config.venueName || "");
+          setVenueAddress(config.venueAddress || ""); 
           setMapLink(config.mapLink || "");
+          setChurchName(config.churchName || ""); 
+          setChurchAddress(config.churchAddress || "");
+          setChurchMapLink(config.churchMapLink || ""); 
+          setChurchDate(config.churchDate || "");
+          setChurchTime(config.churchTime || "");
         }
-      } catch (error) {
-        console.error("Error cargando configuración:", error);
-      } finally {
-        setLoading(false);
+      } catch (error) { 
+        console.error("Error al cargar datos:", error); 
+      } finally { 
+        setLoading(false); 
       }
     }
     fetchData();
   }, []);
 
-  // 2. LÓGICA DEL CONTADOR
+  // 2. LÓGICA DEL CONTADOR (Preview)
   useEffect(() => {
     if (!eventDate || !eventTime) return;
-
     const timer = setInterval(() => {
       const target = new Date(`${eventDate}T${eventTime}:00`);
       const now = new Date();
-      const difference = target.getTime() - now.getTime();
-
-      if (difference > 0) {
+      const diff = target.getTime() - now.getTime();
+      if (diff > 0) {
         setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          mins: Math.floor((difference / 1000 / 60) % 60),
-          secs: Math.floor((difference / 1000) % 60),
+          days: Math.floor(diff / (86400000)),
+          hours: Math.floor((diff / 3600000) % 24),
+          mins: Math.floor((diff / 60000) % 60),
+          secs: Math.floor((diff / 1000) % 60),
         });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0 });
       }
     }, 1000);
     return () => clearInterval(timer);
   }, [eventDate, eventTime]);
 
-  // 3. GUARDAR EN LA BASE DE DATOS
+  // 3. GUARDAR CAMBIOS
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const result = await updateEventConfig({
-        eventName,
-        eventDate,
-        eventTime,
-        venueName,
-        venueAddress,
-        mapLink,
+      const res = await updateEventConfig({
+        eventName, eventDate, eventTime, venueName, venueAddress, mapLink,
+        churchName, churchAddress, churchMapLink, churchDate, churchTime
       });
-
-      if (result.success) {
-        showNotification("¡Éxito!", "Configuración guardada en la base de datos 🎉", "success");
-      } else {
-        showNotification("¡Ups!", "No se pudo guardar la configuración.", "error");
+      if (res.success) {
+        showNotification("¡Listo!", "Logística actualizada con éxito.", "success");
       }
-    } catch (error) {
-      showNotification("Error", "Ocurrió un fallo en la conexión.", "error");
-    } finally {
-      setIsSaving(false);
+    } catch (e) { 
+      showNotification("Error", "No se pudo conectar con el servidor.", "error"); 
+    } finally { 
+      setIsSaving(false); 
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-zinc-50">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
-      </div>
-    );
-  }
+  // 4. ELIMINAR / LIMPIAR TODO (Persistente en DB)
+  const handleClear = () => {
+    MySwal.fire({
+      title: '¿VACIAR LOGÍSTICA?',
+      text: "Esto borrará los nombres y lugares de la base de datos permanentemente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'SÍ, BORRAR TODO',
+      confirmButtonColor: '#dc2626',
+      customClass: {
+        confirmButton: 'bg-red-600 text-white px-4 py-2 rounded-lg mx-2',
+        cancelButton: 'bg-zinc-200 px-4 py-2 rounded-lg mx-2'
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsSaving(true);
+        try {
+          // Limpiamos UI
+          setEventName(""); setEventDate(""); setEventTime("");
+          setVenueName(""); setVenueAddress(""); setMapLink("");
+          setChurchName(""); setChurchAddress(""); setChurchMapLink("");
+          setChurchDate(""); setChurchTime("");
+
+          // Limpiamos DB enviando valores vacíos
+          const res = await updateEventConfig({
+            eventName: "", eventDate: "", eventTime: "",
+            venueName: "", venueAddress: "", mapLink: "",
+            churchName: "", churchAddress: "", churchMapLink: "",
+            churchDate: "", churchTime: ""
+          });
+
+          if (res.success) {
+            showNotification("Eliminado", "La logística ha sido borrada.", "success");
+          }
+        } catch (error) {
+          showNotification("Error", "No se pudo borrar la información.", "error");
+        } finally {
+          setIsSaving(false);
+        }
+      }
+    });
+  };
+
+  if (loading) return <div className="h-screen flex items-center justify-center bg-zinc-50"><Loader2 className="animate-spin text-red-600" /></div>;
 
   return (
-    <div className="p-6 lg:p-10 max-w-5xl mx-auto">
-      <div className="mb-10 text-center md:text-left">
-        <h1 className="text-3xl font-serif italic font-bold text-zinc-900 dark:text-white">Panel de Control</h1>
-        <p className="text-zinc-500 text-sm">Personaliza los detalles de tu invitación</p>
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-3 bg-white dark:bg-slate-950 p-8 rounded-3xl border border-zinc-100 dark:border-slate-900 shadow-sm space-y-6"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
-              <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <User className="h-3 w-3" /> Nombre de la Agasajada
-              </label>
-              <input 
-                type="text" 
-                value={eventName} 
-                onChange={(e) => setEventName(e.target.value)} 
-                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <Calendar className="h-3 w-3" /> Fecha
-              </label>
-              <input 
-                type="date" 
-                value={eventDate} 
-                onChange={(e) => setEventDate(e.target.value)} 
-                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <Clock className="h-3 w-3" /> Hora
-              </label>
-              <input 
-                type="time" 
-                value={eventTime} 
-                onChange={(e) => setEventTime(e.target.value)} 
-                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <Home className="h-3 w-3" /> Nombre del Salón
-              </label>
-              <input 
-                type="text" 
-                value={venueName} 
-                onChange={(e) => setVenueName(e.target.value)} 
-                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <MapPin className="h-3 w-3" /> Dirección (Texto)
-              </label>
-              <input 
-                type="text" 
-                value={venueAddress} 
-                onChange={(e) => setVenueAddress(e.target.value)} 
-                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">
-                <LinkIcon className="h-3 w-3" /> Link de Google Maps
-              </label>
-              <input 
-                type="url" 
-                placeholder="https://goo.gl/maps/..." 
-                value={mapLink} 
-                onChange={(e) => setMapLink(e.target.value)} 
-                className="w-full bg-zinc-50 dark:bg-slate-900 border-none rounded-2xl p-4 text-zinc-900 dark:text-white outline-none font-medium focus:ring-2 focus:ring-zinc-200" 
-              />
-            </div>
+    <div className="min-h-screen bg-zinc-50 p-4 font-sans text-black pb-20">
+      <div className="max-w-6xl mx-auto">
+        <header className="flex justify-between items-center mb-4 border-b-2 border-zinc-200 pb-2">
+          <div>
+            <p className="text-red-600 font-black text-[10px] uppercase tracking-widest leading-none mb-1">MendoClick Admin</p>
+            <h1 className="text-xl font-black uppercase italic tracking-tighter">Event <span className="text-red-600">Logistics</span></h1>
           </div>
-
-          <div className="flex gap-3 mt-2">
-            <button 
-              onClick={handleSave} 
-              disabled={isSaving}
-              className="flex-[3] bg-zinc-900 dark:bg-white text-white dark:text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.01] transition-all shadow-lg disabled:opacity-50"
-            >
-              {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
-              {isSaving ? "GUARDANDO..." : "GUARDAR EN BASE DE DATOS"}
+          <div className="flex gap-2">
+            <button onClick={handleClear} className="p-2.5 rounded-xl bg-white border-2 border-zinc-200 text-zinc-400 hover:text-red-600 transition-colors shadow-sm">
+              <Trash2 size={18} />
             </button>
-
-            <button 
-              onClick={handleClear}
-              title="Limpiar campos"
-              className="flex-1 bg-zinc-100 dark:bg-slate-800 text-zinc-400 hover:text-red-500 py-4 rounded-2xl font-bold flex items-center justify-center transition-all hover:bg-red-50 dark:hover:bg-red-950/30"
-            >
-              <Trash2 className="h-5 w-5" />
+            <button onClick={handleSave} disabled={isSaving} className="bg-black text-white px-8 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all active:scale-95 shadow-xl disabled:opacity-50">
+              {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} PUBLICAR CAMBIOS
             </button>
           </div>
-        </motion.div>
+        </header>
 
-        {/* Vista Previa */}
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-10 rounded-3xl border border-zinc-100 shadow-xl flex flex-col items-center text-center space-y-6">
-             <div className="space-y-1">
-                <h2 className="text-4xl font-serif italic text-zinc-800">{venueName || "Nombre del Salón"}</h2>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-semibold">LA CELEBRACIÓN</p>
-             </div>
-             <div className="flex items-center gap-4 text-4xl font-serif italic font-bold text-zinc-900">
-                {eventTime || "00:00"} HS
-             </div>
-             <p className="text-zinc-500 font-medium tracking-wide">{venueAddress || "Dirección del evento"}</p>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-6">
+            <section className="bg-white p-6 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
+              <h2 className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest">
+                <User size={14} className="text-red-600"/> 01. Información General
+              </h2>
+              <input 
+                type="text" placeholder="NOMBRES (EJ: JULI & MARIO)" value={eventName} onChange={(e) => setEventName(e.target.value)}
+                className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-4 text-xl font-black uppercase outline-none focus:border-red-500 transition-all mb-4" 
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[9px] font-black text-zinc-500 uppercase mb-1 block ml-1">Fecha</label>
+                  <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full border-2 border-zinc-200 rounded-xl p-3 font-bold outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-zinc-500 uppercase mb-1 block ml-1">Hora Inicio</label>
+                  <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} className="w-full border-2 border-zinc-200 rounded-xl p-3 font-bold outline-none focus:border-red-500" />
+                </div>
+              </div>
+            </section>
 
-          <div className="bg-zinc-900 text-white p-8 rounded-3xl flex flex-col items-center gap-6">
-             <div className="grid grid-cols-4 gap-6 w-full text-center">
-                {[
-                  { label: 'Días', value: timeLeft.days }, 
-                  { label: 'Hrs', value: timeLeft.hours }, 
-                  { label: 'Min', value: timeLeft.mins }, 
-                  { label: 'Seg', value: timeLeft.secs }
-                ].map((unit, i) => (
-                  <div key={i} className="flex flex-col">
-                    <span className="text-2xl font-serif italic font-bold">{unit.value}</span>
-                    <span className="text-[8px] uppercase tracking-tighter opacity-50">{unit.label}</span>
+            <section className="bg-white p-6 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-zinc-900" />
+              <h2 className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest">
+                <Church size={14} className="text-zinc-900" /> 02. Ceremonia
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <input type="text" placeholder="NOMBRE DEL LUGAR" value={churchName} onChange={(e) => setChurchName(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-zinc-900" />
+                  <input type="text" placeholder="DIRECCIÓN" value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
+                </div>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input type="date" value={churchDate} onChange={(e) => setChurchDate(e.target.value)} className="border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
+                    <input type="time" value={churchTime} onChange={(e) => setChurchTime(e.target.value)} className="border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
                   </div>
-                ))}
-             </div>
-             <div className="w-full border-t border-white/10 pt-4 text-center">
-                <p className="text-xl font-serif italic">{eventName || "Nombre"}</p>
-             </div>
+                  <input type="url" placeholder="LINK GOOGLE MAPS" value={churchMapLink} onChange={(e) => setChurchMapLink(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-[10px] font-mono outline-none focus:border-zinc-900" />
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white p-6 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
+              <h2 className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest">
+                <PartyPopper size={14} className="text-red-600" /> 03. Fiesta
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <input type="text" placeholder="NOMBRE DEL SALÓN" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-red-500" />
+                  <input type="text" placeholder="DIRECCIÓN" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
+                </div>
+                <div className="space-y-3">
+                  <input type="url" placeholder="LINK GOOGLE MAPS" value={mapLink} onChange={(e) => setMapLink(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-[10px] font-mono outline-none focus:border-red-500" />
+                </div>
+              </div>
+            </section>
           </div>
-        </motion.div>
+
+          <aside className="lg:col-span-4">
+            <div className="sticky top-4">
+              <div className="bg-zinc-950 rounded-[2.5rem] p-8 text-white shadow-2xl border-l-8 border-red-600 relative overflow-hidden">
+                <p className="text-[10px] font-black text-red-600 uppercase mb-4 tracking-widest">Live Preview</p>
+                <h4 className="text-3xl font-black italic uppercase mb-6 leading-none tracking-tighter truncate">
+                  {eventName || "TU NOMBRE"}
+                </h4>
+                
+                <div className="grid grid-cols-4 gap-2 mb-8">
+                  {[
+                    { l: 'D', v: timeLeft.days }, { l: 'H', v: timeLeft.hours }, 
+                    { l: 'M', v: timeLeft.mins }, { l: 'S', v: timeLeft.secs }
+                  ].map((u, i) => (
+                    <div key={i} className="bg-white/5 rounded-xl py-2 text-center border border-white/10">
+                      <span className="block text-xl font-black text-red-600 leading-none">{u.v.toString().padStart(2, "0")}</span>
+                      <span className="text-[7px] font-black opacity-30 uppercase">{u.l}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-6">
+                  <div className="flex gap-4 items-center">
+                    <div className="p-3 bg-white/5 rounded-2xl text-zinc-500"><Church size={20}/></div>
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Ceremonia</p>
+                      <p className="text-sm font-bold truncate leading-none">{churchName || "---"}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <div className="p-3 bg-red-600/20 rounded-2xl text-red-600"><PartyPopper size={20}/></div>
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">Fiesta</p>
+                      <p className="text-sm font-bold truncate leading-none">{venueName || "---"}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-10 pt-6 border-t border-white/5 flex justify-between items-center opacity-40">
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] italic text-red-600">MendoClick PRO</p>
+                  <ChevronRight size={16} />
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
