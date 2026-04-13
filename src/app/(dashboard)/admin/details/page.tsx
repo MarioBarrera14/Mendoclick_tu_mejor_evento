@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Save, Gift, Shirt, Pencil, Loader2, CreditCard, User, Eye, X, Copy, Check } from "lucide-react";
-import { updateEventDetails } from "@/app/api/admin/details/route";
+import { 
+  Save, Gift, Shirt, Loader2, CreditCard, 
+  Eye, X, Trash2 
+} from "lucide-react";
+// Importamos las acciones independientes
+import { getEventDetails, updateEventDetails } from "@/actions/details.action";
 import Swal from "sweetalert2";
 
 // --- COMPONENTE MODAL DE VISTA PREVIA (ESTILO INVITACIÓN) ---
@@ -27,10 +31,11 @@ function PreviewModal({ isOpen, onClose, title, children }: { isOpen: boolean; o
 }
 
 export default function DetailsConfigPage() {
+  const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activePreview, setActivePreview] = useState<"dress" | "gift" | null>(null);
 
-  // Estados inicializados siempre VACÍOS
+  // Estados de los campos
   const [dressCode, setDressCode] = useState("");
   const [dressDescription, setDressDescription] = useState("");
   const [cbu, setCbu] = useState("");
@@ -38,43 +43,111 @@ export default function DetailsConfigPage() {
   const [bankName, setBankName] = useState("");
   const [holderName, setHolderName] = useState("");
 
-  const handleSave = async () => {
-    if (!dressCode && !cbu) {
-        Swal.fire("Atención", "Completa al menos los campos principales antes de publicar", "info");
-        return;
+  // 1. CARGA DE DATOS INICIAL (Sincronizado con Prisma)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getEventDetails();
+        if (data) {
+          setDressCode(data.dressCode || "");
+          setDressDescription(data.dressDescription || "");
+          setCbu(data.cbu || "");
+          setAlias(data.alias || "");
+          setBankName(data.bankName || "");
+          setHolderName(data.holderName || "");
+        }
+      } catch (error) {
+        console.error("Error cargando detalles:", error);
+      } finally {
+        setLoading(false);
+      }
     }
+    loadData();
+  }, []);
 
+  // 2. GUARDAR CAMBIOS
+  const handleSave = async () => {
     setIsSaving(true);
     try {
-        const result = await updateEventDetails({ dressCode, dressDescription, cbu, alias, bankName, holderName });
+        const result = await updateEventDetails({ 
+          dressCode, dressDescription, cbu, alias, bankName, holderName 
+        });
+        
         if (result.success) {
           Swal.fire({
             title: "¡PUBLICADO!",
-            text: "La información de la invitación ha sido actualizada",
+            text: "La información ha sido actualizada en la invitación.",
             icon: "success",
             confirmButtonColor: "#dc2626",
             customClass: { popup: 'rounded-3xl border-b-4 border-red-600' }
           });
         }
     } catch (error) {
-        Swal.fire("Error", "No se pudieron guardar los cambios", "error");
+        Swal.fire("Error", "No se pudieron guardar los cambios.", "error");
     } finally {
         setIsSaving(false);
     }
   };
 
+  // 3. LIMPIAR TODO (Borrando de la DB con NULL)
+  const handleClear = async () => {
+    const confirm = await Swal.fire({
+      title: '¿VACIAR SECCIÓN?',
+      text: "Se borrará el Dress Code y los datos bancarios de forma permanente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#18181b',
+      confirmButtonText: 'SÍ, BORRAR TODO',
+      cancelButtonText: 'CANCELAR',
+      customClass: { popup: 'rounded-[2rem] border-b-8 border-red-600 shadow-2xl' }
+    });
+
+    if (confirm.isConfirmed) {
+      setIsSaving(true);
+      const resetData = {
+        dressCode: null, dressDescription: null,
+        cbu: null, alias: null, bankName: null, holderName: null
+      };
+      
+      try {
+        const result = await updateEventDetails(resetData);
+        if (result.success) {
+          setDressCode(""); setDressDescription("");
+          setCbu(""); setAlias(""); setBankName(""); setHolderName("");
+          Swal.fire("Eliminado", "La base de datos ha sido limpiada.", "success");
+        }
+      } catch (e) {
+        Swal.fire("Error", "No se pudo limpiar la sección.", "error");
+      } finally {
+        setIsSaving(false);
+      }
+    }
+  };
+
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-zinc-50">
+      <Loader2 className="animate-spin text-red-600" size={40} />
+    </div>
+  );
+
   return (
     <div className="max-w-6xl mx-auto p-4 lg:p-6 font-sans text-black">
       
-      {/* HEADER COMPACTO MENDOCLICK */}
+      {/* HEADER COMPACTO */}
       <header className="flex justify-between items-center mb-8 border-b pb-4">
         <div>
           <p className="text-red-600 font-black text-[10px] uppercase tracking-widest">MendoClick Admin</p>
           <h1 className="text-3xl font-black uppercase italic tracking-tighter">Event <span className="text-red-600">Details</span></h1>
         </div>
-        <button onClick={handleSave} disabled={isSaving} className="bg-black text-white px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all shadow-lg active:scale-95 disabled:opacity-50">
-          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} PUBLICAR CAMBIOS
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleClear} disabled={isSaving} className="p-3 rounded-xl bg-white border-2 border-zinc-200 text-zinc-400 hover:text-red-600 transition-colors">
+            <Trash2 size={20} />
+          </button>
+          <button onClick={handleSave} disabled={isSaving} className="bg-black text-white px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all shadow-lg active:scale-95 disabled:opacity-50">
+            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} PUBLICAR CAMBIOS
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -89,19 +162,19 @@ export default function DetailsConfigPage() {
               <label className="text-[10px] font-black text-zinc-600 uppercase mb-1 block">Código</label>
               <input 
                 type="text" 
-                placeholder="EJ: ELEGANTE SPORT, GALA, FORMAL..." 
+                placeholder="EJ: ELEGANTE SPORT..." 
                 value={dressCode} 
                 onChange={(e) => setDressCode(e.target.value)} 
-                className="w-full bg-zinc-50 border border-zinc-300 rounded-lg p-3 font-bold text-black outline-none focus:border-red-500 transition-all uppercase placeholder:text-zinc-400 placeholder:font-normal" 
+                className="w-full bg-zinc-50 border border-zinc-300 rounded-lg p-3 font-bold outline-none focus:border-red-500 transition-all uppercase" 
               />
             </div>
             <div>
               <label className="text-[10px] font-black text-zinc-600 uppercase mb-1 block">Sugerencia (Texto corto)</label>
               <textarea 
-                placeholder="EJ: EVITAR EL COLOR BLANCO / TRAER ROPA PARA LA ALBERCA..." 
+                placeholder="EJ: EVITAR EL COLOR BLANCO..." 
                 value={dressDescription} 
                 onChange={(e) => setDressDescription(e.target.value)} 
-                className="w-full bg-zinc-50 border border-zinc-300 rounded-lg p-3 font-bold text-black outline-none focus:border-red-500 transition-all h-24 resize-none placeholder:text-zinc-400 placeholder:font-normal text-sm" 
+                className="w-full bg-zinc-50 border border-zinc-300 rounded-lg p-3 font-bold outline-none focus:border-red-500 h-24 resize-none text-sm" 
               />
             </div>
           </div>
@@ -118,10 +191,10 @@ export default function DetailsConfigPage() {
               <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">Titular de Cuenta</label>
               <input 
                 type="text" 
-                placeholder="NOMBRE COMPLETO DEL DUEÑO DE LA CUENTA"
+                placeholder="NOMBRE COMPLETO"
                 value={holderName} 
                 onChange={(e) => setHolderName(e.target.value)} 
-                className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 uppercase placeholder:text-zinc-600 placeholder:font-normal" 
+                className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 uppercase" 
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -132,17 +205,17 @@ export default function DetailsConfigPage() {
                     placeholder="EJ: MI.EVENTO.BANC"
                     value={alias} 
                     onChange={(e) => setAlias(e.target.value)} 
-                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 placeholder:text-zinc-600 placeholder:font-normal" 
+                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500" 
                 />
               </div>
               <div>
                 <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">Banco</label>
                 <input 
                     type="text" 
-                    placeholder="EJ: GALICIA, SANTANDER, BNA..."
+                    placeholder="EJ: GALICIA..."
                     value={bankName} 
                     onChange={(e) => setBankName(e.target.value)} 
-                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 uppercase placeholder:text-zinc-600 placeholder:font-normal" 
+                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 uppercase" 
                 />
               </div>
             </div>
@@ -153,7 +226,7 @@ export default function DetailsConfigPage() {
                 placeholder="00000031000..."
                 value={cbu} 
                 onChange={(e) => setCbu(e.target.value)} 
-                className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-xs font-mono text-red-400 font-bold outline-none focus:border-red-500 placeholder:text-zinc-600 placeholder:font-normal" 
+                className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-xs font-mono text-red-400 font-bold outline-none focus:border-red-500" 
               />
             </div>
           </div>
@@ -170,45 +243,41 @@ export default function DetailsConfigPage() {
         
         <div className="flex justify-center gap-8">
           <button onClick={() => setActivePreview("dress")} className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 rounded-full border-2 border-zinc-200 bg-white flex items-center justify-center group-hover:border-red-500 group-hover:text-red-500 transition-all">
+            <div className="w-16 h-16 rounded-full border-2 border-zinc-200 bg-white flex items-center justify-center group-hover:border-red-500 transition-all">
               <Shirt size={24} />
             </div>
             <span className="text-[9px] font-black uppercase text-zinc-400 group-hover:text-black">Dress Code</span>
           </button>
 
           <button onClick={() => setActivePreview("gift")} className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 rounded-full border-2 border-zinc-200 bg-white flex items-center justify-center group-hover:border-red-500 group-hover:text-red-500 transition-all">
+            <div className="w-16 h-16 rounded-full border-2 border-zinc-200 bg-white flex items-center justify-center group-hover:border-red-500 transition-all">
               <Gift size={24} />
             </div>
             <span className="text-[9px] font-black uppercase text-zinc-400 group-hover:text-black">Regalos</span>
           </button>
         </div>
 
-        {/* MODAL DE DRESS CODE */}
         <PreviewModal isOpen={activePreview === "dress"} onClose={() => setActivePreview(null)} title="DRESS CODE">
           <p className="text-xl font-bold uppercase italic tracking-tighter text-red-600 mb-2">{dressCode || "VISTA PREVIA"}</p>
-          <p className="text-sm italic text-zinc-500 leading-tight">"{dressDescription || "Aquí aparecerá la sugerencia que escribas arriba."}"</p>
+          <p className="text-sm italic text-zinc-500 leading-tight">"{dressDescription || "Sugerencia aquí."}"</p>
         </PreviewModal>
 
-        {/* MODAL DE REGALOS */}
         <PreviewModal isOpen={activePreview === "gift"} onClose={() => setActivePreview(null)} title="REGALOS">
-          <p className="text-sm font-bold mb-4 italic text-zinc-500">Si deseas realizar un presente:</p>
           <div className="space-y-2 text-left">
             <div className="bg-zinc-100 p-3 rounded-xl border border-zinc-200">
               <p className="text-[8px] font-black text-zinc-400 uppercase">Titular</p>
-              <p className="font-bold text-sm uppercase">{holderName || "NOMBRE DEL TITULAR"}</p>
+              <p className="font-bold text-sm uppercase">{holderName || "---"}</p>
             </div>
             <div className="bg-zinc-100 p-3 rounded-xl border border-zinc-200">
               <p className="text-[8px] font-black text-zinc-400 uppercase">Alias</p>
-              <p className="font-bold text-sm">{alias || "TU.ALIAS.AQUÍ"}</p>
+              <p className="font-bold text-sm">{alias || "---"}</p>
             </div>
             <div className="bg-zinc-100 p-3 rounded-xl border border-zinc-200">
               <p className="text-[8px] font-black text-zinc-400 uppercase">CBU</p>
-              <p className="font-mono text-[10px] font-bold break-all text-red-600">{cbu || "0000000000000000000000"}</p>
+              <p className="font-mono text-[10px] font-bold break-all text-red-600">{cbu || "---"}</p>
             </div>
           </div>
         </PreviewModal>
-
       </div>
     </div>
   );

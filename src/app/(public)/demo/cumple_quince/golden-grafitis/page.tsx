@@ -12,7 +12,7 @@ import {
   MusicSuggestion,
   Navbar,
   Witnesses, // Importado correctamente
-} from "@/components/templates/golden-grafitis";
+} from "@/components/templates/cumple_quince/golden-grafitis";
 
 // Importamos la data de Quince limpia
 import { globalQuinceConfig as localConfig } from "@/data/event-config-bodas";

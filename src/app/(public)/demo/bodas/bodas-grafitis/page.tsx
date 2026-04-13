@@ -1,18 +1,18 @@
 "use client";
 
 import {
-  Hero,
   DetailModal,
-  Itinerary,
-  EventDetails,
-  RSVP,
-  Footer,
   Envelope,
+  EventDetails,
+  Footer,
   FotoCarousel,
+  Hero,
+  Itinerary,
   MusicSuggestion,
   Navbar,
+  RSVP,
   Witnesses,
-} from "@/components/templates/bodas-grafitis";
+} from "@/components/templates/bodas/bodas-grafitis";
 
 // Importamos la data de BODA (la que tiene 'nombres' en plural)
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";

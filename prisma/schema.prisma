@@ -65,14 +65,14 @@ model EventConfig {
   churchTime       String?  @default("") // <--- AGREGAR ESTO
 
   // --- Detalles ---
-  dressCode        String   @default("Elegante Sport")
-  dressDescription String   @default("¡Tu presencia es lo más importante!")
-  
+  dressCode        String?  @default("Elegante Sport") // El ? permite el null
+  dressDescription String?  @default("¡Tu presencia es lo más importante!")
+
   // --- Regalos / CBU ---
-  cbu              String   @default("")
-  alias            String   @default("")
-  bankName         String   @default("")
-  holderName       String   @default("")
+  cbu              String?   @default("")
+  alias            String?   @default("")
+  bankName         String?   @default("")
+  holderName       String?   @default("")
 
   // --- Relaciones Dinámicas ---
   itinerary        ItineraryItem[]
@@ -101,11 +101,14 @@ model ItineraryItem {
 model Witness {
   id            String      @id @default(cuid())
   nombre        String
-  rol           String      // "Testigo del Novio", "Madrina", etc.
-  imageUrl      String?     // Foto de Cloudinary
+  rol           String      
+  imageUrl      String?     
   
   eventConfigId String
   eventConfig   EventConfig @relation(fields: [eventConfigId], references: [id], onDelete: Cascade)
+
+  // AGREGÁ ESTA LÍNEA AQUÍ:
+  @@unique([eventConfigId, rol]) 
 
   @@map("witnesses")
 }

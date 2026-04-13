@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Disc3, Headset, X, Send, Loader2, KeyRound } from "lucide-react";
-import { submitSongSuggestions } from "@/app/api/admin/songs/route";
+import { submitSongSuggestions } from "@/actions/songs.actions";
+
 import Swal from "sweetalert2";
 
 interface MusicSuggestionProps {

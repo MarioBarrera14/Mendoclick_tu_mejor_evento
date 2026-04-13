@@ -188,9 +188,9 @@ export default function ClientesPage() {
                       <option value="DEMO1">Champagne 15</option>
                       <option value="DEMO2">Neon Party 15</option>
                       <option value="DEMO3">Graffiti Urbano 15</option>
-                      <option value="DEMO4">Golden Noir Bodas</option>
-                      <option value="DEMO5">Retro Viniyl Bodas</option>
-                      <option value="DEMO6">Graffiti Uban Bodas</option>
+                      <option value="DEMO4">Graffiti Uban Bodas</option>
+                      <option value="DEMO5">Golden Noir Bodas</option>
+                      <option value="DEMO6">Retro Viniyl Bodas</option>
                     </select>
                   </div>
 

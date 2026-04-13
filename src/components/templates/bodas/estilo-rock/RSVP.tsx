@@ -2,11 +2,12 @@
 
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { 
-  X, Loader2, Ticket
+  X, Loader2, Ticket, AlertCircle, CheckCircle2 
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import SeparadorEntrePaginas from "./separadordepaaginas";
+
 // --- INTERFAZ DE PROPS ---
 interface RSVPProps {
   config: {
@@ -29,6 +30,7 @@ export function RSVP({ config }: RSVPProps) {
   const [familyCode, setFamilyCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [guestInfo, setGuestInfo] = useState<any>(null);
+  const [alreadyConfirmed, setAlreadyConfirmed] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -45,6 +47,7 @@ export function RSVP({ config }: RSVPProps) {
       transition: { type: "spring", bounce: 0.4, duration: 0.8 }
     }
   };
+
   const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
     day: 'numeric',
     month: 'long',
@@ -56,6 +59,7 @@ export function RSVP({ config }: RSVPProps) {
     setFamilyCode("");
     setErrorMessage("");
     setGuestInfo(null);
+    setAlreadyConfirmed(false);
     setFormData({ name: "", attendance: "", dietary: [], message: "" });
   };
 
@@ -70,6 +74,8 @@ export function RSVP({ config }: RSVPProps) {
     if (!familyCode) return;
     setIsSubmitting(true);
     setErrorMessage("");
+    setAlreadyConfirmed(false);
+
     try {
       const response = await fetch("/api/guests");
       const invitados = await response.json();
@@ -78,6 +84,14 @@ export function RSVP({ config }: RSVPProps) {
       );
 
       if (invitadoEncontrado) {
+        // VALIDACIÓN DE UN SOLO USO
+        if (invitadoEncontrado.status !== "PENDING") {
+          setAlreadyConfirmed(true);
+          setErrorMessage("ESTE CÓDIGO YA FUE UTILIZADO.");
+          setIsSubmitting(false);
+          return;
+        }
+
         setGuestInfo(invitadoEncontrado);
         setIsValidated(true);
         setFormData(prev => ({ ...prev, name: invitadoEncontrado.apellido }));
@@ -133,11 +147,10 @@ export function RSVP({ config }: RSVPProps) {
           viewport={{ once: true }}
           className={`relative bg-[#fdfcf0] border-4 border-black shadow-[15px_15px_0px_0px_${colorRojo}] max-w-6xl w-full flex flex-col md:flex-row overflow-visible transform md:rotate-[-0.5deg]`}
         >
-          {/* Elementos decorativos en Celeste */}
+          {/* Elementos decorativos */}
           <div className="absolute -top-6 -left-6 text-[#33aba1] text-5xl hidden md:block animate-pulse">✦</div>
           <div className="absolute -bottom-6 -right-6 text-[#33aba1] text-5xl hidden md:block animate-pulse">✦</div>
 
-          {/* PARTE IZQUIERDA: FOTO */}
           <div className="w-full md:w-1/2 h-[400px] md:h-[600px] relative p-6 bg-white border-r-4 border-black">
             <div className="w-full h-full relative border-2 border-black overflow-hidden group">
               <Image 
@@ -154,32 +167,25 @@ export function RSVP({ config }: RSVPProps) {
             </div>
           </div>
 
-          {/* PARTE DERECHA: INFO Y BOTÓN */}
           <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col items-center justify-center text-center relative">
             <div className="absolute inset-4 border-2 border-dotted border-[#b02a30] pointer-events-none opacity-40"></div>
-
             <div className="mb-6">
               <div className="relative w-20 h-20 mx-auto">
                  <Image src="/img-rock/invitacion.png" alt="icon" fill className="object-contain rotate-12" />
               </div>
             </div>
-
             <p className="text-black font-black text-lg md:text-xl leading-tight mb-4 max-w-xs uppercase tracking-tighter italic">
               Esperamos que puedas <span className="text-[#b02a30]">Festejar</span> con nosotros.
             </p>
-            
             <p className="text-gray-600 text-sm md:text-base font-bold mb-10 italic">
-              ¡Confirmá tu asistencia antes del  {formattedDate}!
+              ¡Confirmá tu asistencia antes del {formattedDate}!
             </p>
-
             <button 
               onClick={() => setIsOpen(true)} 
               className={`${buttonBase} ${buttonBorder} bg-[#b02a30] px-14 py-4 text-lg outline-none`}
             >
               CONFIRMAR
             </button>
-
-            {/* Icono Ticket decorativo en Celeste */}
             <div className="mt-10 opacity-70 text-[#33aba1]">
                 <Ticket size={40} className="rotate-[-20deg]" />
             </div>
@@ -205,25 +211,37 @@ export function RSVP({ config }: RSVPProps) {
               {!isValidated ? (
                 <div className="space-y-8 py-6 text-center">
                   <h3 className="text-4xl font-black uppercase italic tracking-tighter text-[#b02a30]">¿Quién eres?</h3>
+                  
+                  {alreadyConfirmed && (
+                    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="bg-amber-50 border-2 border-amber-500 p-4 flex flex-col items-center gap-2">
+                      <AlertCircle className="text-amber-600" size={24} />
+                      <p className="text-amber-900 font-black text-xs uppercase italic tracking-tighter">
+                        ¡Este show ya tiene tu entrada! <br />
+                        Tu confirmación ya fue recibida anteriormente.
+                      </p>
+                    </motion.div>
+                  )}
+
                   <div className="space-y-4">
                     <p className="font-bold uppercase text-[10px] tracking-widest opacity-60">Ingresa el código de tu invitación</p>
                     <input 
                         type="text" 
                         value={familyCode}
                         onChange={(e) => setFamilyCode(e.target.value)}
-                        className={`w-full bg-white border-2 border-black p-4 text-center text-2xl font-black uppercase shadow-[4px_4px_0px_0px_${colorRojo}] focus:outline-none`}
+                        className={`w-full bg-white border-2 border-black p-4 text-center text-2xl font-black uppercase shadow-[4px_4px_0px_0px_${colorRojo}] focus:outline-none disabled:opacity-20`}
                         placeholder="ROCK-123"
+                        disabled={alreadyConfirmed}
                     />
                   </div>
-                  {errorMessage && <p className="text-[#b02a30] font-black text-sm uppercase italic animate-bounce">{errorMessage}</p>}
+                  {errorMessage && !alreadyConfirmed && <p className="text-[#b02a30] font-black text-sm uppercase italic animate-bounce">{errorMessage}</p>}
                   
                   <div className="flex justify-center">
                     <button 
                         onClick={handleValidateCode}
-                        disabled={isSubmitting}
-                        className={`${buttonBase} ${buttonBorder} bg-black w-full py-4 disabled:opacity-50`}
+                        disabled={isSubmitting || alreadyConfirmed}
+                        className={`${buttonBase} ${buttonBorder} bg-black w-full py-4 disabled:opacity-30`}
                     >
-                        {isSubmitting ? <Loader2 className="animate-spin" /> : "ACCEDER AL SHOW"}
+                        {isSubmitting ? <Loader2 className="animate-spin" /> : alreadyConfirmed ? <CheckCircle2 /> : "ACCEDER AL SHOW"}
                     </button>
                   </div>
                 </div>
@@ -232,7 +250,6 @@ export function RSVP({ config }: RSVPProps) {
                   <h3 className="text-3xl font-black uppercase italic text-center text-[#b02a30]">
                     ¡Hola {guestInfo?.apellido}!
                   </h3>
-                  
                   <div className="space-y-4">
                     <p className="text-center font-bold uppercase text-xs tracking-widest opacity-60">¿Vienes a la fiesta?</p>
                     <div className="flex gap-4">
@@ -262,7 +279,6 @@ export function RSVP({ config }: RSVPProps) {
                             onChange={(e) => setFormData({...formData, message: e.target.value})}
                         />
                       </div>
-                      
                       <div className="flex justify-center">
                         <button 
                             onClick={handleSubmit}
@@ -281,7 +297,7 @@ export function RSVP({ config }: RSVPProps) {
         )}
       </AnimatePresence>
     </section>
-        <SeparadorEntrePaginas />
-        </>
+    <SeparadorEntrePaginas />
+    </>
   );
 }

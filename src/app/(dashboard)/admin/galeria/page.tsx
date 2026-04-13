@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { ImagePlus, Upload, Play, X, CheckCircle2, Loader2, FileAudio, Save, Eraser } from "lucide-react";
-// Usamos la función unificada para mantener la sincronización con el resto de la invitación
-import { getEventConfig, updateEventConfig } from "@/actions/gallery.actions"; 
+import { getGalleryConfig, updateGalleryConfig } from "@/actions/gallery.actions"; 
 import Swal from "sweetalert2";
 
 export default function GestionGaleria() {
@@ -16,15 +15,14 @@ export default function GestionGaleria() {
   const [loading, setLoading] = useState<string | null>(null); 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Lógica para el estado del botón Limpiar
-  const isGalleryEmpty = useMemo(() => {
-    return !fotoPrincipal && !videoFile && !musicFile && carrusel.every(img => img === null);
-  }, [fotoPrincipal, videoFile, musicFile, carrusel]);
-
   const mainInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const musicInputRef = useRef<HTMLInputElement>(null);
   const carruselRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const isGalleryEmpty = useMemo(() => {
+    return !fotoPrincipal && !videoFile && !musicFile && carrusel.every(img => img === null);
+  }, [fotoPrincipal, videoFile, musicFile, carrusel]);
 
   const isVideo = (url: string | null) => {
     if (!url) return false;
@@ -33,23 +31,26 @@ export default function GestionGaleria() {
 
   useEffect(() => {
     async function loadData() {
-      const config = await getEventConfig();
-      if (config) {
-        setFotoPrincipal(config.heroImage || null);
-        setVideoFile(config.videoUrl || null);
-        setMusicFile(config.musicUrl || null);
-        if (config.musicUrl) setMusicName("Archivo cargado ✨");
-        if (config.carruselImages) {
-          try {
+      try {
+        const config = await getGalleryConfig();
+        if (config) {
+          setFotoPrincipal(config.heroImage || null);
+          setVideoFile(config.videoUrl || null);
+          setMusicFile(config.musicUrl || null);
+          if (config.musicUrl) setMusicName("Archivo cargado ✨");
+          if (config.carruselImages) {
             const parsed = JSON.parse(config.carruselImages);
             if (Array.isArray(parsed)) {
               const completeCarrusel = [...parsed, ...Array(6).fill(null)].slice(0, 6);
               setCarrusel(completeCarrusel);
             }
-          } catch (e) { console.error(e); }
+          }
         }
+      } catch (e) { 
+        console.error("Error cargando configuración:", e); 
+      } finally {
+        setIsInitialLoading(false);
       }
-      setIsInitialLoading(false);
     }
     loadData();
   }, []);
@@ -58,7 +59,7 @@ export default function GestionGaleria() {
     const formData = new FormData();
     formData.append("file", file);
     const res = await fetch("/api/upload", { method: "POST", body: formData });
-    if (!res.ok) throw new Error("Error");
+    if (!res.ok) throw new Error("Error en el servidor");
     const data = await res.json();
     return data.url; 
   };
@@ -67,7 +68,7 @@ export default function GestionGaleria() {
     setIsSaving(true);
     const carruselLimpio = carrusel.filter(img => img !== null);
 
-    const result = await updateEventConfig({
+    const result = await updateGalleryConfig({
       heroImage: fotoPrincipal, 
       videoUrl: videoFile,
       musicUrl: musicFile, 
@@ -75,9 +76,9 @@ export default function GestionGaleria() {
     });
 
     if (result.success) {
-      Swal.fire({ title: "¡HECHO!", text: "Galería actualizada.", icon: "success", confirmButtonColor: "#dc2626" });
+      Swal.fire({ title: "¡HECHO!", text: "Galería actualizada con éxito.", icon: "success", confirmButtonColor: "#dc2626" });
     } else {
-      Swal.fire("Error", "No se pudo guardar", "error");
+      Swal.fire("Error", "No se pudo sincronizar.", "error");
     }
     setIsSaving(false);
   };
@@ -85,7 +86,7 @@ export default function GestionGaleria() {
   const handleLimpiarTodo = async () => {
     const confirm = await Swal.fire({
       title: '¿VACIAR TODO?',
-      text: "Esto borrará todas las imágenes permanentemente.",
+      text: "Se borrarán todas las referencias multimedia.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
@@ -94,24 +95,28 @@ export default function GestionGaleria() {
 
     if (confirm.isConfirmed) {
       setIsSaving(true);
-      setFotoPrincipal(null); setVideoFile(null); setMusicFile(null);
-      setMusicName("Sin archivo"); setCarrusel(Array(6).fill(null));
-
-      await updateEventConfig({
+      const result = await updateGalleryConfig({
         heroImage: null, videoUrl: null, musicUrl: null, carruselImages: "[]"
       });
       
+      if (result.success) {
+        setFotoPrincipal(null); setVideoFile(null); setMusicFile(null);
+        setMusicName("Sin archivo"); setCarrusel(Array(6).fill(null));
+        Swal.fire("Eliminado", "La galería se ha limpiado.", "success");
+      }
       setIsSaving(false);
-      Swal.fire("Eliminado", "La galería se ha limpiado.", "success");
     }
   };
 
-  if (isInitialLoading) return <div className="h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-red-600" /></div>;
+  if (isInitialLoading) return (
+    <div className="h-screen flex items-center justify-center bg-white">
+      <Loader2 className="animate-spin text-red-600" size={40} />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-zinc-50 p-2 md:p-4 font-sans text-black">
       <div className="max-w-6xl mx-auto">
-        {/* HEADER COMPACTO */}
         <header className="flex justify-between items-center mb-4 border-b-2 border-zinc-200 pb-2">
           <h1 className="text-xl font-black uppercase italic tracking-tighter">Media <span className="text-red-600">Gallery</span></h1>
           <div className="flex gap-2">
@@ -125,7 +130,7 @@ export default function GestionGaleria() {
             <button 
               onClick={handlePublicar} 
               disabled={isSaving} 
-              className="bg-black text-white px-5 py-2 rounded-lg font-bold text-[9px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50"
+              className="bg-black text-white px-5 py-2 rounded-lg font-bold text-[9px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50 shadow-md"
             >
               {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} PUBLICAR CAMBIOS
             </button>
@@ -142,13 +147,13 @@ export default function GestionGaleria() {
               </p>
               <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-zinc-100 border-2 border-dashed border-zinc-400">
                 <div onClick={() => mainInputRef.current?.click()} className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-200 transition-colors">
-                  {loading === "main" ? <Loader2 className="animate-spin text-red-600" /> : fotoPrincipal ? <img src={fotoPrincipal} className="w-full h-full object-cover" alt="P" /> : <Upload size={28} className="text-zinc-400" />}
+                  {loading === "main" ? <Loader2 className="animate-spin text-red-600" /> : fotoPrincipal ? <img src={fotoPrincipal} className="w-full h-full object-cover" alt="Portada" /> : <Upload size={28} className="text-zinc-400" />}
                 </div>
                 {fotoPrincipal && <button onClick={() => setFotoPrincipal(null)} className="absolute top-2 right-2 p-1.5 bg-black text-white rounded-full hover:bg-red-600 transition-colors"><X size={12}/></button>}
               </div>
               <input type="file" ref={mainInputRef} className="hidden" accept="image/*" onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) { setLoading("main"); uploadFile(file).then(url => setFotoPrincipal(url)).finally(() => setLoading(null)); }
+                if (file) { setLoading("main"); uploadFile(file).then(url => setFotoPrincipal(url)).catch(() => Swal.fire("Error", "No se pudo subir la imagen", "error")).finally(() => setLoading(null)); }
               }} />
             </section>
             
@@ -165,7 +170,7 @@ export default function GestionGaleria() {
               </div>
               <input type="file" ref={musicInputRef} className="hidden" accept="audio/*" onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) { setLoading("music"); setMusicName(file.name); uploadFile(file).then(url => setMusicFile(url)).finally(() => setLoading(null)); }
+                if (file) { setLoading("music"); setMusicName(file.name); uploadFile(file).then(url => setMusicFile(url)).catch(() => setMusicName("Error al subir")).finally(() => setLoading(null)); }
               }} />
             </section>
           </div>
@@ -173,11 +178,10 @@ export default function GestionGaleria() {
           {/* COLUMNA DERECHA: VIDEO Y CARRUSEL */}
           <div className="lg:col-span-9 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              {/* VIDEO */}
               <section className="bg-white p-4 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-red-600" />
                 <p className="text-[10px] font-black uppercase text-zinc-600 mb-2 tracking-widest flex items-center gap-2">
-                  <Play size={14} className="text-red-600"/> 03. Video
+                  <Play size={14} className="text-red-600"/> 03. Video Hero
                 </p>
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-black border-2 border-zinc-800">
                   <div onClick={() => videoInputRef.current?.click()} className="w-full h-full flex items-center justify-center cursor-pointer">
@@ -187,22 +191,21 @@ export default function GestionGaleria() {
                 </div>
                 <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) { setLoading("video-main"); uploadFile(file).then(url => setVideoFile(url)).finally(() => setLoading(null)); }
+                  if (file) { setLoading("video-main"); uploadFile(file).then(url => setVideoFile(url)).catch(() => Swal.fire("Error", "No se pudo subir el video", "error")).finally(() => setLoading(null)); }
                 }} />
               </section>
 
-              {/* CARRUSEL */}
               <section className="bg-white p-4 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-red-600" />
                 <p className="text-[10px] font-black uppercase text-zinc-600 mb-2 tracking-widest flex items-center gap-2">
-                  <Upload size={14} className="text-red-600"/> 04. Carrusel (6 Fotos)
+                  <Upload size={14} className="text-red-600"/> 04. Carrusel de Fotos
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {carrusel.map((url, index) => (
                     <div key={index} className="relative aspect-square">
                       <div onClick={() => carruselRefs.current[index]?.click()} className={`w-full h-full rounded-xl overflow-hidden border-2 transition-all flex items-center justify-center cursor-pointer ${url ? 'border-zinc-300 shadow-md' : 'border-dashed border-zinc-400 bg-zinc-50 hover:bg-white hover:border-red-400'}`}>
                         {loading === `carrusel-${index}` ? <Loader2 className="animate-spin text-red-600" size={16} /> : url ? (
-                          isVideo(url) ? <video src={url} className="w-full h-full object-cover" muted loop autoPlay /> : <img src={url} className="w-full h-full object-cover" />
+                          isVideo(url) ? <video src={url} className="w-full h-full object-cover" muted loop autoPlay /> : <img src={url} className="w-full h-full object-cover" alt={`Carrusel ${index}`} />
                         ) : <Upload size={14} className="text-zinc-300" />}
                       </div>
                       {url && <button onClick={(e) => { e.stopPropagation(); setCarrusel(prev => { const n = [...prev]; n[index] = null; return n; }); }} className="absolute -top-1 -right-1 p-1 bg-black text-white rounded-full hover:bg-red-600 transition-all z-10"><X size={8}/></button>}
@@ -210,7 +213,7 @@ export default function GestionGaleria() {
                          const file = e.target.files?.[0];
                          if (file) {
                            setLoading(`carrusel-${index}`);
-                           uploadFile(file).then(url => { setCarrusel(prev => { const n = [...prev]; n[index] = url; return n; }); }).finally(() => setLoading(null));
+                           uploadFile(file).then(url => { setCarrusel(prev => { const n = [...prev]; n[index] = url; return n; }); }).catch(() => Swal.fire("Error", "Subida fallida", "error")).finally(() => setLoading(null));
                          }
                       }} />
                     </div>
@@ -219,9 +222,8 @@ export default function GestionGaleria() {
               </section>
             </div>
 
-            {/* BARRA DE ESTADO INFERIOR */}
             <div className="bg-zinc-900 p-3 rounded-xl border-l-4 border-red-600 flex justify-between items-center shadow-lg">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">MendoClick Multimedia Manager <span className="text-red-600">v2.1</span></p>
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 italic">MendoClick Multimedia <span className="text-red-600">v2.1</span></p>
               <CheckCircle2 size={14} className="text-red-600" />
             </div>
           </div>

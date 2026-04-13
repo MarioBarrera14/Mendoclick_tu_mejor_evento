@@ -230,9 +230,8 @@ case "RETRO_VINYL":
               holderName: dbConfig.holderName
             }} />
 
-
-            <Retro_Vinyl.MusicSuggestion eventId={user.id} />
-        
+// En tu página de la invitación (donde obtienes los datos del usuario)
+<Retro_Vinyl.MusicSuggestion eventId={user.eventConfig.id} />
 
             <Retro_Vinyl.RSVP config={{ heroImage: dbConfig.heroImage || globalBodaConfig.imagenes.hero.rock, eventDate: dbConfig.eventDate, confirmDate: dbConfig.eventDate } as any} />
            

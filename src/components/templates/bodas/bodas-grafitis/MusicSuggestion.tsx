@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, KeyRound, Music as MusicIcon } from "lucide-react";
-import { submitSongSuggestions } from "@/app/api/admin/songs/route";
+import { submitSongSuggestions } from "@/actions/songs.actions";
+
 import Image from "next/image";
 import Swal from "sweetalert2";
 

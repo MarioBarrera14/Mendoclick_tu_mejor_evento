@@ -2,6 +2,7 @@
 
 import {
   Hero,
+  Itinerary,
   Location,
   Details,
   RSVP,
@@ -10,42 +11,36 @@ import {
   FotoCarousel,
   MusicSuggestion,
   Navbar,
-  Itinerary,
-} from "@/components/templates/Champagne";
+} from "@/components/templates/cumple_quince/neon-party";
 
-// Importamos la data de Quince que ya viene limpia
 import { globalQuinceConfig as localConfig } from "@/data/event-config-bodas";
 
-export default function NightLightsDemoPage() {
-  // Sincronizamos la fecha para el contador (YYYY-MM-DD)
+export default function NeonPartyDemoPage() {
   const fechaString = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
 
   return (
-    <main className="min-h-screen bg-white">
-      {/* 1. SOBRE Y MÚSICA: Acceso directo a musicaUrl.champagne */}
-      <Envelope musicUrl={localConfig.imagenes.musicaUrl.champagne}>
+    <main className="min-h-screen bg-[#0a0a0a]">
+      {/* 1. MÚSICA: Ahora apunta a .neon */}
+      <Envelope musicUrl={localConfig.imagenes.musicaUrl.neon}>
         
-        {/* Navbar: Nombre singular */}
         <Navbar eventName={localConfig.personal.nombre} isDemo={true} />
         
-        {/* Hero: Imagen directa de champagne */}
+        {/* HERO: Ahora apunta a .neon */}
         <Hero config={{
           eventName: localConfig.personal.nombre,
           eventDate: fechaString,
           eventTime: localConfig.fecha.hora,
-          heroImage: localConfig.imagenes.hero.champagne
+          heroImage: localConfig.imagenes.hero.neon 
         }} />
-
-        {/* Galería: Carrusel directo y video directo */}
+        
+        {/* GALERÍA: Video ahora apunta a .neon */}
         <FotoCarousel 
           images={JSON.stringify(localConfig.imagenes.carrusel)} 
-          videoUrl={localConfig.imagenes.videoUrl.champagne}
+          videoUrl={localConfig.imagenes.videoUrl.neon}
         />
 
-        {/* Itinerario */}
         <Itinerary items={localConfig.itinerario} />
 
-        {/* Detalles: Dresscode y Regalo */}
         <Details config={{
           dressCode: localConfig.dressCode.titulo,
           dressDescription: localConfig.dressCode.descripcion,
@@ -55,24 +50,21 @@ export default function NightLightsDemoPage() {
           holderName: localConfig.regalo.datosBancarios.titular
         }} />
 
-        {/* RSVP: Con la imagen de fondo de champagne */}
-        <RSVP config={{
-          heroImage: localConfig.imagenes.hero.champagne,
-          eventDate: fechaString,
-          confirmDate: localConfig.confirmacion.fechaLimite
-        }}/>
-
-        {/* Ubicación */}
         <Location config={{
           venueName: localConfig.ubicacion.nombreLugar,
           venueAddress: localConfig.ubicacion.direccion,
           mapLink: localConfig.ubicacion.googleMapsUrl,
-          eventDate: fechaString,
-          eventTime: localConfig.fecha.hora
         }} />
 
-        <MusicSuggestion eventId="demo-quince-champagne" />
-
+        <MusicSuggestion eventId="demo-quince-neon"/>    
+        
+        {/* RSVP: Sincronizado con .neon */}
+        <RSVP config={{
+          heroImage: localConfig.imagenes.hero.neon,
+          eventDate: fechaString,
+          confirmDate: localConfig.confirmacion.fechaLimite
+        }} />
+        
         <Footer />
       </Envelope>
     </main>

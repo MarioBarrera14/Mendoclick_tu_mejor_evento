@@ -13,7 +13,7 @@ import {
   Witnesses,
   Envelope,
   SeparadorEntrePaginas,
-} from "@/components/templates/golden_noir";
+} from "@/components/templates/bodas/golden_noir";
 
 // Importamos la data de BODA (nombres: "Juli & Mario")
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";

@@ -31,13 +31,12 @@ export default function ManagerDashboard() {
       { id: "DEMO3", name: "Graffiti Urbano 15" },
     ],
     "BODAS": [
-      { id: "DEMO4", name: "Golden Noir Bodas" },
-      { id: "DEMO5", name: "Retro Vinyl Bodas" },
-      { id: "DEMO6", name: "Graffiti Urban Bodas" },
+      { id: "DEMO4", name: "Graffiti Urban Bodas" },
+      { id: "DEMO5", name: "Golden Noir Bodas" },
+      { id: "DEMO6", name:  "Retro Vinyl Bodas"},
     ]
   }), []);
-
-  // Cambiar template automáticamente al cambiar categoría
+    
   const handleCategoryChange = (newCat: "15_AÑOS" | "BODAS") => {
     setCategory(newCat);
     setFormData(prev => ({ ...prev, templateId: templates[newCat][0].id }));

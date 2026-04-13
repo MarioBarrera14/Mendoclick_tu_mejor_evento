@@ -12,7 +12,7 @@ import {
   Navbar,
   SeccionTestigos,
   WeddingDetailsSection,
-} from "@/components/templates/estilo-rock";
+} from "@/components/templates/bodas/estilo-rock";
 
 // Importamos la data de BODA (nombres: "Juli & Mario")
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";

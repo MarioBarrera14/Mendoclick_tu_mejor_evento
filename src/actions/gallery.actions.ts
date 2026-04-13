@@ -1,136 +1,67 @@
 "use server";
 
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { GalleryService, UserService } from "@/services";
-import { revalidatePath } from "next/cache";
-
-// ===========================================
-// ACCIONES DE GALERÍA
-// ===========================================
 
 /**
- * Sube una imagen a la galería
+ * Obtiene la configuración multimedia
  */
-export async function uploadImage(file: string) {
+export async function getGalleryConfig() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "No autorizado" };
-    }
+    if (!session?.user?.email) return null;
 
-    const result = await GalleryService.uploadImage(file);
-
-    if (result.success) {
-      revalidatePath("/admin/galeria");
-    }
-
-    return result;
-  } catch (error) {
-    console.error("Error en uploadImage:", error);
-    return { success: false, error: "Error al subir la imagen" };
-  }
-}
-
-/**
- * Elimina una imagen de la galería
- */
-export async function deleteImage(publicId: string) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "No autorizado" };
-    }
-
-    const result = await GalleryService.deleteImage(publicId);
-
-    if (result.success) {
-      revalidatePath("/admin/galeria");
-    }
-
-    return result;
-  } catch (error) {
-    console.error("Error en deleteImage:", error);
-    return { success: false, error: "Error al eliminar la imagen" };
-  }
-}
-
-/**
- * Obtiene las imágenes del carrusel
- */
-export async function getCarouselImages() {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return [];
-
-    const usuario = await UserService.findByEmail(session.user.email);
-    if (!usuario) return [];
-
-    return await GalleryService.getCarouselImages(usuario.id);
-  } catch (error) {
-    console.error("Error en getCarouselImages:", error);
-    return [];
-  }
-}
-
-/**
- * Actualiza las imágenes del carrusel
- */
-export async function updateCarouselImages(images: string[]) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "No autorizado" };
-    }
-
-    const usuario = await UserService.findByEmail(session.user.email);
-    if (!usuario) {
-      return { success: false, error: "Usuario no encontrado" };
-    }
-
-    const result = await GalleryService.updateCarouselImages(usuario.id, images);
-
-    if (result.success) {
-      revalidatePath("/admin/galeria");
-      if (usuario.slug) {
-        revalidatePath(`/invit/${usuario.slug}`);
+    return await prisma.eventConfig.findFirst({
+      where: { user: { email: session.user.email } },
+      select: {
+        heroImage: true,
+        videoUrl: true,
+        musicUrl: true,
+        carruselImages: true,
       }
-    }
-
-    return result;
+    });
   } catch (error) {
-    console.error("Error en updateCarouselImages:", error);
-    return { success: false, error: "Error al actualizar el carrusel" };
+    console.error("Error al obtener galería:", error);
+    return null;
   }
 }
 
 /**
- * Agrega una imagen al carrusel
+ * Actualiza ÚNICAMENTE los datos multimedia
  */
-export async function addImageToCarousel(imageUrl: string) {
+export async function updateGalleryConfig(data: any) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "No autorizado" };
+    if (!session?.user?.email) return { success: false, error: "No autorizado" };
+
+    const dbUser = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!dbUser) return { success: false, error: "Usuario no encontrado" };
+
+    // Actualizamos solo los campos multimedia del modelo
+    const result = await prisma.eventConfig.update({
+      where: { userId: dbUser.id },
+      data: {
+        heroImage: data.heroImage,
+        videoUrl: data.videoUrl,
+        musicUrl: data.musicUrl,
+        carruselImages: data.carruselImages, // Viene como JSON string
+      },
+    });
+
+    revalidatePath("/admin/galeria");
+    if (dbUser.slug) {
+      revalidatePath(`/invit/${dbUser.slug}`);
+      revalidatePath(`/inv/${dbUser.slug}`);
     }
-
-    const usuario = await UserService.findByEmail(session.user.email);
-    if (!usuario) {
-      return { success: false, error: "Usuario no encontrado" };
-    }
-
-    const result = await GalleryService.addImageToCarousel(usuario.id, imageUrl);
-
-    if (result.success) {
-      revalidatePath("/admin/galeria");
-      if (usuario.slug) {
-        revalidatePath(`/invit/${usuario.slug}`);
-      }
-    }
-
-    return result;
+    
+    return { success: true };
   } catch (error) {
-    console.error("Error en addImageToCarousel:", error);
-    return { success: false, error: "Error al agregar imagen" };
+    console.error("Error al guardar galería:", error);
+    return { success: false, error: "Fallo en la base de datos." };
   }
 }

@@ -38,33 +38,58 @@ const testData = {
 };
 
 const allDesigns = [
-{ id: '01', title: 'CHAMPAGNE', img: '/img_demo/plantilla1_15.png', link: '/demo/champagne', tag: 'LUXURY', category: '15_AÑOS' },
-  { id: '02', title: 'NEON PARTY', img: '/img_demo/plantilla2_15.png', link: '/demo/neon-party', tag: 'VIBRANT', category: '15_AÑOS' },
-  { id: '03', title: 'GRAFFITI URBANO', img: '/img_demo/plantilla3_15.png', link: '/demo/golden-grafitis', tag: 'URBANO', category: '15_AÑOS' },
-{ 
-  id: '04', 
-  title: 'GOLDEN NOIR', 
-  img: '/img_boda/plantilla4.jpg', 
-  link: '/demo/golden_noir', 
-  tag: 'PREMIUM', // Cambié WEDDING por PREMIUM porque la categoría ya es BODAS
-  category: 'BODAS' 
-},
+  // --- 15 AÑOS ---
   { 
-  id: '05', 
-  title: 'RETRO VINYL', // En mayúsculas para mantener consistencia con 'GRAFFITI URBANO'
-  img: '/img_boda/plantilla5.png', 
-  link: '/demo/bodas-rockeras', 
-  tag: 'VINTAGE', 
-  category: 'BODAS' 
-},
+    id: '01', 
+    title: 'CHAMPAGNE', 
+    img: '/img_demo/plantilla1_15.png', 
+    link: '/demo/cumple_quince/champagne', 
+    tag: 'LUXURY', 
+    category: '15_AÑOS' 
+  },
   { 
-  id: '06', 
-  title: 'GRAFFITI URBANO', // Corregido a doble 'f' para estilo artístico
-  img: '/img_boda/plantilla6.jpg', 
-  link: '/demo/bodas-grafitis', 
-  tag: 'URBANO', 
-  category: 'BODAS' 
-},];
+    id: '02', 
+    title: 'NEON PARTY', 
+    img: '/img_demo/plantilla2_15.png', 
+    link: '/demo/cumple_quince/neon-party', 
+    tag: 'VIBRANT', 
+    category: '15_AÑOS' 
+  },
+  { 
+    id: '03', 
+    title: 'GRAFFITI URBANO', 
+    img: '/img_demo/plantilla3_15.png', 
+    link: '/demo/cumple_quince/golden-grafitis', 
+    tag: 'URBANO', 
+    category: '15_AÑOS' 
+  },
+
+  // --- BODAS ---
+  { 
+    id: '04', 
+    title: 'GOLDEN NOIR', 
+    img: '/img_boda/plantilla4.jpg', 
+    link: '/demo/bodas/golden_noir', 
+    tag: 'PREMIUM', 
+    category: 'BODAS' 
+  },
+  { 
+    id: '05', 
+    title: 'RETRO VINYL', 
+    img: '/img_boda/plantilla5.png', 
+    link: '/demo/bodas/bodas-rockeras', // Cambié 'bodas-rockeras' por 'estilo-rock' que es como se llama tu carpeta según el log de Git
+    tag: 'VINTAGE', 
+    category: 'BODAS' 
+  },
+  { 
+    id: '06', 
+    title: 'GRAFFITI URBANO', 
+    img: '/img_boda/bodas/plantilla6.jpg', 
+    link: '/demo/bodas/bodas-grafitis', // Corregido: ahora está dentro de la carpeta /bodas/
+    tag: 'URBANO', 
+    category: 'BODAS' 
+  },
+];
 
 export default function LandingPage(): JSX.Element {
   const [isManager, setIsManager] = useState(false);

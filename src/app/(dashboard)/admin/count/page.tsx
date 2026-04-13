@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import { 
   Save, User, Church, PartyPopper, ChevronRight, 
-  Loader2, Trash2, Link as LinkIcon 
+  Loader2, Trash2 
 } from "lucide-react";
-import { getEventConfig, updateEventConfig } from "@/actions/gallery.actions"; 
+
+// IMPORTACIONES REPARADAS
+import { getLogisticaConfig, updateLogisticaConfig } from "@/actions/logistica.actions"; 
+
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -47,11 +50,11 @@ export default function CountConfigPage() {
     });
   };
 
-  // 1. CARGA DE DATOS DESDE LA DB
+  // 1. CARGA DE DATOS REPARADA
   useEffect(() => {
     async function fetchData() {
       try {
-        const config = await getEventConfig();
+        const config = await getLogisticaConfig();
         if (config) {
           setEventName(config.eventName || ""); 
           setEventDate(config.eventDate || ""); 
@@ -74,153 +77,166 @@ export default function CountConfigPage() {
     fetchData();
   }, []);
 
-  // 2. LÓGICA DEL CONTADOR (Preview)
+  // 2. LÓGICA DEL CONTADOR (Mantenida)
   useEffect(() => {
     if (!eventDate || !eventTime) return;
     const timer = setInterval(() => {
-      const target = new Date(`${eventDate}T${eventTime}:00`);
+      const target = new Date(`${eventDate.replace(/-/g, '/')} ${eventTime}`);
       const now = new Date();
       const diff = target.getTime() - now.getTime();
       if (diff > 0) {
         setTimeLeft({
-          days: Math.floor(diff / (86400000)),
-          hours: Math.floor((diff / 3600000) % 24),
-          mins: Math.floor((diff / 60000) % 60),
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+          mins: Math.floor((diff / (1000 * 60)) % 60),
           secs: Math.floor((diff / 1000) % 60),
         });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0 });
       }
     }, 1000);
     return () => clearInterval(timer);
   }, [eventDate, eventTime]);
 
-  // 3. GUARDAR CAMBIOS
+  // 3. GUARDAR CAMBIOS REPARADO (Usa updateLogisticaConfig)
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await updateEventConfig({
-        eventName, eventDate, eventTime, venueName, venueAddress, mapLink,
-        churchName, churchAddress, churchMapLink, churchDate, churchTime
+      const res = await updateLogisticaConfig({
+        eventName, eventDate, eventTime, 
+        venueName, venueAddress, mapLink,
+        churchName, churchAddress, churchMapLink, 
+        churchDate, churchTime
       });
+      
       if (res.success) {
-        showNotification("¡Listo!", "Logística actualizada con éxito.", "success");
+        showNotification("¡HECHO!", "Toda la logística ha sido guardada.", "success");
+      } else {
+        showNotification("Error", "No se pudo guardar en la base de datos.", "error");
       }
     } catch (e) { 
-      showNotification("Error", "No se pudo conectar con el servidor.", "error"); 
+      showNotification("Error", "Problema de conexión con el servidor.", "error"); 
     } finally { 
       setIsSaving(false); 
     }
   };
 
-  // 4. ELIMINAR / LIMPIAR TODO (Persistente en DB)
+  // 4. LIMPIAR TODO REPARADO (Usa updateLogisticaConfig)
   const handleClear = () => {
     MySwal.fire({
-      title: '¿VACIAR LOGÍSTICA?',
-      text: "Esto borrará los nombres y lugares de la base de datos permanentemente.",
+      title: '¿VACIAR TODO?',
+      text: "Se borrarán los nombres y lugares de la invitación.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'SÍ, BORRAR TODO',
       confirmButtonColor: '#dc2626',
-      customClass: {
-        confirmButton: 'bg-red-600 text-white px-4 py-2 rounded-lg mx-2',
-        cancelButton: 'bg-zinc-200 px-4 py-2 rounded-lg mx-2'
-      }
     }).then(async (result) => {
       if (result.isConfirmed) {
         setIsSaving(true);
-        try {
-          // Limpiamos UI
+        const emptyData = {
+          eventName: "", eventDate: "", eventTime: "",
+          venueName: "", venueAddress: "", mapLink: "",
+          churchName: "", churchAddress: "", churchMapLink: "",
+          churchDate: "", churchTime: ""
+        };
+
+        const res = await updateLogisticaConfig(emptyData);
+
+        if (res.success) {
           setEventName(""); setEventDate(""); setEventTime("");
           setVenueName(""); setVenueAddress(""); setMapLink("");
           setChurchName(""); setChurchAddress(""); setChurchMapLink("");
           setChurchDate(""); setChurchTime("");
-
-          // Limpiamos DB enviando valores vacíos
-          const res = await updateEventConfig({
-            eventName: "", eventDate: "", eventTime: "",
-            venueName: "", venueAddress: "", mapLink: "",
-            churchName: "", churchAddress: "", churchMapLink: "",
-            churchDate: "", churchTime: ""
-          });
-
-          if (res.success) {
-            showNotification("Eliminado", "La logística ha sido borrada.", "success");
-          }
-        } catch (error) {
-          showNotification("Error", "No se pudo borrar la información.", "error");
-        } finally {
-          setIsSaving(false);
+          showNotification("Eliminado", "La logística está vacía.", "success");
         }
+        setIsSaving(false);
       }
     });
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-zinc-50"><Loader2 className="animate-spin text-red-600" /></div>;
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-zinc-50">
+      <Loader2 className="animate-spin text-red-600" size={40} />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-zinc-50 p-4 font-sans text-black pb-20">
       <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-4 border-b-2 border-zinc-200 pb-2">
+        {/* HEADER */}
+        <header className="flex justify-between items-center mb-6 border-b-2 border-zinc-200 pb-4">
           <div>
-            <p className="text-red-600 font-black text-[10px] uppercase tracking-widest leading-none mb-1">MendoClick Admin</p>
-            <h1 className="text-xl font-black uppercase italic tracking-tighter">Event <span className="text-red-600">Logistics</span></h1>
+            <p className="text-red-600 font-black text-[10px] uppercase tracking-widest mb-1">MendoClick Admin</p>
+            <h1 className="text-2xl font-black uppercase italic tracking-tighter leading-none">Event <span className="text-red-600">Logistics</span></h1>
           </div>
           <div className="flex gap-2">
-            <button onClick={handleClear} className="p-2.5 rounded-xl bg-white border-2 border-zinc-200 text-zinc-400 hover:text-red-600 transition-colors shadow-sm">
-              <Trash2 size={18} />
+            <button onClick={handleClear} className="p-3 rounded-xl bg-white border-2 border-zinc-200 text-zinc-400 hover:text-red-600 transition-colors">
+              <Trash2 size={20} />
             </button>
-            <button onClick={handleSave} disabled={isSaving} className="bg-black text-white px-8 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all active:scale-95 shadow-xl disabled:opacity-50">
-              {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} PUBLICAR CAMBIOS
+            <button 
+              onClick={handleSave} 
+              disabled={isSaving} 
+              className="bg-black text-white px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all active:scale-95 shadow-xl disabled:opacity-50"
+            >
+              {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} PUBLICAR CAMBIOS
             </button>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-6">
+            
+            {/* SECCIÓN 01: GENERAL */}
             <section className="bg-white p-6 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
               <h2 className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest">
                 <User size={14} className="text-red-600"/> 01. Información General
               </h2>
               <input 
-                type="text" placeholder="NOMBRES (EJ: JULI & MARIO)" value={eventName} onChange={(e) => setEventName(e.target.value)}
+                type="text" 
+                placeholder="NOMBRES (EJ: JULI & MARIO)" 
+                value={eventName} 
+                onChange={(e) => setEventName(e.target.value)}
                 className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-4 text-xl font-black uppercase outline-none focus:border-red-500 transition-all mb-4" 
               />
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[9px] font-black text-zinc-500 uppercase mb-1 block ml-1">Fecha</label>
+                  <label className="text-[9px] font-black text-zinc-500 uppercase mb-1 block ml-1">Fecha del Evento</label>
                   <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="w-full border-2 border-zinc-200 rounded-xl p-3 font-bold outline-none focus:border-red-500" />
                 </div>
                 <div>
-                  <label className="text-[9px] font-black text-zinc-500 uppercase mb-1 block ml-1">Hora Inicio</label>
+                  <label className="text-[9px] font-black text-zinc-500 uppercase mb-1 block ml-1">Hora de Inicio</label>
                   <input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} className="w-full border-2 border-zinc-200 rounded-xl p-3 font-bold outline-none focus:border-red-500" />
                 </div>
               </div>
             </section>
 
+            {/* SECCIÓN 02: CEREMONIA */}
             <section className="bg-white p-6 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-zinc-900" />
               <h2 className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest">
-                <Church size={14} className="text-zinc-900" /> 02. Ceremonia
+                <Church size={14} className="text-zinc-900" /> 02. Ceremonia / Iglesia
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-3">
-                  <input type="text" placeholder="NOMBRE DEL LUGAR" value={churchName} onChange={(e) => setChurchName(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-zinc-900" />
+                  <input type="text" placeholder="LUGAR (EJ: PARROQUIA DE LORETO)" value={churchName} onChange={(e) => setChurchName(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
                   <input type="text" placeholder="DIRECCIÓN" value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
                 </div>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
-                    <input type="date" value={churchDate} onChange={(e) => setChurchDate(e.target.value)} className="border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
-                    <input type="time" value={churchTime} onChange={(e) => setChurchTime(e.target.value)} className="border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold outline-none" />
+                    <input type="date" value={churchDate} onChange={(e) => setChurchDate(e.target.value)} className="border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold" />
+                    <input type="time" value={churchTime} onChange={(e) => setChurchTime(e.target.value)} className="border-2 border-zinc-200 rounded-xl p-3 text-xs font-bold" />
                   </div>
-                  <input type="url" placeholder="LINK GOOGLE MAPS" value={churchMapLink} onChange={(e) => setChurchMapLink(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-[10px] font-mono outline-none focus:border-zinc-900" />
+                  <input type="url" placeholder="LINK GOOGLE MAPS" value={churchMapLink} onChange={(e) => setChurchMapLink(e.target.value)} className="w-full bg-zinc-50 border-2 border-zinc-200 rounded-xl p-3 text-[10px] font-mono outline-none" />
                 </div>
               </div>
             </section>
 
+            {/* SECCIÓN 03: FIESTA */}
             <section className="bg-white p-6 rounded-2xl border-2 border-zinc-300 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
               <h2 className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest">
-                <PartyPopper size={14} className="text-red-600" /> 03. Fiesta
+                <PartyPopper size={14} className="text-red-600" /> 03. Fiesta / Salón
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-3">
@@ -234,6 +250,7 @@ export default function CountConfigPage() {
             </section>
           </div>
 
+          {/* PREVIEW LATERAL */}
           <aside className="lg:col-span-4">
             <div className="sticky top-4">
               <div className="bg-zinc-950 rounded-[2.5rem] p-8 text-white shadow-2xl border-l-8 border-red-600 relative overflow-hidden">
@@ -272,7 +289,7 @@ export default function CountConfigPage() {
                 </div>
                 
                 <div className="mt-10 pt-6 border-t border-white/5 flex justify-between items-center opacity-40">
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] italic text-red-600">MendoClick PRO</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] italic text-red-600">MendoClick Multimedia</p>
                   <ChevronRight size={16} />
                 </div>
               </div>

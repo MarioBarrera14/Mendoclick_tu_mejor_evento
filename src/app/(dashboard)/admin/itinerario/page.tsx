@@ -1,218 +1,168 @@
 "use client";
 
-import React, { useState, useEffect, useTransition, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Trash2,
-  Clock,
-  Plus,
-  Save,
-  ListChecks,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
-
-import { updateItinerary, getItinerary } from "@/actions/itinerary-actions";
-
-interface ItineraryItem {
-  id: string;
-  order: number;
-  time: string;
-  title: string;
-}
+import React, { useState, useEffect } from "react";
+import { Trash2, Plus, Loader2, Save, ListChecks, AlertTriangle } from "lucide-react";
+import { getItinerary, createItineraryItem, deleteItineraryItem } from "@/actions/intinery.action";
+import Swal from "sweetalert2";
 
 export default function ItineraryPage() {
-  const [items, setItems] = useState<ItineraryItem[]>([]);
-  const [isDirty, setIsDirty] = useState(false);
-  const [status, setStatus] = useState<{ type: "success" | "error" | null; msg: string }>({
-    type: null,
-    msg: "",
-  });
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [newTime, setNewTime] = useState("");
+  const [newTitle, setNewTitle] = useState("");
 
-  const [isPending, startTransition] = useTransition();
-
-  const generateId = () => `temp-${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
+  const LIMITE_ITEMS = 8;
+  const reachedLimit = items.length >= LIMITE_ITEMS;
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getItinerary();
-      if (!data || data.length === 0) {
-        setItems([{ id: generateId(), order: 0, time: "", title: "" }]);
-      } else {
-        setItems(data);
-      }
-      setIsDirty(false);
-    };
     fetchData();
   }, []);
 
-  const canSave = useMemo(() => {
-    return isDirty && items.length > 0;
-  }, [isDirty, items]);
+  const fetchData = async () => {
+    const data = await getItinerary();
+    setItems(data);
+    setLoading(false);
+  };
 
-  const handleAddItem = () => {
-    if (items.length >= 8) {
-      setStatus({ type: "error", msg: "MÁXIMO 8 ELEMENTOS" });
-      setTimeout(() => setStatus({ type: null, msg: "" }), 3000);
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // VALIDACIÓN DE LÍMITE
+    if (reachedLimit) {
+      Swal.fire({
+        title: "LÍMITE ALCANZADO",
+        text: "El itinerario permite un máximo de 8 momentos para mantener el diseño.",
+        icon: "warning",
+        confirmButtonColor: "#dc2626"
+      });
       return;
     }
-    setItems([...items, { id: generateId(), order: items.length, time: "", title: "" }]);
-    setIsDirty(true);
-  };
 
-  const handleUpdateItem = (id: string, updatedData: Partial<ItineraryItem>) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updatedData } : item)));
-    setIsDirty(true);
-  };
+    if (!newTime || !newTitle || isSaving) return;
 
-  const handleDeleteItem = (id: string) => {
-    const updatedItems = items.filter((item) => item.id !== id);
-    if (updatedItems.length === 0) {
-      setItems([{ id: generateId(), order: 0, time: "", title: "" }]);
-    } else {
-      setItems(updatedItems);
+    setIsSaving(true);
+    const result = await createItineraryItem({ time: newTime, title: newTitle });
+    
+    if (result.success) {
+      setItems([...items, result.item]);
+      setNewTime("");
+      setNewTitle("");
+      Swal.fire({ title: "¡PUNTO AGREGADO!", icon: "success", confirmButtonColor: "#dc2626", timer: 1500 });
     }
-    setIsDirty(true);
+    setIsSaving(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!canSave || isPending) return;
-
-    const cleanItems = items.filter((item) => item.time.trim() !== "" || item.title.trim() !== "");
-
-    startTransition(async () => {
-      const result = await updateItinerary(cleanItems);
-      if (result?.success) {
-        setStatus({ type: "success", msg: "¡Sincronizado!" });
-        setIsDirty(false);
-        setTimeout(() => setStatus({ type: null, msg: "" }), 3000);
-      } else {
-        setStatus({ type: "error", msg: "Error al guardar" });
-      }
+  const handleDelete = async (id: string) => {
+    const confirm = await Swal.fire({
+      title: "¿ELIMINAR MOMENTO?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      confirmButtonText: "SÍ, ELIMINAR"
     });
+
+    if (confirm.isConfirmed) {
+      const result = await deleteItineraryItem(id);
+      if (result.success) {
+        setItems(items.filter(i => i.id !== id));
+      }
+    }
   };
+
+  if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-red-600" /></div>;
 
   return (
     <div className="max-w-6xl mx-auto p-4 lg:p-6 font-sans text-black">
-      
-      {/* HEADER COMPACTO MENDOCLICK */}
-      <header className="flex justify-between items-center mb-6 border-b pb-4">
+      <header className="flex justify-between items-end mb-8 border-b pb-4">
         <div>
           <p className="text-red-600 font-black text-[10px] uppercase tracking-widest">MendoClick Admin</p>
           <h1 className="text-3xl font-black uppercase italic tracking-tighter leading-none">
             Timeline <span className="text-red-600">Event</span>
           </h1>
         </div>
-        <div className="flex items-center gap-3">
-            <AnimatePresence>
-                {status.msg && (
-                    <motion.span 
-                        initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-                        className={`text-[10px] font-black uppercase px-3 py-1 rounded-full border ${status.type === 'success' ? 'bg-green-50 border-green-200 text-green-600' : 'bg-red-50 border-red-200 text-red-600'}`}
-                    >
-                        {status.msg}
-                    </motion.span>
-                )}
-            </AnimatePresence>
-            <button 
-                onClick={handleSubmit} 
-                disabled={!canSave || isPending}
-                className="bg-black text-white px-6 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-600 transition-all shadow-lg active:scale-95 disabled:opacity-30"
-            >
-                {isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
-                {isPending ? "GUARDANDO..." : "GUARDAR"}
-            </button>
+        <div className="bg-zinc-100 px-4 py-2 rounded-xl border border-zinc-200">
+            <p className="text-[9px] font-black text-zinc-500 uppercase">Capacidad</p>
+            <p className={`text-lg font-black leading-none ${reachedLimit ? 'text-red-600' : 'text-black'}`}>
+                {items.length} / {LIMITE_ITEMS}
+            </p>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto">
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex items-center justify-between mb-2 px-4">
-             <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Cronología de la fiesta</label>
-             <span className="text-[10px] font-black text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded">{items.length} / 8</span>
+      {/* FORMULARIO DE AGREGAR */}
+      <section className={`p-5 rounded-3xl border transition-all ${reachedLimit ? 'bg-zinc-50 border-zinc-200 opacity-60' : 'bg-white border-zinc-200 shadow-sm' } mb-8`}>
+        <h2 className="text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest flex items-center gap-2">
+            {reachedLimit ? <AlertTriangle size={14} className="text-amber-500" /> : <Plus size={14} className="text-red-600" />} 
+            {reachedLimit ? "Límite de itinerario alcanzado" : "Nuevo Punto en el Itinerario"}
+        </h2>
+        
+        <form onSubmit={handleAdd} className="flex flex-col md:flex-row gap-3">
+          <div className="w-full md:w-32">
+            <input 
+              type="text" value={newTime} onChange={(e) => setNewTime(e.target.value)}
+              placeholder="21:00"
+              disabled={reachedLimit}
+              className="w-full bg-zinc-50 border border-zinc-300 rounded-xl p-3 text-sm font-black outline-none focus:border-red-500 disabled:cursor-not-allowed"
+            />
           </div>
-
-          <AnimatePresence mode="popLayout">
-            {items.map((item, index) => (
-              <motion.div 
-                key={item.id} 
-                layout 
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-                className="flex gap-2 items-center bg-white p-2 rounded-2xl border border-zinc-200 shadow-sm hover:border-red-100 transition-all group"
-              >
-                {/* INDICADOR DE ORDEN */}
-                <div className="hidden md:flex w-8 h-8 items-center justify-center bg-zinc-950 text-red-600 rounded-xl font-black italic text-xs">
-                    {index + 1}
-                </div>
-
-                {/* HORA */}
-                <div className="relative w-28">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600" size={14} />
-                  <input 
-                    type="text" 
-                    value={item.time} 
-                    onChange={(e) => handleUpdateItem(item.id, { time: e.target.value })} 
-                    placeholder="21:00"
-                    className="w-full pl-8 pr-2 py-2.5 bg-zinc-50 border border-zinc-300 rounded-xl font-black text-black text-sm outline-none focus:border-red-500 transition-all" 
-                  />
-                </div>
-
-                {/* ACTIVIDAD */}
-                <div className="flex-1">
-                  <input 
-                    type="text" 
-                    value={item.title} 
-                    onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })} 
-                    placeholder="ESCRIBE LA ACTIVIDAD AQUÍ..."
-                    className="w-full px-4 py-2.5 bg-zinc-50 border border-zinc-300 rounded-xl font-bold text-black text-sm outline-none focus:border-red-500 transition-all placeholder:text-zinc-300" 
-                  />
-                </div>
-
-                {/* ACCIONES */}
-                <div className="flex gap-1">
-                  <button 
-                    type="button" 
-                    onClick={handleAddItem} 
-                    title="Agregar debajo"
-                    className="p-2.5 bg-zinc-100 text-zinc-400 rounded-xl hover:bg-red-600 hover:text-white transition-all"
-                  >
-                    <Plus size={18} />
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => handleDeleteItem(item.id)} 
-                    title="Eliminar"
-                    className="p-2.5 bg-zinc-100 text-zinc-400 rounded-xl hover:bg-black hover:text-white transition-all"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          {/* FOOTER INFO */}
-          <div className="flex flex-col items-center pt-6 space-y-4">
-            {!isDirty && items.length > 0 && (
-              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
-                <CheckCircle2 size={12} className="text-green-500" /> Itinerario sincronizado
-              </p>
-            )}
-            
-            <div className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex items-center justify-between opacity-60">
-                <div className="flex items-center gap-3">
-                    <ListChecks size={16} className="text-red-600" />
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
-                        El orden se ajusta automáticamente según la posición en la lista.
-                    </p>
-                </div>
-                <p className="hidden md:block text-[8px] font-black uppercase italic text-zinc-400">MendoClick Management</p>
-            </div>
+          <div className="flex-1">
+            <input 
+              type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
+              placeholder={reachedLimit ? "BORRÁ UN ITEM PARA AGREGAR OTRO..." : "EJ: RECEPCIÓN / CENA / BRINDIS..."}
+              disabled={reachedLimit}
+              className="w-full bg-zinc-50 border border-zinc-300 rounded-xl p-3 text-sm font-black uppercase outline-none focus:border-red-500 disabled:cursor-not-allowed"
+            />
           </div>
+          <button 
+            type="submit" 
+            disabled={isSaving || !newTime || !newTitle || reachedLimit}
+            className="bg-black text-white px-8 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-red-600 transition-all shadow-lg disabled:opacity-30 disabled:hover:bg-black"
+          >
+            {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />} AGREGAR
+          </button>
         </form>
-      </main>
+      </section>
+
+      {/* LISTADO DE MOMENTOS */}
+      <div className="bg-white rounded-[2.5rem] border border-zinc-200 shadow-sm overflow-hidden">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="bg-zinc-50 border-b border-zinc-200">
+              <th className="px-6 py-4 text-[9px] font-black uppercase text-zinc-500 w-24">Hora</th>
+              <th className="px-6 py-4 text-[9px] font-black uppercase text-zinc-500">Actividad</th>
+              <th className="px-6 py-4 w-20"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {items.length === 0 ? (
+                <tr>
+                    <td colSpan={3} className="px-6 py-10 text-center text-zinc-400 font-bold uppercase text-xs italic tracking-widest">
+                        El itinerario está vacío
+                    </td>
+                </tr>
+            ) : (
+                items.map((item) => (
+                <tr key={item.id} className="hover:bg-zinc-50 transition-colors group">
+                    <td className="px-6 py-4 font-black text-red-600 text-sm">{item.time}</td>
+                    <td className="px-6 py-4 font-black text-sm uppercase italic tracking-tighter">{item.title}</td>
+                    <td className="px-6 py-4 text-right">
+                    <button onClick={() => handleDelete(item.id)} className="text-zinc-300 hover:text-red-600 transition-colors p-2">
+                        <Trash2 size={16}/>
+                    </button>
+                    </td>
+                </tr>
+                ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      
+      <footer className="mt-6 flex items-center gap-3 opacity-40">
+        <ListChecks size={16} />
+        <p className="text-[8px] font-black uppercase tracking-[0.3em]">MendoClick Smart Timeline Engine</p>
+      </footer>
     </div>
   );
 }
