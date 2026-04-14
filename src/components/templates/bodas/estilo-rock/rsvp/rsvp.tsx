@@ -35,8 +35,9 @@ export function RSVP({ config }: RSVPProps) {
   const [formData, setFormData] = useState({
     name: "",
     attendance: "", 
-    dietary: [] as string[],
-    message: "",
+    confirmados: 1,
+    dietary: "",   
+    message: "",   
   });
 
   const cardVariants: Variants = {
@@ -60,7 +61,7 @@ export function RSVP({ config }: RSVPProps) {
     setErrorMessage("");
     setGuestInfo(null);
     setAlreadyConfirmed(false);
-    setFormData({ name: "", attendance: "", dietary: [], message: "" });
+    setFormData({ name: "", attendance: "", confirmados: 1, dietary: "", message: "" });
   };
 
   const handleClose = () => {
@@ -77,26 +78,28 @@ export function RSVP({ config }: RSVPProps) {
     setAlreadyConfirmed(false);
 
     try {
-      const response = await fetch("/api/guests");
-      const invitados = await response.json();
-      const invitadoEncontrado = invitados.find(
-        (inv: any) => inv.codigo === familyCode.toUpperCase().trim()
-      );
+      const response = await fetch(`/api/guests?code=${familyCode.toUpperCase().trim()}`);
+      if (!response.ok) {
+        setErrorMessage("Código no reconocido.");
+        return;
+      }
+      
+      const invitadoEncontrado = await response.json();
 
       if (invitadoEncontrado) {
-        // VALIDACIÓN DE UN SOLO USO
         if (invitadoEncontrado.status !== "PENDING") {
           setAlreadyConfirmed(true);
           setErrorMessage("ESTE CÓDIGO YA FUE UTILIZADO.");
-          setIsSubmitting(false);
           return;
         }
 
         setGuestInfo(invitadoEncontrado);
         setIsValidated(true);
-        setFormData(prev => ({ ...prev, name: invitadoEncontrado.apellido }));
-      } else {
-        setErrorMessage("Código no reconocido.");
+        setFormData(prev => ({ 
+            ...prev, 
+            name: invitadoEncontrado.nombre,
+            confirmados: invitadoEncontrado.cupos 
+        }));
       }
     } catch (error) {
       setErrorMessage("Error de conexión.");
@@ -106,7 +109,7 @@ export function RSVP({ config }: RSVPProps) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.attendance) return;
+    if (!formData.attendance) return;
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/guests", {
@@ -116,7 +119,9 @@ export function RSVP({ config }: RSVPProps) {
           code: familyCode.toUpperCase().trim(),
           name: formData.name,
           status: formData.attendance === "YES" ? "CONFIRMED" : "CANCELLED",
-          dietary: formData.message,
+          dietary: formData.dietary,
+          message: formData.message,
+          confirmados: formData.confirmados,
         }),
       });
       if (response.ok) setIsOpen(false);
@@ -134,7 +139,6 @@ export function RSVP({ config }: RSVPProps) {
     <>
     <section className="relative py-24 md:py-32 bg-[#1a1a1a] overflow-hidden font-sans">
       
-      {/* FONDO DE RAYOS ROJOS */}
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none flex items-center justify-center">
         <div className="w-[150%] h-[150%] animate-[spin_60s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg_10deg,#b02a30_10deg_20deg,transparent_20deg_30deg,#b02a30_30deg_40deg)] [mask-image:radial-gradient(circle,black_30%,transparent_70%)]" />
       </div>
@@ -147,7 +151,6 @@ export function RSVP({ config }: RSVPProps) {
           viewport={{ once: true }}
           className={`relative bg-[#fdfcf0] border-4 border-black shadow-[15px_15px_0px_0px_${colorRojo}] max-w-6xl w-full flex flex-col md:flex-row overflow-visible transform md:rotate-[-0.5deg]`}
         >
-          {/* Elementos decorativos */}
           <div className="absolute -top-6 -left-6 text-[#33aba1] text-5xl hidden md:block animate-pulse">✦</div>
           <div className="absolute -bottom-6 -right-6 text-[#33aba1] text-5xl hidden md:block animate-pulse">✦</div>
 
@@ -224,11 +227,12 @@ export function RSVP({ config }: RSVPProps) {
 
                   <div className="space-y-4">
                     <p className="font-bold uppercase text-[10px] tracking-widest opacity-60">Ingresa el código de tu invitación</p>
+                    {/* AGREGADO: text-black */}
                     <input 
                         type="text" 
                         value={familyCode}
-                        onChange={(e) => setFamilyCode(e.target.value)}
-                        className={`w-full bg-white border-2 border-black p-4 text-center text-2xl font-black uppercase shadow-[4px_4px_0px_0px_${colorRojo}] focus:outline-none disabled:opacity-20`}
+                        onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
+                        className={`w-full bg-white border-2 border-black p-4 text-center text-2xl font-black uppercase text-black shadow-[4px_4px_0px_0px_${colorRojo}] focus:outline-none disabled:opacity-20`}
                         placeholder="ROCK-123"
                         disabled={alreadyConfirmed}
                     />
@@ -248,7 +252,7 @@ export function RSVP({ config }: RSVPProps) {
               ) : (
                 <div className="space-y-8 py-6">
                   <h3 className="text-3xl font-black uppercase italic text-center text-[#b02a30]">
-                    ¡Hola {guestInfo?.apellido}!
+                    ¡Hola {guestInfo?.nombre}!
                   </h3>
                   <div className="space-y-4">
                     <p className="text-center font-bold uppercase text-xs tracking-widest opacity-60">¿Vienes a la fiesta?</p>
@@ -268,17 +272,49 @@ export function RSVP({ config }: RSVPProps) {
                     </div>
                   </div>
 
-                  {formData.attendance && (
+                  {formData.attendance === "YES" && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pt-6 border-t-2 border-black/10">
+                      
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50 text-[#b02a30]">Confirmar cantidad de personas:</p>
+                        <div className="flex items-center gap-4 bg-white border-2 border-black p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <button 
+                                onClick={() => setFormData(prev => ({ ...prev, confirmados: Math.max(1, prev.confirmados - 1) }))}
+                                className="w-10 h-10 bg-black text-white font-black text-xl"
+                            >-</button>
+                            <span className="flex-1 text-center font-black text-2xl text-black">{formData.confirmados}</span>
+                            <button 
+                                onClick={() => setFormData(prev => ({ ...prev, confirmados: Math.min(guestInfo.cupos, prev.confirmados + 1) }))}
+                                className="w-10 h-10 bg-[#b02a30] text-white font-black text-xl"
+                            >+</button>
+                        </div>
+                        <p className="text-[8px] font-bold text-center opacity-40 uppercase italic">Máximo permitido para tu código: {guestInfo.cupos}</p>
+                      </div>
+
                       <div className="space-y-2">
                         <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50 text-[#b02a30]">Comentarios / Dieta especial:</p>
+                        {/* AGREGADO: text-black */}
                         <textarea 
-                            className={`w-full bg-white border-2 border-black p-4 font-bold focus:outline-none shadow-[4px_4px_0px_0px_${colorRojo}]`}
+                            className={`w-full bg-white border-2 border-black p-4 font-bold text-black focus:outline-none shadow-[4px_4px_0px_0px_${colorRojo}]`}
                             placeholder="Celiaquía, vegetariano, etc..."
-                            rows={3}
+                            rows={2}
+                            value={formData.dietary}
+                            onChange={(e) => setFormData({...formData, dietary: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50 text-[#b02a30]">Un mensaje para nosotros:</p>
+                        {/* AGREGADO: text-black */}
+                        <textarea 
+                            className={`w-full bg-white border-2 border-black p-4 font-bold text-black focus:outline-none shadow-[4px_4px_0px_0px_${colorRojo}]`}
+                            placeholder="Escribe algo lindo..."
+                            rows={2}
+                            value={formData.message}
                             onChange={(e) => setFormData({...formData, message: e.target.value})}
                         />
                       </div>
+
                       <div className="flex justify-center">
                         <button 
                             onClick={handleSubmit}
@@ -289,6 +325,18 @@ export function RSVP({ config }: RSVPProps) {
                         </button>
                       </div>
                     </motion.div>
+                  )}
+
+                  {formData.attendance === "NO" && (
+                     <div className="flex justify-center pt-6">
+                        <button 
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className={`${buttonBase} ${buttonBorder} bg-black w-full py-4`}
+                        >
+                            {isSubmitting ? <Loader2 className="animate-spin" /> : "AVISAR QUE NO VOY"}
+                        </button>
+                     </div>
                   )}
                 </div>
               )}
