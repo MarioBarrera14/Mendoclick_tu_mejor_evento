@@ -12,83 +12,84 @@ import {
   Navbar,
   SeccionTestigos,
   WeddingDetailsSection,
-} from "@/components/templates/bodas/estilo-rock";
+} from "@/components/templates/bodas/estilo-rock"; // Importa desde el index de la carpeta estilo-rock
 
-// Importamos la data de BODA (nombres: "Juli & Mario")
-import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
+import { globalBodaConfig } from "@/data/event-config-bodas";
 
-export default function RetroVinylDemoPage() {
-  // 1. Preparamos los datos de fecha (YYYY-MM-DD)
-  const fechaString = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
+interface RetroVinylViewProps {
+  dbConfig?: any;    // Datos de Prisma (opcional)
+  eventId?: string;  // ID del evento para MusicSuggestion
+  isDemo?: boolean;
+}
+
+export default function RetroVinylView({ dbConfig, eventId, isDemo = false }: RetroVinylViewProps) {
+  
+  // Lógica de "Fallback": Si dbConfig existe (cliente), lo usamos. 
+  // Si no, usamos globalBodaConfig (demo).
+  const config = dbConfig || {
+    eventName: globalBodaConfig.personal.nombres,
+    eventDate: `${globalBodaConfig.fecha.año}-${String(globalBodaConfig.fecha.mes).padStart(2, '0')}-${String(globalBodaConfig.fecha.dia).padStart(2, '0')}`,
+    eventTime: globalBodaConfig.fecha.hora,
+    musicUrl: globalBodaConfig.imagenes.musicaUrl.rock,
+    heroImage: globalBodaConfig.imagenes.hero.rock,
+    videoUrl: globalBodaConfig.imagenes.videoUrl.rock,
+    carruselImages: JSON.stringify(globalBodaConfig.imagenes.carrusel),
+    itinerary: globalBodaConfig.itinerario,
+    witnesses: globalBodaConfig.testigos,
+    dressCode: globalBodaConfig.dressCode.titulo,
+    dressDescription: globalBodaConfig.dressCode.descripcion,
+    cbu: globalBodaConfig.regalo.datosBancarios.cbu,
+    alias: globalBodaConfig.regalo.datosBancarios.alias,
+    bankName: globalBodaConfig.regalo.datosBancarios.banco,
+    holderName: globalBodaConfig.regalo.datosBancarios.titular,
+    confirmDate: globalBodaConfig.confirmacion.fechaLimite
+  };
+
+  const currentEventId = eventId || "demo-boda-rock-global";
 
   return (
-    <main className="min-h-screen bg-[#fdfcf0] overflow-x-hidden font-serif">
-      {/* 1. MÚSICA: Ruta directa de rock */}
-      <Envelope musicUrl={localConfig.imagenes.musicaUrl.rock}>
+    <main className={`min-h-screen overflow-x-hidden font-serif ${isDemo ? 'bg-[#fdfcf0]' : 'bg-[#111]'}`}>
+      <Envelope musicUrl={config.musicUrl || globalBodaConfig.imagenes.musicaUrl.rock}>
         
-        {/* Navbar: Usamos 'nombres' del BodaConfig */}
-        <Navbar eventName={localConfig.personal.nombres} isDemo={true} />
+        <Navbar eventName={config.eventName} isDemo={isDemo} />
 
-        {/* HERO: Ahora agrupado en el objeto 'config' para que el Hero lo procese correctamente */}
-        <Hero
-          config={{
-            heroImage: localConfig.imagenes.hero.rock,
-            eventName: localConfig.personal.nombres,
-            eventDate: fechaString,
-            eventTime: localConfig.fecha.hora,
-          }}
-        />
+        <Hero config={{
+          heroImage: config.heroImage || globalBodaConfig.imagenes.hero.rock,
+          eventName: config.eventName,
+          eventDate: config.eventDate,
+          eventTime: config.eventTime,
+        }} />
 
-        {/* 2. VIDEO Y GALERÍA: Carrusel y video directos */}
         <FotoCarouselRetro
-          images={JSON.stringify(localConfig.imagenes.carrusel)}
-          videoUrl={localConfig.imagenes.videoUrl.rock}
+          images={config.carruselImages}
+          videoUrl={config.videoUrl || globalBodaConfig.imagenes.videoUrl.rock}
         />
 
-        {/* Detalles del evento (Salón e Iglesia) */}
-        <EventDetails config={{
-          eventDate: fechaString,
-          eventTime: localConfig.fecha.hora,
-          venueName: localConfig.ubicacion.nombreLugar,
-          venueAddress: localConfig.ubicacion.direccion,
-          mapLink: localConfig.ubicacion.googleMapsUrl,
-          churchName: localConfig.ubicacion.iglesiaNombre,
-          churchAddress: localConfig.ubicacion.iglesiaDireccion,
-          churchMapLink: localConfig.ubicacion.iglesiaMaps
-        }} />
+        <EventDetails config={config} />
 
+        <Itinerary items={config.itinerary || []} />
 
-        {/* Itinerario dinámico */}
-        <Itinerary items={localConfig.itinerario} /> 
+        {(config.witnesses || config.testigos) && (
+          <SeccionTestigos items={config.witnesses || config.testigos} />
+        )}
 
-        {/* Testigos */}
-        <SeccionTestigos items={localConfig.testigos} />
-
-   
-
-        {/* Sección de Regalo y Dress Code */}
         <WeddingDetailsSection config={{
-          dressCode: localConfig.dressCode.titulo,
-          dressDescription: localConfig.dressCode.descripcion,
-          cbu: localConfig.regalo.datosBancarios.cbu,
-          alias: localConfig.regalo.datosBancarios.alias,
-          bankName: localConfig.regalo.datosBancarios.banco,
-          holderName: localConfig.regalo.datosBancarios.titular
+          dressCode: config.dressCode,
+          dressDescription: config.dressDescription,
+          cbu: config.cbu,
+          alias: config.alias,
+          bankName: config.bankName,
+          holderName: config.holderName
         }} />
 
-    
+        <MusicSuggestion eventId={currentEventId} />
 
-        <MusicSuggestion eventId="demo-boda-rock-global" />
-
- 
-        
-        {/* RSVP: Sincronizado con la imagen rock y fechas globales */}
         <RSVP config={{
-          heroImage: localConfig.imagenes.hero.rock,
-          eventDate: fechaString,
-          confirmDate: localConfig.confirmacion.fechaLimite
-        }}  />
-        
+          heroImage: config.heroImage || globalBodaConfig.imagenes.hero.rock,
+          eventDate: config.eventDate,
+          confirmDate: config.confirmDate || config.eventDate
+        }} />
+
         <Footer />
       </Envelope>
     </main>

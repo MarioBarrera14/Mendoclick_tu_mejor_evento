@@ -11,7 +11,7 @@ export class GuestService {
         where: { userId },
         orderBy: { createdAt: "desc" },
       });
-      return guests as Guest[];
+      return guests as unknown as Guest[];
     } catch (error) {
       console.error("Error en GuestService.getGuestsByUserId:", error);
       return [];
@@ -27,7 +27,7 @@ export class GuestService {
         where: { user: { slug } },
         orderBy: { createdAt: "desc" },
       });
-      return guests as Guest[];
+      return guests as unknown as Guest[];
     } catch (error) {
       console.error("Error en GuestService.getGuestsBySlug:", error);
       return [];
@@ -42,7 +42,7 @@ export class GuestService {
       const guest = await prisma.guest.findUnique({
         where: { codigo },
       });
-      return guest as Guest | null;
+      return guest as unknown as Guest | null;
     } catch (error) {
       console.error("Error en GuestService.getGuestByCode:", error);
       return null;
@@ -65,7 +65,7 @@ export class GuestService {
 
       const guest = await prisma.guest.create({
         data: {
-          apellido: input.apellido,
+          nombre: input.nombre, // CAMBIADO: Antes era apellido
           cupos: input.cupos || 1,
           codigo: input.codigo,
           dietary: input.dietary,
@@ -73,7 +73,7 @@ export class GuestService {
         },
       });
 
-      return { success: true, guest: guest as Guest };
+      return { success: true, guest: guest as unknown as Guest };
     } catch (error) {
       console.error("Error en GuestService.createGuest:", error);
       return { success: false, error: "Error al crear el invitado." };
@@ -97,17 +97,22 @@ export class GuestService {
   }
 
   /**
-   * Actualiza el estado de un invitado por código
+   * Actualiza el estado de un invitado por código (Confirmación del Invitado)
    */
   static async updateGuestStatus(
     codigo: string,
     status: GuestStatus,
+    confirmados: number, // AGREGADO: Nuevo campo para asistencia real
     dietary?: string
   ): Promise<{ success: boolean }> {
     try {
       await prisma.guest.update({
         where: { codigo },
-        data: { status, dietary },
+        data: { 
+          status, 
+          dietary,
+          confirmados: Number(confirmados) || 0 // Actualizamos los que realmente van
+        },
       });
       return { success: true };
     } catch (error) {
@@ -158,15 +163,15 @@ export class GuestService {
   }
 
   /**
-   * Cuenta el total de cupos confirmados
+   * Cuenta el total de personas reales que confirmaron (Suma de campo confirmados)
    */
   static async countConfirmedCupos(userId: string): Promise<number> {
     try {
       const result = await prisma.guest.aggregate({
         where: { userId, status: "CONFIRMED" },
-        _sum: { cupos: true },
+        _sum: { confirmados: true }, // CAMBIADO: Ahora sumamos la asistencia real
       });
-      return result._sum.cupos || 0;
+      return result._sum.confirmados || 0;
     } catch (error) {
       console.error("Error en GuestService.countConfirmedCupos:", error);
       return 0;

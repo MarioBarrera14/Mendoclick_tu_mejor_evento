@@ -14,70 +14,103 @@ import {
   Witnesses,
 } from "@/components/templates/bodas/bodas-grafitis";
 
-// Importamos la data de BODA (la que tiene 'nombres' en plural)
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 
-export default function GraffitiDemoPage() {
-  // Formateo de fecha (AAAA-MM-DD)
-  const fechaString = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
+interface GraffitiPageProps {
+  dbConfig?: any;
+  eventId?: string;
+  isDemo?: boolean;
+}
+
+export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = true }: GraffitiPageProps) {
+  
+  // 1. Elegimos la fuente de datos
+  const rawConfig = dbConfig || {
+    eventName: localConfig.personal.nombres,
+    heroImage: localConfig.imagenes.hero.graffiti,
+    eventDate: `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`,
+    eventTime: localConfig.fecha.hora,
+    musicUrl: localConfig.imagenes.musicaUrl.graffiti,
+    videoUrl: localConfig.imagenes.videoUrl.graffiti,
+    carruselImages: JSON.stringify(localConfig.imagenes.carrusel),
+    venueName: localConfig.ubicacion.nombreLugar,
+    venueAddress: localConfig.ubicacion.direccion,
+    mapLink: localConfig.ubicacion.googleMapsUrl,
+    churchName: localConfig.ubicacion.iglesiaNombre,
+    churchAddress: localConfig.ubicacion.iglesiaDireccion,
+    churchMapLink: localConfig.ubicacion.iglesiaMaps,
+    itinerary: localConfig.itinerario,
+    testigos: localConfig.testigos,
+    dressCode: localConfig.dressCode.titulo,
+    dressDescription: localConfig.dressCode.descripcion,
+    cbu: localConfig.regalo.datosBancarios.cbu,
+    alias: localConfig.regalo.datosBancarios.alias,
+    bankName: localConfig.regalo.datosBancarios.banco,
+    holderName: localConfig.regalo.datosBancarios.titular,
+    confirmDate: localConfig.confirmacion.fechaLimite
+  };
+
+  // 2. SANITIZACIÓN: Si el campo es "" (string vacío), forzamos el uso del localConfig
+  // Esto evita que src="" llegue a los componentes Image o img
+  const safeConfig = {
+    ...rawConfig,
+    heroImage: (rawConfig.heroImage && rawConfig.heroImage !== "") ? rawConfig.heroImage : localConfig.imagenes.hero.graffiti,
+    musicUrl: (rawConfig.musicUrl && rawConfig.musicUrl !== "") ? rawConfig.musicUrl : localConfig.imagenes.musicaUrl.graffiti,
+    videoUrl: (rawConfig.videoUrl && rawConfig.videoUrl !== "") ? rawConfig.videoUrl : localConfig.imagenes.videoUrl.graffiti,
+    // Podés agregar más campos si es necesario
+  };
+
+  const currentEventId = eventId || "demo-boda-graffiti";
 
   return (
     <main className="min-h-screen bg-[#0a0a0a]">
-      {/* 1. MÚSICA: Ahora la ruta es directa dentro de musicaUrl */}
-      <Envelope musicUrl={localConfig.imagenes.musicaUrl.graffiti}>
+      {/* Usamos safeConfig en lugar de rawConfig */}
+      <Envelope musicUrl={safeConfig.musicUrl}>
         
-        {/* Usamos 'nombres' que es la propiedad de BodaConfig */}
-        <Navbar eventName={localConfig.personal.nombres} isDemo={true}/>
+        <Navbar eventName={safeConfig.eventName} isDemo={isDemo}/>
 
-        {/* HERO: Ajustado a las nuevas rutas directas */}
         <Hero
-          heroImage={localConfig.imagenes.hero.graffiti}
-          eventName={localConfig.personal.nombres}
-          eventDate={fechaString}
+          heroImage={safeConfig.heroImage}
+          eventName={safeConfig.eventName}
+          eventDate={safeConfig.eventDate}
         />
 
-        {/* 2. VIDEO Y FOTOS: Acceso directo a carrusel y videoUrl */}
         <FotoCarousel
-          images={JSON.stringify(localConfig.imagenes.carrusel)} 
-          videoUrl={localConfig.imagenes.videoUrl.graffiti} 
+          images={typeof safeConfig.carruselImages === 'string' ? safeConfig.carruselImages : JSON.stringify(safeConfig.carruselImages)} 
+          videoUrl={safeConfig.videoUrl} 
         />
 
-        {/* Detalles del evento */}
         <EventDetails config={{
-          eventDate: fechaString,
-          eventTime: localConfig.fecha.hora,
-          venueName: localConfig.ubicacion.nombreLugar,
-          venueAddress: localConfig.ubicacion.direccion,
-          mapLink: localConfig.ubicacion.googleMapsUrl,
-          churchName: localConfig.ubicacion.iglesiaNombre,
-          churchAddress: localConfig.ubicacion.iglesiaDireccion,
-          churchMapLink: localConfig.ubicacion.iglesiaMaps
+          eventDate: safeConfig.eventDate,
+          eventTime: safeConfig.eventTime,
+          venueName: safeConfig.venueName,
+          venueAddress: safeConfig.venueAddress,
+          mapLink: safeConfig.mapLink,
+          churchName: safeConfig.churchName,
+          churchAddress: safeConfig.churchAddress,
+          churchMapLink: safeConfig.churchMapLink
         }} />
 
-        {/* RSVP: Sincronizado con la imagen de boda graffiti */}
         <RSVP config={{
-          heroImage: localConfig.imagenes.hero.graffiti,
-          eventDate: fechaString,
-          confirmDate: localConfig.confirmacion.fechaLimite
+          heroImage: safeConfig.heroImage, // Aquí estaba el error del RSVP
+          eventDate: safeConfig.eventDate,
+          confirmDate: safeConfig.confirmDate || safeConfig.eventDate
         }} />
         
-        {/* Modal con datos bancarios y Dress Code */}
         <DetailModal config={{
-          dressCode: localConfig.dressCode.titulo,
-          dressDescription: localConfig.dressCode.descripcion,
-          cbu: localConfig.regalo.datosBancarios.cbu,
-          alias: localConfig.regalo.datosBancarios.alias,
-          bankName: localConfig.regalo.datosBancarios.banco,
-          holderName: localConfig.regalo.datosBancarios.titular
+          dressCode: safeConfig.dressCode,
+          dressDescription: safeConfig.dressDescription,
+          cbu: safeConfig.cbu,
+          alias: safeConfig.alias,
+          bankName: safeConfig.bankName,
+          holderName: safeConfig.holderName
         }} />
 
-        {/* Listado de itinerario */}
-        <Itinerary items={localConfig.itinerario} />
+        <Itinerary items={safeConfig.itinerary || []} />
 
-        {/* Listado de testigos */}
-        <Witnesses items={localConfig.testigos} />
+        <Witnesses items={safeConfig.witnesses || safeConfig.testigos || []} />
 
-        <MusicSuggestion eventId="demo-boda-graffiti" />
+        <MusicSuggestion eventId={currentEventId} />
         
         <Footer />
       </Envelope>

@@ -2,14 +2,14 @@
 // TEMPLATE: NEON PARTY
 // ===========================================
 
-export { Hero } from "./Hero";
-export { Location } from "./Location";
-export { Details } from "./dress-code-regalos";
-export { Footer } from "./Footer";
-export { RSVP } from "./RSVP";
-export { Navbar } from "./Navbar";
-export { default as Envelope } from "./Envelope";
-export { FotoCarousel } from "./Gallery";
-export { MusicSuggestion } from "./MusicSuggestion";
-export { ClientSection } from "./ClientSection";
-export{Itinerary} from "./itinerario"
+export { Hero } from "./hero/hero";
+export { Location } from "./addresses/addresses";
+export { Details } from "./costumes-and-gifts/dress-code";
+export { Footer } from "./footer/footer";
+export { RSVP } from "./rsvp/rsvp";
+export { Navbar } from "./navbar/navbar";
+export { default as Envelope } from "./envelope/envelope";
+export { FotoCarousel } from "./gallery/gallery";
+export { MusicSuggestion } from "./suggested-music/musicsuggestion";
+
+export{Itinerary} from "./itinerary/itinerary"

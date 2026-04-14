@@ -6,8 +6,9 @@ export type GuestStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
 
 export interface Guest {
   id: string;
-  apellido: string;
+  nombre: string;    // Actualizado para coincidir con el Schema
   cupos: number;
+  confirmados: number; // Agregado según el nuevo Schema
   codigo: string;
   status: GuestStatus;
   dietary: string | null;
@@ -17,7 +18,7 @@ export interface Guest {
 }
 
 export interface CreateGuestInput {
-  apellido: string;
+  nombre: string;    // Actualizado
   cupos?: number;
   codigo: string;
   dietary?: string;
@@ -25,8 +26,9 @@ export interface CreateGuestInput {
 }
 
 export interface UpdateGuestInput {
-  apellido?: string;
+  nombre?: string;   // Actualizado
   cupos?: number;
+  confirmados?: number; // Agregado para permitir actualización de asistencia real
   status?: GuestStatus;
   dietary?: string;
 }
@@ -34,6 +36,7 @@ export interface UpdateGuestInput {
 export interface GuestConfirmation {
   codigo: string;
   status: GuestStatus;
+  confirmados: number; // Agregado para la confirmación del invitado
   dietary?: string;
 }
 

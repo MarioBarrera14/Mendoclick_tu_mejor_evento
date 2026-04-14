@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TicketPlus, Copy, Trash2, Loader2, CheckCircle2, XCircle, Clock, Users, Mail, Utensils, Save } from "lucide-react";
+import { TicketPlus, Copy, Trash2, Loader2, CheckCircle2, XCircle, Clock, Utensils, Save } from "lucide-react";
 import Swal from "sweetalert2";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function GestionInvitados() {
   const { data: session } = useSession();
-  const [apellido, setApellido] = useState("");
+  // CAMBIADO: apellido -> nombre
+  const [nombre, setNombre] = useState("");
   const [cupos, setCupos] = useState(1);
   const [listaInvitados, setListaInvitados] = useState<any[]>([]);
   const [cargando, setCargando] = useState(false);
@@ -25,32 +25,33 @@ export default function GestionInvitados() {
   }, [session]);
 
   const stats = {
-    totalPersonas: listaInvitados.reduce((acc, inv) => acc + inv.cupos, 0),
+    totalPersonas: listaInvitados.reduce((acc, inv) => acc + (inv.cupos || 0), 0),
+    // CAMBIADO: Ahora sumamos el campo 'confirmados' real de la DB si existe
     confirmados: listaInvitados
       .filter(inv => inv.status === "CONFIRMED")
-      .reduce((acc, inv) => acc + inv.cupos, 0),
+      .reduce((acc, inv) => acc + (inv.confirmados || inv.cupos), 0),
     inasistencias: listaInvitados
       .filter(inv => inv.status === "CANCELLED")
-      .reduce((acc, inv) => acc + inv.cupos, 0),
+      .reduce((acc, inv) => acc + (inv.cupos || 0), 0),
     invitacionesPendientes: listaInvitados
       .filter(inv => inv.status === "PENDING" || !inv.status).length
   };
 
-  const generarCodigo = (ape: string) => {
-    const prefijo = ape.trim().substring(0, 3).toUpperCase();
+  const generarCodigo = (nom: string) => {
+    const prefijo = nom.trim().substring(0, 3).toUpperCase();
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     return `${prefijo}${randomNum}`;
   };
 
   const handleGuardar = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apellido || cargando || !session) return;
+    if (!nombre || cargando || !session) return;
     
     setCargando(true);
     const nuevoInvitado = {
-      apellido: apellido.trim(),
+      nombre: nombre.trim(), // CAMBIADO: nombre en lugar de apellido
       cupos: cupos,
-      codigo: generarCodigo(apellido),
+      codigo: generarCodigo(nombre),
     };
 
     try {
@@ -63,7 +64,7 @@ export default function GestionInvitados() {
       if (response.ok) {
         const guardado = await response.json();
         setListaInvitados([guardado, ...listaInvitados]);
-        setApellido("");
+        setNombre(""); // Limpiamos nombre
         setCupos(1);
         
         Swal.fire({
@@ -72,6 +73,9 @@ export default function GestionInvitados() {
           confirmButtonColor: "#dc2626",
           customClass: { popup: 'rounded-3xl border-b-4 border-red-600' }
         });
+      } else {
+        const err = await response.json();
+        Swal.fire("Error", err.error || "No se pudo crear", "error");
       }
     } catch (error: any) {
       console.error(error);
@@ -127,7 +131,6 @@ export default function GestionInvitados() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 lg:p-6 font-sans text-black">
-      {/* HEADER COMPACTO */}
       <header className="flex justify-between items-end mb-8 border-b pb-4">
         <div>
           <p className="text-red-600 font-black text-[10px] uppercase tracking-widest">MendoClick Admin</p>
@@ -143,7 +146,6 @@ export default function GestionInvitados() {
         </div>
       </header>
 
-      {/* FORMULARIO COMPACTO */}
       <section className="bg-white p-5 rounded-3xl border border-zinc-200 shadow-sm mb-8">
         <h2 className="text-[10px] font-black uppercase text-zinc-400 mb-4 tracking-widest flex items-center gap-2">
             <TicketPlus size={14} className="text-red-600" /> Nuevo Pase de Invitado
@@ -151,7 +153,7 @@ export default function GestionInvitados() {
         <form onSubmit={handleGuardar} className="flex flex-col md:flex-row gap-3">
           <div className="flex-1">
             <input 
-              type="text" value={apellido} onChange={(e) => setApellido(e.target.value)}
+              type="text" value={nombre} onChange={(e) => setNombre(e.target.value)}
               placeholder="NOMBRE / FAMILIA..."
               className="w-full bg-zinc-50 border border-zinc-300 rounded-xl p-3 text-sm font-black uppercase text-black outline-none focus:border-red-500 transition-all"
             />
@@ -165,7 +167,7 @@ export default function GestionInvitados() {
             </select>
           </div>
           <button 
-            type="submit" disabled={cargando || !apellido}
+            type="submit" disabled={cargando || !nombre}
             className="bg-black text-white px-8 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-red-600 transition-all shadow-lg active:scale-95 disabled:opacity-30"
           >
             {cargando ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />} GENERAR PASE
@@ -173,7 +175,6 @@ export default function GestionInvitados() {
         </form>
       </section>
 
-      {/* LISTADO */}
       <div className="bg-white rounded-[2.5rem] border border-zinc-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -190,14 +191,18 @@ export default function GestionInvitados() {
               {listaInvitados.map((inv) => (
                 <tr key={inv.id} className="hover:bg-zinc-50 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-black text-sm uppercase italic leading-none">{inv.apellido}</p>
+                    {/* CAMBIADO: inv.nombre */}
+                    <p className="font-black text-sm uppercase italic leading-none">{inv.nombre}</p>
                     {inv.dietary && inv.dietary !== "Ninguna" && (
                       <span className="text-[8px] text-red-600 font-black mt-1 uppercase flex items-center gap-1">
                         <Utensils size={8} /> {inv.dietary}
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-center font-black text-zinc-400 text-xs">{inv.cupos}</td>
+                  <td className="px-6 py-4 text-center font-black text-zinc-400 text-xs">
+                    {/* Mostramos cupos totales vs confirmados si es necesario */}
+                    {inv.status === "CONFIRMED" ? `${inv.confirmados} / ${inv.cupos}` : inv.cupos}
+                  </td>
                   <td className="px-6 py-4 text-center">{renderStatus(inv.status)}</td>
                   <td className="px-6 py-4 text-center">
                     <button 

@@ -9,87 +9,84 @@ datasource db {
 
 // 1. EL CLIENTE (Dueño de la invitación)
 model User {
-  id          String   @id @default(cuid())
-  nombre      String
-  email       String   @unique
-  password    String
-  role        String   @default("USER") // "ADMIN" o "USER"
+  id              String   @id @default(cuid())
+  nombre          String
+  email           String   @unique
+  password        String
+  role            String   @default("USER") // "ADMIN" o "USER"
   
   // Datos para la URL y Diseño
-  slug        String   @unique // Ej: "boda-mario-y-clara"
-  templateId  String   @default("DEMO1") // "DEMO1", "DEMO2", "DEMO3"
+  slug            String   @unique // Ej: "boda-mario-y-clara"
+  templateId      String   @default("DEMO1")
 
+  // Relaciones
+  eventConfig     EventConfig? 
+  guests          Guest[]
   songSuggestions SongSuggestion[]
-  // RELACIONES
-  // Un usuario tiene una única configuración de su evento
-  eventConfig EventConfig? 
-  // Un usuario tiene muchos invitados en su lista
-  guests      Guest[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("users")
 }
 
-// 2. CONFIGURACIÓN DEL EVENTO (Lo que el cliente edita)
-// Actualización del modelo EventConfig
+// 2. CONFIGURACIÓN DEL EVENTO (Lo que el cliente edita en su panel)
 model EventConfig {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String          @id @default(cuid())
+  userId           String          @unique
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // --- Multimedia ---
-  heroImage        String?  @default("")
-  videoUrl         String?  @default("")
-  musicUrl         String?  @default("")
-  carruselImages   String?  @default("[]") // Cloudinary URLs en JSON
+  heroImage        String?         @default("")
+  videoUrl         String?         @default("")
+  musicUrl         String?         @default("")
+  // Usamos Json para manejar los arrays de Cloudinary nativamente
+  carruselImages   Json?           @default("[]") 
 
   // --- Datos Principales ---
-  eventName        String   @default("Mi Evento") // "Flor & Santi" o "Mis 15 - Olivia"
-  eventDate        String   @default("2026-12-19")
-  eventTime        String   @default("21:00")
+  eventName        String          @default("Mi Evento")
+  eventDate        String          @default("2026-12-19")
+  eventTime        String          @default("21:00")
   
-  // --- Ubicaciones (Separadas para Bodas) ---
-  // Salon / Fiesta
-  venueName        String   @default("Nombre del Salón")
-  venueAddress     String   @default("Calle Falsa 123")
-  mapLink          String   @default("")
+  // --- Ubicaciones ---
+  // Salón / Fiesta
+  venueName        String          @default("Nombre del Salón")
+  venueAddress     String          @default("Calle Falsa 123")
+  mapLink          String          @default("")
   
-  // Iglesia / Ceremonia (Específico para Bodas)
-// Iglesia / Ceremonia (Específico para Bodas)
-  churchName       String?  @default("")
-  churchAddress    String?  @default("")
-  churchMapLink    String?  @default("")
-  churchDate       String?  @default("") // <--- AGREGAR ESTO
-  churchTime       String?  @default("") // <--- AGREGAR ESTO
+  // Iglesia / Ceremonia (Opcionales para Bodas)
+  churchName       String?         @default("")
+  churchAddress    String?         @default("")
+  churchMapLink    String?         @default("")
+  churchDate       String?         @default("") 
+  churchTime       String?         @default("") 
 
   // --- Detalles ---
-  dressCode        String?  @default("Elegante Sport") // El ? permite el null
-  dressDescription String?  @default("¡Tu presencia es lo más importante!")
+  dressCode        String?         @default("Elegante Sport")
+  dressDescription String?         @default("¡Tu presencia es lo más importante!")
 
-  // --- Regalos / CBU ---
-  cbu              String?   @default("")
-  alias            String?   @default("")
-  bankName         String?   @default("")
-  holderName       String?   @default("")
+  // --- Regalos / Datos Bancarios ---
+  cbu              String?         @default("")
+  alias            String?         @default("")
+  bankName         String?         @default("")
+  holderName       String?         @default("")
 
   // --- Relaciones Dinámicas ---
   itinerary        ItineraryItem[]
   witnesses        Witness[]
 
-  updatedAt        DateTime @updatedAt
+  updatedAt        DateTime        @updatedAt
   @@map("event_config")
 }
 
-// 4. ITINERARIO (Los 8 puntos que mencionaste)
+// 3. ITINERARIO (Cronograma del evento)
 model ItineraryItem {
   id            String      @id @default(cuid())
-  time          String      // "21:00hs"
-  title         String      // "Recepción"
-  description   String?     // Opcional
-  icon          String      @default("Heart") // Nombre del icono de Lucide
-  order         Int         // Para ordenar del 1 al 8
+  time          String      // Ej: "21:00hs"
+  title         String      // Ej: "Recepción"
+  description   String?     
+  icon          String      @default("Heart") // Nombre del icono de Lucide/React Icons
+  order         Int         // Para ordenar manualmente 1, 2, 3...
   
   eventConfigId String
   eventConfig   EventConfig @relation(fields: [eventConfigId], references: [id], onDelete: Cascade)
@@ -97,52 +94,50 @@ model ItineraryItem {
   @@map("itinerary_items")
 }
 
-// 5. TESTIGOS / PADRINOS (Los 4 de las bodas)
+// 4. TESTIGOS / PADRINOS
 model Witness {
   id            String      @id @default(cuid())
   nombre        String
-  rol           String      
+  rol           String      // Ej: "Testigo de la Novia"
   imageUrl      String?     
   
   eventConfigId String
   eventConfig   EventConfig @relation(fields: [eventConfigId], references: [id], onDelete: Cascade)
 
-  // AGREGÁ ESTA LÍNEA AQUÍ:
-  @@unique([eventConfigId, rol]) 
-
   @@map("witnesses")
 }
 
-// 3. LOS INVITADOS (Los que confirman asistencia)
+// 5. LOS INVITADOS (Gestión de lista y confirmaciones)
 model Guest {
-  id        String   @id @default(cuid())
-  apellido  String
-  cupos     Int      @default(1)
-  codigo    String   @unique // Código para que el invitado entre a SU invitación
-  status    String   @default("PENDING") // "CONFIRMED", "CANCELLED", "PENDING"
-  dietary   String?  // Celíaco, Vegano, etc.
-  
-  // Relación: Cada invitado pertenece a un Usuario (Evento) específico
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  nombre           String   // Ej: "Familia Ariel" o "Mario Barrera"
+  cupos            Int      @default(1) // Cupos totales otorgados
+  confirmados      Int      @default(0) // Cupos que realmente confirmaron
+  codigo           String   @unique     // Código de acceso único
+  status           String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  dietary          String?  // Info sobre alergias, vegetariano, etc.
+  message     String?  // <--- AGREGAR ESTO SI NO ESTÁ
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@map("guests")
 }
 
-// Agrega esto al final de tu archivo schema.prisma
+// 6. SUGERENCIAS DE MÚSICA (Interacción de invitados)
 model SongSuggestion {
-  id         String   @id @default(cuid())
-  tema1      String?
-  tema2      String?
-  tema3      String?
-  guestName  String?  // <--- AGREGAR ESTO PARA SABER QUIÉN SUGIRIÓ
+  id          String   @id @default(cuid())
+  tema1       String?
+  tema2       String?
+  tema3       String?
+  guestName   String?  // Quién sugirió la canción
   
-  // Relación con el usuario (dueño de la fiesta)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  
+  @@map("song_suggestions")
 }

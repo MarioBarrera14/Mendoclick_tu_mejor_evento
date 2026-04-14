@@ -3,14 +3,38 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-// 1. OBTENER INVITADOS (GET)
+/**
+ * 1. OBTENER INVITADOS (GET)
+ */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get("slug");
-    const session = await getServerSession(authOptions);
+    const code = searchParams.get("code");
 
-    // Si no viene slug por URL, intentamos usar el del usuario logueado (Dashboard)
+    // A. LÓGICA DE VALIDACIÓN PÚBLICA
+    if (code) {
+      const invitado = await prisma.guest.findUnique({
+        where: { codigo: code.toUpperCase().trim() },
+        select: {
+          id: true,
+          nombre: true,
+          cupos: true,
+          status: true,
+          dietary: true,
+          message: true, // <--- AGREGADO PARA QUE EL FRONT LO VEA
+          confirmados: true
+        }
+      });
+
+      if (!invitado) {
+        return NextResponse.json({ error: "Código no válido" }, { status: 404 });
+      }
+      return NextResponse.json(invitado);
+    }
+
+    // B. LÓGICA DE ADMIN
+    const session = await getServerSession(authOptions);
     const targetSlug = slug || session?.user?.slug;
 
     if (!targetSlug) {
@@ -18,66 +42,38 @@ export async function GET(req: Request) {
     }
 
     const invitados = await prisma.guest.findMany({
-      where: {
-        user: { slug: targetSlug }
-      },
-      orderBy: { createdAt: 'desc' }
+      where: { user: { slug: targetSlug } },
+      orderBy: { updatedAt: 'desc' } // Ordenamos por actualización para el Live Feed
     });
     
     return NextResponse.json(invitados);
   } catch (error) {
     console.error("Error en GET Guests:", error);
-    return NextResponse.json({ error: "Error al obtener invitados" }, { status: 500 });
+    return NextResponse.json({ error: "Error de servidor" }, { status: 500 });
   }
 }
 
-// 2. CREAR INVITADO (POST) - Blindado y con validación de código único
+/**
+ * 2. CREAR INVITADO (POST)
+ */
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session || !session.user?.email) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    if (!session || !session.user?.email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-    const { apellido, cupos, codigo } = await req.json();
+    const { nombre, cupos, codigo } = await req.json();
 
-    // Obtenemos el ID del usuario real desde la DB
-    const usuarioDb = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
+    const usuarioDb = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!usuarioDb) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
 
-    if (!usuarioDb) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
-    }
-
-    // A. VALIDAR CÓDIGO ÚNICO (Global)
-    // Prisma fallaría con un 500 si no validamos el @unique antes
-    const codigoEnUso = await prisma.guest.findUnique({
-      where: { codigo: codigo }
-    });
-
-    if (codigoEnUso) {
-      return NextResponse.json({ error: "El código ya está siendo usado por otra familia" }, { status: 400 });
-    }
-
-    // B. VALIDAR DUPLICADO EN EL MISMO EVENTO
-    const familiaExiste = await prisma.guest.findFirst({
-      where: { 
-        userId: usuarioDb.id,
-        apellido: { equals: apellido, mode: 'insensitive' } 
-      }
-    });
-
-    if (familiaExiste) {
-      return NextResponse.json({ error: "Esta familia ya está en tu lista" }, { status: 400 });
-    }
+    const codigoEnUso = await prisma.guest.findUnique({ where: { codigo: codigo.toUpperCase().trim() } });
+    if (codigoEnUso) return NextResponse.json({ error: "El código ya está siendo usado" }, { status: 400 });
 
     const nuevoInvitado = await prisma.guest.create({
       data: { 
-        apellido, 
+        nombre: nombre.trim(), 
         cupos: Number(cupos), 
-        codigo,
+        codigo: codigo.toUpperCase().trim(),
         status: "PENDING",
         userId: usuarioDb.id
       },
@@ -85,80 +81,62 @@ export async function POST(req: Request) {
     
     return NextResponse.json(nuevoInvitado, { status: 201 });
   } catch (error) {
-    console.error("Error en POST Guest:", error);
-    return NextResponse.json({ error: "Error al crear invitado" }, { status: 500 });
+    return NextResponse.json({ error: "Error al crear" }, { status: 500 });
   }
 }
 
-// 3. ACTUALIZAR ASISTENCIA (PATCH) - Usado por los invitados
+/**
+ * 3. ACTUALIZAR ASISTENCIA (PATCH)
+ */
 export async function PATCH(req: Request) {
   try {
-    const { code, status, dietary, name } = await req.json();
+    const { code, status, dietary, name, confirmados, message } = await req.json();
 
-    const invitado = await prisma.guest.findUnique({
-      where: { codigo: code }
-    });
+    if (!code) return NextResponse.json({ error: "Código requerido" }, { status: 400 });
 
-    if (!invitado) {
-      return NextResponse.json({ error: "Código no válido" }, { status: 404 });
-    }
+    const invitado = await prisma.guest.findUnique({ where: { codigo: code.toUpperCase().trim() } });
+    if (!invitado) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
-    // Lógica para no pisar el apellido original si el invitado escribe algo distinto
-    const nombreFinal = 
-      invitado.apellido.toLowerCase().trim() === name.toLowerCase().trim()
-        ? invitado.apellido
-        : `${invitado.apellido} (${name})`;
+    const nombreFinal = name && name.toLowerCase().trim() !== invitado.nombre.toLowerCase().trim()
+        ? `${invitado.nombre} (${name.trim()})`
+        : invitado.nombre;
 
     const actualizado = await prisma.guest.update({
-      where: { codigo: code },
+      where: { codigo: code.toUpperCase().trim() },
       data: {
         status: status, 
-        dietary: dietary, 
-        apellido: nombreFinal, 
+        dietary: dietary || "", 
+        nombre: nombreFinal, 
+        message: message || "", // <--- GUARDAMOS EL MENSAJE
+        confirmados: status === "CONFIRMED" ? (Number(confirmados) || 1) : 0 
       }
     });
 
     return NextResponse.json(actualizado);
   } catch (error) {
-    console.error("Error en PATCH Guest:", error);
-    return NextResponse.json({ error: "Error al confirmar asistencia" }, { status: 500 });
+    return NextResponse.json({ error: "Error al confirmar" }, { status: 500 });
   }
 }
 
-// 4. ELIMINAR (DELETE) - Protegido contra borrados ajenos
+/**
+ * 4. ELIMINAR (DELETE)
+ */
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    if (!session || !session.user?.email) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    if (!session || !session.user?.email) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-    if (!id) return NextResponse.json({ error: "ID requerido" }, { status: 400 });
+    const usuarioDb = await prisma.user.findUnique({ where: { email: session.user.email } });
+    const invitadoABorrar = await prisma.guest.findUnique({ where: { id: id || "" } });
 
-    // BUSCAMOS EL USUARIO
-    const usuarioDb = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
+    if (!invitadoABorrar || invitadoABorrar.userId !== usuarioDb?.id) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
 
-    // VALIDACIÓN DE SEGURIDAD: 
-    // Verificamos que el invitado a borrar pertenezca realmente al usuario logueado
-    const invitadoABorrar = await prisma.guest.findUnique({
-      where: { id },
-      select: { userId: true }
-    });
-
-    if (!invitadoABorrar || invitadoABorrar.userId !== usuarioDb?.id) {
-      return NextResponse.json({ error: "No tienes permiso para eliminar este invitado" }, { status: 403 });
-    }
-
-    await prisma.guest.delete({ where: { id } });
-    
-    return NextResponse.json({ message: "Invitado eliminado" });
+    await prisma.guest.delete({ where: { id: id! } });
+    return NextResponse.json({ message: "Eliminado" });
   } catch (error) {
-    console.error("Error en DELETE Guest:", error);
     return NextResponse.json({ error: "Error al eliminar" }, { status: 500 });
   }
 }

@@ -3,58 +3,45 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-/**
- * Acción para que los invitados envíen sugerencias de canciones
- */
-export async function submitSongSuggestions(
-  eventId: string, // ID de la tabla EventConfig (cl...)
-  guestCode: string, 
-  songs: { tema1?: string; tema2?: string; tema3?: string }
-) {
+export async function submitSongSuggestions(eventId: string, guestCode: string, songs: any) {
   try {
-    // 1. Normalizamos el código para evitar errores de mayúsculas/minúsculas
-    const normalizedCode = guestCode.trim().toUpperCase();
-
-    // 2. Buscamos la configuración del evento para obtener el dueño (userId)
-    const config = await prisma.eventConfig.findUnique({
-      where: { id: eventId },
-      select: { userId: true }
+    // 1. Validar que el invitado existe y pertenece al evento correcto
+    const invitado = await prisma.guest.findUnique({
+      where: { codigo: guestCode.toUpperCase().trim() },
+      include: { user: true }
     });
 
-    if (!config) {
-      return { success: false, error: "El evento no existe." };
+    if (!invitado) {
+      return { success: false, error: "Código de invitado no válido." };
     }
 
-    // 3. Validamos que el invitado pertenezca a este evento específico
-    const guest = await prisma.guest.findFirst({
+    // 2. Verificar si ya envió sugerencias (Bloqueo de duplicados)
+    const existeSugerencia = await prisma.songSuggestion.findFirst({
       where: { 
-        codigo: normalizedCode,
-        userId: config.userId 
+        userId: invitado.userId,
+        guestName: invitado.nombre
       }
     });
 
-    if (!guest) {
-      return { success: false, error: "Código de invitado no válido para este evento." };
+    if (existeSugerencia) {
+      return { success: false, error: "Ya recibimos tus sugerencias. ¡Gracias!" };
     }
 
-    // 4. Guardamos las canciones vinculadas al User
+    // 3. Crear la sugerencia
     await prisma.songSuggestion.create({
       data: {
-        userId: config.userId,
-        guestName: guest.apellido, // Usamos el apellido del invitado validado
-        tema1: songs.tema1 || "",
-        tema2: songs.tema2 || "",
-        tema3: songs.tema3 || "",
-      },
+        tema1: songs.tema1 || null,
+        tema2: songs.tema2 || null,
+        tema3: songs.tema3 || null,
+        guestName: invitado.nombre,
+        userId: invitado.userId
+      }
     });
 
-    // 5. Revalidamos las rutas del panel de control para que veas los cambios al instante
-    revalidatePath("/admin/sugeridos"); 
-    revalidatePath("/admin/playlist");
-    
+    revalidatePath("/admin/sugeridos");
     return { success: true };
   } catch (error) {
     console.error("Error en submitSongSuggestions:", error);
-    return { success: false, error: "Error de servidor al procesar la playlist." };
+    return { success: false, error: "Error al procesar la solicitud." };
   }
 }

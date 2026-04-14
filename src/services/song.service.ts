@@ -11,7 +11,7 @@ export class SongService {
         where: { userId },
         orderBy: { createdAt: "desc" },
       });
-      return suggestions as SongSuggestion[];
+      return suggestions as unknown as SongSuggestion[];
     } catch (error) {
       console.error("Error en SongService.getSuggestionsByUserId:", error);
       return [];
@@ -27,7 +27,7 @@ export class SongService {
         where: { user: { slug } },
         orderBy: { createdAt: "desc" },
       });
-      return suggestions as SongSuggestion[];
+      return suggestions as unknown as SongSuggestion[];
     } catch (error) {
       console.error("Error en SongService.getSuggestionsBySlug:", error);
       return [];
@@ -41,17 +41,20 @@ export class SongService {
     input: CreateSongSuggestionInput
   ): Promise<{ success: boolean; suggestion?: SongSuggestion; error?: string }> {
     try {
+      // Opcional: Podés agregar una validación extra aquí si querés
+      // pero ya la estamos haciendo en la Server Action para más seguridad.
+
       const suggestion = await prisma.songSuggestion.create({
         data: {
-          tema1: input.tema1,
-          tema2: input.tema2,
-          tema3: input.tema3,
+          tema1: input.tema1 || null,
+          tema2: input.tema2 || null,
+          tema3: input.tema3 || null,
           guestName: input.guestName,
           userId: input.userId,
         },
       });
 
-      return { success: true, suggestion: suggestion as SongSuggestion };
+      return { success: true, suggestion: suggestion as unknown as SongSuggestion };
     } catch (error) {
       console.error("Error en SongService.createSuggestion:", error);
       return { success: false, error: "Error al guardar la sugerencia." };

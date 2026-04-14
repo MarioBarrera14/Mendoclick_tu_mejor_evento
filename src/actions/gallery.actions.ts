@@ -5,9 +5,6 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-/**
- * Obtiene la configuración multimedia
- */
 export async function getGalleryConfig() {
   try {
     const session = await getServerSession(authOptions);
@@ -28,9 +25,6 @@ export async function getGalleryConfig() {
   }
 }
 
-/**
- * Actualiza ÚNICAMENTE los datos multimedia
- */
 export async function updateGalleryConfig(data: any) {
   try {
     const session = await getServerSession(authOptions);
@@ -42,21 +36,20 @@ export async function updateGalleryConfig(data: any) {
 
     if (!dbUser) return { success: false, error: "Usuario no encontrado" };
 
-    // Actualizamos solo los campos multimedia del modelo
     const result = await prisma.eventConfig.update({
       where: { userId: dbUser.id },
       data: {
         heroImage: data.heroImage,
         videoUrl: data.videoUrl,
         musicUrl: data.musicUrl,
-        carruselImages: data.carruselImages, // Viene como JSON string
+        // Mandamos el array directo al campo Json
+        carruselImages: data.carruselImages, 
       },
     });
 
     revalidatePath("/admin/galeria");
     if (dbUser.slug) {
       revalidatePath(`/invit/${dbUser.slug}`);
-      revalidatePath(`/inv/${dbUser.slug}`);
     }
     
     return { success: true };
