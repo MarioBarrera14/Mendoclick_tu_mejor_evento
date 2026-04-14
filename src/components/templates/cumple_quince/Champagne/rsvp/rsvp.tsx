@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   CalendarCheck, X, Loader2, AlertCircle, 
   PartyPopper, Heart, MessageSquareHeart, 
-  Utensils 
+  Utensils, Plus, Minus 
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -30,6 +30,7 @@ export function RSVP({ config }: RSVPProps) {
   const [formData, setFormData] = useState({
     name: "",
     attendance: "", 
+    confirmados: 1, // Nuevo: Contador de personas
     dietary: [] as string[],
     message: "",
   });
@@ -40,7 +41,7 @@ export function RSVP({ config }: RSVPProps) {
     setFamilyCode("");
     setErrorMessage("");
     setGuestInfo(null);
-    setFormData({ name: "", attendance: "", dietary: [], message: "" });
+    setFormData({ name: "", attendance: "", confirmados: 1, dietary: [], message: "" });
   };
 
   const handleClose = () => {
@@ -56,12 +57,14 @@ export function RSVP({ config }: RSVPProps) {
     setErrorMessage("");
     
     try {
-      const response = await fetch("/api/guests");
-      const invitados = await response.json();
+      // Usamos la misma lógica de endpoint que los anteriores
+      const response = await fetch(`/api/guests?code=${familyCode.toUpperCase().trim()}`);
+      if (!response.ok) {
+        setErrorMessage("Código no reconocido.");
+        return;
+      }
       
-      const invitadoEncontrado = invitados.find(
-        (inv: any) => inv.codigo === familyCode.toUpperCase().trim()
-      );
+      const invitadoEncontrado = await response.json();
 
       if (invitadoEncontrado) {
         if (invitadoEncontrado.status !== "PENDING" && invitadoEncontrado.status !== null) {
@@ -71,9 +74,12 @@ export function RSVP({ config }: RSVPProps) {
         }
         setGuestInfo(invitadoEncontrado);
         setIsValidated(true);
-        setFormData(prev => ({ ...prev, name: invitadoEncontrado.apellido }));
-      } else {
-        setErrorMessage("Código no reconocido.");
+        // Inicializamos con el máximo de cupos por defecto
+        setFormData(prev => ({ 
+          ...prev, 
+          name: invitadoEncontrado.nombre, 
+          confirmados: invitadoEncontrado.cupos 
+        }));
       }
     } catch (error) {
       setErrorMessage("Error de conexión.");
@@ -83,13 +89,10 @@ export function RSVP({ config }: RSVPProps) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.attendance) return;
+    if (!formData.attendance) return;
     setIsSubmitting(true);
     try {
       const dietaFinal = formData.dietary.length > 0 ? formData.dietary.join(", ") : "Ninguna";
-      const infoFinal = formData.message 
-        ? `${dietaFinal} | Mensaje: ${formData.message}` 
-        : dietaFinal;
 
       const response = await fetch("/api/guests", {
         method: "PATCH",
@@ -98,7 +101,9 @@ export function RSVP({ config }: RSVPProps) {
           code: familyCode.toUpperCase().trim(),
           name: formData.name,
           status: formData.attendance === "YES" ? "CONFIRMED" : "CANCELLED",
-          dietary: infoFinal,
+          dietary: dietaFinal,
+          message: formData.message, // Mensaje para los novios
+          confirmados: formData.confirmados, // Cantidad real de asistentes
         }),
       });
 
@@ -128,17 +133,13 @@ export function RSVP({ config }: RSVPProps) {
     <section 
       className="relative py-28 md:py-36 overflow-hidden font-sans bg-[#b4a178]"
       style={{ 
-        /* Esta es la magia: define la inclinación superior e inferior de toda la sección */
         clipPath: "polygon(0 4%, 100% 0, 100% 98%, 0 100%)",
-        marginTop: "-60px", // Solapa un poco con el de arriba para que no haya aire
-        marginBottom: "-60px" // Solapa con el de abajo
+        marginTop: "-60px",
+        marginBottom: "-60px"
       }}
     >
-      
       <div className="container mx-auto px-6 relative z-20 max-w-7xl">
         <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
-          
-          {/* COLUMNA IZQUIERDA: TEXTO */}
           <div className="text-center md:text-left flex flex-col items-center md:items-start text-white max-w-xl">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="flex justify-center md:justify-start mb-6">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border border-white/30 bg-white/10 flex items-center justify-center shadow-inner">
@@ -161,7 +162,6 @@ export function RSVP({ config }: RSVPProps) {
             </motion.button>
           </div>
 
-          {/* COLUMNA DERECHA: FOTO DINÁMICA */}
           <motion.div 
             initial={{ opacity: 0, x: 50, rotate: 10 }}
             whileInView={{ opacity: 1, x: 0, rotate: -5 }}
@@ -191,7 +191,6 @@ export function RSVP({ config }: RSVPProps) {
               <Heart className="w-8 h-8 text-white stroke-[1]" />
             </motion.div>
           </motion.div>
-
         </div>
       </div>
 
@@ -207,8 +206,8 @@ export function RSVP({ config }: RSVPProps) {
               <button onClick={handleClose} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"><X size={20} /></button>
 
               {!isValidated ? (
-                <div className="py-6 text-center">
-                  <h3 className="font-script text-4xl text-[#b4a178] mb-6">Ingresar Código</h3>
+                <div className="py-6 text-center font-sans">
+                  <h3 className="font-script text-4xl text-[#b4a178] mb-6 text-center">Ingresar Código</h3>
                   <p className="text-[10px] tracking-[0.2em] text-gray-400 uppercase mb-8 font-light">Encontralo en tu invitación</p>
                   <input 
                     type="text" value={familyCode} onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
@@ -225,29 +224,20 @@ export function RSVP({ config }: RSVPProps) {
                   </button>
                 </div>
               ) : alreadyResponded ? (
-                <div className="py-10 text-center">
+                <div className="py-10 text-center font-sans">
                   <PartyPopper size={40} className="text-[#b4a178] mx-auto mb-6" />
                   <h4 className="font-script text-4xl text-[#b4a178] mb-4">¡Muchas gracias!</h4>
                   <p className="text-gray-500 text-xs font-light leading-relaxed mb-10">Tu respuesta ya fue registrada correctamente.</p>
                   <button onClick={handleClose} className="px-10 py-2 border border-gray-400 rounded-full text-[10px] font-medium tracking-widest uppercase text-gray-600">Cerrar</button>
                 </div>
               ) : (
-                <div className="overflow-y-auto pr-2 custom-scrollbar">
+                <div className="overflow-y-auto pr-2 custom-scrollbar font-sans">
                   <div className="text-center mb-10">
-                    <h3 className="font-script text-4xl text-[#b4a178]">Familia {guestInfo?.apellido}</h3>
-                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-light mt-1">Válido para {guestInfo?.cupos} personas</p>
+                    <h3 className="font-script text-4xl text-[#b4a178]">{guestInfo?.nombre}</h3>
+                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-light mt-1 italic text-center">Válido para {guestInfo?.cupos} personas</p>
                   </div>
 
                   <div className="space-y-8">
-                    <div className="border-b border-gray-100 pb-2">
-                      <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400">¿Quién confirma?</label>
-                      <input
-                        type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full bg-transparent p-1 outline-none text-gray-700 font-light text-lg italic"
-                        placeholder="Nombre completo"
-                      />
-                    </div>
-
                     <div className="grid grid-cols-2 gap-4">
                       <button onClick={() => setFormData({...formData, attendance: "YES"})} className={`py-4 rounded-sm text-[10px] font-medium tracking-widest transition-all border ${formData.attendance === "YES" ? 'bg-[#b4a178] text-white border-[#b4a178]' : 'bg-white text-gray-400 border-gray-200'}`}>
                         ASISTIRÉ
@@ -257,37 +247,51 @@ export function RSVP({ config }: RSVPProps) {
                       </button>
                     </div>
 
-                    <div className="space-y-4">
-                      <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 flex items-center gap-2">
-                        <Utensils size={12}/> Menú Especial
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {["NINGUNA", "SIN TACC", "VEGANO", "VEGETARIANO"].map((item) => (
-                          <button 
-                            key={item} 
-                            onClick={() => handleDietaryChange(item)} 
-                            className={`py-2 px-4 rounded-full text-[8px] font-medium tracking-widest transition-all border ${formData.dietary.includes(item) ? 'bg-gray-800 text-white border-gray-800' : 'bg-gray-50 text-gray-400 border-transparent'}`}
-                          >
-                            {item}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    {formData.attendance === "YES" && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                        {/* CONTADOR DE ASISTENTES */}
+                        <div className="space-y-3">
+                          <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400">¿Cuántos asisten?</label>
+                          <div className="flex items-center justify-between border border-gray-200 rounded-full px-4 py-2">
+                            <button onClick={() => setFormData(p => ({...p, confirmados: Math.max(1, p.confirmados - 1)}))} className="text-[#b4a178] hover:bg-gray-50 p-1 rounded-full"><Minus size={16}/></button>
+                            <span className="font-light text-xl text-gray-700">{formData.confirmados}</span>
+                            <button onClick={() => setFormData(p => ({...p, confirmados: Math.min(guestInfo?.cupos || 1, p.confirmados + 1)}))} className="text-[#b4a178] hover:bg-gray-50 p-1 rounded-full"><Plus size={16}/></button>
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 flex items-center gap-2">
-                        <MessageSquareHeart size={12} /> Dedicatoria
-                      </label>
-                      <textarea
-                        value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full border-b border-gray-100 bg-transparent py-2 outline-none text-gray-600 font-light text-sm italic resize-none"
-                        rows={2} placeholder="Escribe algo aquí..."
-                      />
-                    </div>
+                        <div className="space-y-4">
+                          <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 flex items-center gap-2">
+                            <Utensils size={12}/> Menú Especial
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {["NINGUNA", "SIN TACC", "VEGANO", "VEGETARIANO"].map((item) => (
+                              <button 
+                                key={item} 
+                                onClick={() => handleDietaryChange(item)} 
+                                className={`py-2 px-4 rounded-full text-[8px] font-medium tracking-widest transition-all border ${formData.dietary.includes(item) ? 'bg-gray-800 text-white border-gray-800' : 'bg-gray-50 text-gray-400 border-transparent'}`}
+                              >
+                                {item}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 flex items-center gap-2">
+                            <MessageSquareHeart size={12} /> Dedicatoria
+                          </label>
+                          <textarea
+                            value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                            className="w-full border-b border-gray-100 bg-transparent py-2 outline-none text-gray-600 font-light text-sm italic resize-none"
+                            rows={2} placeholder="Escribí un mensaje para nosotros..."
+                          />
+                        </div>
+                      </motion.div>
+                    )}
 
                     <button
-                      onClick={handleSubmit} disabled={isSubmitting || !formData.attendance || !formData.name}
-                      className="w-full bg-[#b4a178] text-white py-3 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg disabled:opacity-30 mt-4"
+                      onClick={handleSubmit} disabled={isSubmitting || !formData.attendance}
+                      className="w-full bg-[#b4a178] text-white py-4 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg disabled:opacity-30 mt-4"
                     >
                       {isSubmitting ? <Loader2 className="animate-spin mx-auto" size={16} /> : "ENVIAR RESPUESTA"}
                     </button>

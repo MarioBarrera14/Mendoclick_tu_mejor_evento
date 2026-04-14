@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Disc3, Headset, X, Send, Loader2, KeyRound } from "lucide-react";
 import { submitSongSuggestions } from "@/actions/songs.actions";
-
 import Swal from "sweetalert2";
 
 interface MusicSuggestionProps {
@@ -16,6 +15,19 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [isSending, setIsSending] = useState(false);
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  // BLOQUEO DE SCROLL AL ABRIR EL MODAL
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isOpen]);
 
   const bars = Array.from({ length: 30 });
 
@@ -27,30 +39,56 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestCode.trim()) {
-      Swal.fire({ title: "Falta un detalle", text: "Por favor, ingresa tu código de invitado", icon: "info", confirmButtonColor: "#b4a178" });
+      Swal.fire({ 
+        title: "Falta un detalle", 
+        text: "Por favor, ingresa tu código de invitado", 
+        icon: "info", 
+        confirmButtonColor: "#b4a178" 
+      });
       return;
     }
+
     setIsSending(true);
     try {
       const result = await submitSongSuggestions(eventId, guestCode, songs);
+      
       if (result.success) {
         setIsOpen(false);
         setSongs({ tema1: "", tema2: "", tema3: "" });
         setGuestCode("");
-        Swal.fire({ title: "¡DJ Notificado!", text: "Tus sugerencias fueron enviadas con éxito. 🎵", icon: "success", confirmButtonColor: "#b4a178" });
+        Swal.fire({ 
+          title: "¡DJ Notificado!", 
+          text: "Tus sugerencias fueron enviadas con éxito. 🎵", 
+          icon: "success", 
+          confirmButtonColor: "#b4a178" 
+        });
+      } else {
+        // Manejo de error cuando ya enviaron música o código inválido
+        Swal.fire({ 
+          title: result.error?.includes("recibimos") ? "AVISO" : "ERROR", 
+          text: result.error || "Código inválido", 
+          icon: result.error?.includes("recibimos") ? "info" : "error", 
+          confirmButtonColor: "#b4a178" 
+        });
       }
     } catch (error) {
-      Swal.fire({ title: "Error", text: "No se pudo enviar la sugerencia", icon: "error" });
+      Swal.fire({ 
+        title: "Error", 
+        text: "No se pudo enviar la sugerencia", 
+        icon: "error",
+        confirmButtonColor: "#b4a178" 
+      });
     } finally {
       setIsSending(false);
     }
   };
 
+  if (!mounted) return null;
+
   return (
-    // Quitamos el bg-white para evitar el efecto de doble color
     <section className="relative bg-white py-28 md:py-36 overflow-hidden font-sans -mt-24 md:-mt-24">
       
-      {/* LA FRANJA INCLINADA CHAMPAGNE - Único fondo visible */}
+      {/* LA FRANJA INCLINADA CHAMPAGNE */}
       <div 
         className="absolute inset-0 bg-[#b4a178] z-10"
         style={{ 
@@ -58,7 +96,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         }}
       />
       
-      {/* ECUALIZADOR (Tonos blancos sutiles sobre el dorado) */}
+      {/* ECUALIZADOR */}
       <div className="absolute top-14 left-0 w-full flex justify-center items-end gap-1 px-4 opacity-20 h-16 pointer-events-none z-10">
         {bars.map((_, i) => (
           <motion.div
@@ -71,8 +109,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
       </div>
 
       <div className="container mx-auto px-6 relative z-10 text-center flex flex-col items-center max-w-2xl pt-10">
-        
-        {/* DISCO GIRATORIO (En blanco para contraste) */}
         <div className="relative mb-8">
           <motion.div
             animate={{ rotate: 360 }}
@@ -90,7 +126,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           </p>
         </motion.div>
 
-        {/* BOTÓN PILL (Blanco para resaltar sobre el dorado) */}
         <button
           onClick={() => setIsOpen(true)}
           className="flex items-center justify-center gap-3 px-10 py-2.5 border border-white/40 rounded-full text-white text-[10px] font-medium tracking-widest uppercase hover:bg-white/10 transition-all shadow-lg bg-white/5 backdrop-blur-sm"
@@ -100,20 +135,23 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         </button>
       </div>
 
-      {/* MODAL MINIMALISTA (Blanco para legibilidad) */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setIsOpen(false)}
+              onClick={() => !isSending && setIsOpen(false)}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="relative w-full max-w-sm bg-white p-8 rounded-sm shadow-2xl text-center"
             >
-              <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                disabled={isSending}
+              >
                 <X size={20} />
               </button>
 
@@ -125,9 +163,11 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                   <div className="flex items-center gap-2 text-gray-700">
                     <KeyRound size={14} className="opacity-30" />
                     <input 
-                      type="text" value={guestCode} onChange={(e) => setGuestCode(e.target.value.toUpperCase())}
+                      type="text" 
+                      value={guestCode} 
+                      onChange={(e) => setGuestCode(e.target.value.toUpperCase())}
                       placeholder="Ej: MAR-123" 
-                      className="bg-transparent outline-none w-full uppercase placeholder:text-gray-300 text-xs" 
+                      className="bg-transparent outline-none w-full uppercase placeholder:text-gray-300 text-xs font-bold" 
                     />
                   </div>
                 </div>
@@ -141,7 +181,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                       value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
                       onChange={handleChange}
                       placeholder="Nombre del tema..."
-                      className="w-full bg-transparent outline-none text-gray-700 text-xs placeholder:text-gray-300"
+                      className="w-full bg-transparent outline-none text-gray-700 text-xs placeholder:text-gray-300 font-bold"
                     />
                   </div>
                 ))}
