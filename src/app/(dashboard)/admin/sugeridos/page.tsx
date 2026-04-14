@@ -1,15 +1,26 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Music, Disc, User, Calendar, Trash2 } from "lucide-react";
+import { Music, Disc, User, Trash2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { DeleteSongButton } from "../_components/DeleteSongButton";
+import { redirect } from "next/navigation";
 
 export default async function SugeridosPage() {
   const session = await getServerSession(authOptions);
   
+  // Seguridad: Si no hay sesión, mandamos al login
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+
+  // Consulta reparada: Buscamos las canciones que pertenecen al ID del usuario actual
   const suggestions = await prisma.songSuggestion.findMany({
-    where: { user: { email: session?.user?.email } },
+    where: { 
+      user: { 
+        email: session.user.email 
+      } 
+    },
     orderBy: { createdAt: "desc" }
   });
 
@@ -24,6 +35,8 @@ export default async function SugeridosPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-4 lg:p-6 font-sans text-black">
+      
+      {/* HEADER MENDOCLICK */}
       <header className="flex justify-between items-end mb-8 border-b pb-4">
         <div>
           <p className="text-red-600 font-black text-[10px] uppercase tracking-widest">MendoClick Admin</p>
@@ -38,11 +51,14 @@ export default async function SugeridosPage() {
         </div>
       </header>
 
+      {/* GRID DE CANCIONES */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {suggestions.length === 0 ? (
           <div className="col-span-full py-20 text-center bg-zinc-50 rounded-[2.5rem] border-2 border-dashed border-zinc-200">
             <Disc className="mx-auto h-12 w-12 text-zinc-300 mb-4 animate-spin" />
-            <p className="text-zinc-400 font-black uppercase text-[10px] tracking-[0.2em] italic">La pista está vacía...</p>
+            <p className="text-zinc-400 font-black uppercase text-[10px] tracking-[0.2em] italic text-balance">
+              La pista está vacía. <br/> Esperando sugerencias.
+            </p>
           </div>
         ) : (
           suggestions.map((s) => (
@@ -55,7 +71,9 @@ export default async function SugeridosPage() {
                     </div>
                     <div>
                       <p className="text-[8px] font-black text-zinc-400 uppercase">Recibido</p>
-                      <p className="text-[10px] font-bold text-black uppercase italic">{new Date(s.createdAt).toLocaleDateString('es-AR')}</p>
+                      <p className="text-[10px] font-bold text-black uppercase italic">
+                        {new Date(s.createdAt).toLocaleDateString('es-AR')}
+                      </p>
                     </div>
                   </div>
                   <DeleteSongButton id={s.id} onDelete={deleteSong} />
