@@ -14,8 +14,7 @@ interface HeroProps {
 }
 
 export function Hero({ config }: HeroProps) {
-  // Verificamos que el nombre llegue, si no, ponemos un fallback
-  const nombreEvento = config.eventName || "Nombre no configurado";
+  const nombreEvento = config.eventName || "Boda & Especial";
   
   const currentImage = (config.heroImage && config.heroImage !== "") 
     ? config.heroImage 
@@ -44,13 +43,15 @@ export function Hero({ config }: HeroProps) {
     return () => clearInterval(timer);
   }, [calculateTimeLeft]);
 
-  const displayDate = config.eventDate.split("-").reverse().join(" · ");
+  // Lógica para separar nombres y poner el corazón
+  const names = nombreEvento.split(/ [&y] /);
 
   return (
     <section className="relative min-h-screen flex flex-col bg-white overflow-hidden font-sans">
+      {/* --- PARTE SUPERIOR (IMAGEN) --- */}
       <div 
-        className="relative w-full h-[70vh] md:h-[80vh] bg-[#111] overflow-hidden"
-        style={{ clipPath: "polygon(0 0, 100% 0, 100% 88%, 0% 100%)" }}
+        className="relative w-full h-[70vh] md:h-[75vh] bg-[#111] overflow-hidden"
+        style={{ clipPath: "polygon(0 0, 100% 0, 100% 90%, 0% 100%)" }}
       >
         <AnimatePresence mode="wait">
           <motion.div key={currentImage} className="relative w-full h-full">
@@ -59,54 +60,61 @@ export function Hero({ config }: HeroProps) {
               alt={nombreEvento}
               fill
               priority
-              className="object-cover grayscale-[20%] brightness-[0.8]"
+              className="object-cover opacity-70 md:opacity-80 brightness-[0.9]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-[15%] md:bottom-[18%] left-0 w-full z-30 px-6">
+        <div className="absolute bottom-[15%] left-0 w-full z-30 px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2 }}
             className="flex flex-col items-center text-center text-white"
           >
-            <span className="text-[10px] md:text-xs tracking-[0.4em] font-light uppercase mb-1">
-              {displayDate}
+            <span className="text-white/60 tracking-[0.6em] text-[10px] uppercase mb-4 font-light">
+              Nuestra Boda
             </span>
 
-            <h1 className="font-script text-5xl md:text-8xl leading-none drop-shadow-md">
-              {nombreEvento}
+            <h1 className="font-script text-6xl md:text-8xl lg:text-[8rem] text-white leading-tight drop-shadow-2xl">
+              {names[0]} 
+              {names[1] && (
+                <>
+                  <span className="text-2xl md:text-5xl lg:text-6xl inline-block animate-pulse text-white/80 mx-2">♥</span> 
+                  {names[1]}
+                </>
+              )}
             </h1>
 
-            <div className="flex items-center justify-center gap-3 mt-6">
-              <div className="h-[0.5px] w-6 bg-white/50" />
-              <span className="text-[8px] md:text-[10px] tracking-[0.5em] uppercase font-extralight">
-                Mis 15 Años
-              </span>
-              <div className="h-[0.5px] w-6 bg-white/50" />
-            </div>
+            <div className="w-16 h-px bg-[#b5a47a]/40 my-6" />
+            
+            <span className="text-[10px] md:text-xs tracking-[0.5em] font-light uppercase text-white/70">
+              {config.eventDate.split("-").reverse().join(" · ")}
+            </span>
           </motion.div>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-end pb-12 md:pb-16 bg-white">
-        <span className="font-serif italic text-base md:text-lg text-gray-700 mb-4 lowercase tracking-tight">falta</span>
-        <div className="flex gap-3 md:gap-6">
+      {/* --- PARTE INFERIOR (CONTADOR ESTILO HERO 1) --- */}
+      <div className="flex-1 flex flex-col items-center justify-center py-10 bg-white">
+        <p className="text-[9px] tracking-[0.4em] uppercase text-gray-400 font-light mb-4">
+          Faltan solo
+        </p>
+        
+        <div className="flex gap-6 md:gap-10">
           {[
-            { label: "DÍAS", value: timeLeft.dias },
-            { label: "HORAS", value: timeLeft.horas },
-            { label: "MIN", value: timeLeft.min },
-            { label: "SEG", value: timeLeft.seg },
-          ].map((item, index) => (
-            <div key={index} className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-[1.2px] border-[#b4a178] flex items-center justify-center bg-white shadow-sm">
-                <span className="text-sm md:text-lg font-bold text-gray-900 tracking-tighter tabular-nums">
-                  {item.value}
-                </span>
-              </div>
-              <span className="text-[7px] md:text-[9px] tracking-widest text-gray-400 font-semibold uppercase">
-                {item.label}
+            { label: "Días", value: timeLeft.dias },
+            { label: "Hs", value: timeLeft.horas },
+            { label: "Min", value: timeLeft.min },
+            { label: "Seg", value: timeLeft.seg },
+          ].map((unit, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <span className="text-3xl md:text-5xl font-light tracking-tighter text-gray-800">
+                {unit.value.toString().padStart(2, '0')}
+              </span>
+              <span className="text-[7px] md:text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-1">
+                {unit.label}
               </span>
             </div>
           ))}

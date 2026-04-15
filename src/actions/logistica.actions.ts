@@ -10,8 +10,17 @@ export async function getLogisticaConfig() {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) return null;
 
+    // IMPORTANTE: Incluimos el modelo User para saber qué templateId tiene
     return await prisma.eventConfig.findFirst({
-      where: { user: { email: session.user.email } }
+      where: { user: { email: session.user.email } },
+      include: {
+        user: {
+          select: {
+            templateId: true,
+            slug: true
+          }
+        }
+      }
     });
   } catch (error) {
     console.error("Error al obtener logística:", error);
@@ -30,7 +39,6 @@ export async function updateLogisticaConfig(data: any) {
 
     if (!dbUser) return { success: false, error: "Usuario no encontrado" };
 
-    // Solo permitimos campos logísticos para no pisar la galería
     const logisticaData = {
       eventName: data.eventName,
       eventDate: data.eventDate,
