@@ -6,25 +6,56 @@ import Image from "next/image";
 
 interface HeroProps {
   config: {
-    eventName: string;   // Recibe localConfig.personal.nombres
-    eventDate: string;   // Recibe fechaString (YYYY-MM-DD)
-    eventTime: string;   // Recibe localConfig.fecha.hora
-    heroImage?: string | null; // Recibe localConfig.imagenes.hero.rock
+    eventName: string;   
+    eventDate: string;   
+    eventTime: string;   
+    heroImage?: string | null; 
   }
 }
 
 const AnimatedWaveLine = () => (
-  <div className="absolute top-[85%] md:top-[90%] -translate-y-[60%] left-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none">
-    <motion.svg
-      viewBox="0 0 1200 120"
-      preserveAspectRatio="none"
-      className="relative block w-[300%] h-[61px] md:h-[101px] translate-y-[2px] scale-x-[1.02] [shape-rendering:geometricPrecision]"
-      animate={{ x: ["0%", "-50%"] }}
-      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+  <div className="absolute top-[85%] md:top-[90%] -translate-y-[68%] left-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none">
+    <motion.div
+      /* Contenedor del 200% para la animación infinita */
+      className="flex w-[200%] h-[61px] md:h-[101px]"
+      /* Animamos de 0% a -50% (un ciclo perfecto de una pantalla) */
+      animate={{ x: ["0%", "-50%"] }} 
+      transition={{ 
+        duration: 15, // Velocidad de flujo (ajusta este número si la quieres más rápida o lenta)
+        repeat: Infinity, 
+        ease: "linear" 
+      }}
     >
-      <path d="M0,60 C150,110 300,10 450,60 C600,110 750,10 900,60 C1050,110 1200,10 1350,60 V120 H0 Z" fill="white" />
-      <path d="M0,60 C150,110 300,10 450,60 C600,110 750,10 900,60 C1050,110 1200,10 1350,60" fill="none" stroke="#33aba1" strokeWidth="12" />
-    </motion.svg>
+      {/* Usamos dos bloques idénticos */}
+      {[0, 1].map((i) => (
+        <div key={i} className="relative w-full h-full flex shrink-0">
+          <svg
+            viewBox="0 0 1000 120"
+            preserveAspectRatio="none"
+            /* TÉCNICA DE SOLAPADO:
+              1. Aumentamos ligeramente el ancho al 101%.
+              2. Con el -1% de margin-right, el segundo SVG se mete debajo del primero.
+              3. Con scale-x-[1.002] forzamos a que el dibujo se estire un micro-píxel más.
+              Todo esto combinado elimina el hueco vertical.
+            */
+            className="h-full w-[101%] -mr-[1%] shrink-0 scale-x-[1.002] translate-y-[2px] [shape-rendering:geometricPrecision]"
+          >
+            {/* ONDA INFALIBLE: Mismos puntos inicial y final */}
+            <path 
+              d="M0,60 C125,120 125,0 250,60 C375,120 375,0 500,60 C625,120 625,0 750,60 C875,120 875,0 1000,60 V120 H0 Z" 
+              fill="white" 
+            />
+            <path 
+              d="M0,60 C125,120 125,0 250,60 C375,120 375,0 500,60 C625,120 625,0 750,60 C875,120 875,0 1000,60" 
+              fill="none" 
+              stroke="#33aba1" 
+              strokeWidth="12" 
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+      ))}
+    </motion.div>
   </div>
 );
 
@@ -32,12 +63,10 @@ export function Hero({ config }: HeroProps) {
   const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Sincronización con la data del config
   const finalDate = config.eventDate;
   const finalTime = config.eventTime;
   const currentImage = config.heroImage || "/img_boda/vintage.png";
 
-  // Lógica para separar los nombres por el "&" del config (Juli & Mario)
   const namesArray = config.eventName.split("&");
   const firstName = namesArray[0]?.trim() || "Juli";
   const lastName = namesArray[1]?.trim() || "Mario";
