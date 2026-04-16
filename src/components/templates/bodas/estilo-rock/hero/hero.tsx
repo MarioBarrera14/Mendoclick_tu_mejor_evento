@@ -21,7 +21,7 @@ const AnimatedWaveLine = () => (
       /* Animamos de 0% a -50% (un ciclo perfecto de una pantalla) */
       animate={{ x: ["0%", "-50%"] }} 
       transition={{ 
-        duration: 15, // Velocidad de flujo (ajusta este número si la quieres más rápida o lenta)
+        duration: 18, // Velocidad de flujo (ajusta este número si la quieres más rápida o lenta)
         repeat: Infinity, 
         ease: "linear" 
       }}
@@ -46,7 +46,7 @@ const AnimatedWaveLine = () => (
               fill="white" 
             />
             <path 
-              d="M0,60 C125,120 125,0 250,60 C375,120 375,0 500,60 C625,120 625,0 750,60 C875,120 875,0 1000,60" 
+              d="M0,59 C125,120 125,0 250,60 C375,120 375,0 500,60 C625,120 625,0 750,60 C875,120 875,0 1000,60" 
               fill="none" 
               stroke="#33aba1" 
               strokeWidth="12" 
