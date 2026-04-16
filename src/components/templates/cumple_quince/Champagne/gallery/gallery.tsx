@@ -9,7 +9,8 @@ import {
   VolumeX, 
   Play, 
   Pause, 
-  Maximize 
+  Maximize,
+  X // Importado para el botón de cerrar
 } from "lucide-react";
 
 interface FotoCarouselProps {
@@ -21,9 +22,19 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  const [selectedImg, setSelectedImg] = useState<string | null>(null); // Estado para la foto ampliada
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Escudo de protección para las imágenes
+  // Bloqueo de scroll cuando la imagen está abierta
+  useEffect(() => {
+    if (selectedImg) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [selectedImg]);
+
   const fotos = useMemo(() => {
     const defaultPhotos = ["/img_demo/9.webp", "/img_demo/10.webp", "/img_demo/11.webp", "/img_demo/12.webp"];
     try {
@@ -95,16 +106,18 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
             {currentView.map((url, i) => (
               <motion.div
                 key={`${url}-${i}`}
-                className="relative w-1/3 aspect-[3/4] md:aspect-[4/3] overflow-hidden shadow-md bg-neutral-100"
+                className="relative w-1/3 aspect-[3/4] md:aspect-[4/3] overflow-hidden shadow-md bg-neutral-100 cursor-zoom-in group"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                onClick={() => setSelectedImg(url)}
               >
                 <img 
                   src={url} 
-                  className="w-full h-full object-cover transform skew-y-[2deg] scale-110" 
+                  className="w-full h-full object-cover transform skew-y-[2deg] scale-110 group-hover:scale-115 transition-transform duration-500" 
                   alt="Galería"
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -140,7 +153,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
               className="w-full h-full object-cover transform skew-y-[2deg] scale-110"
             />
             
-            {/* Overlay de Controles sutiles */}
             <div className="absolute inset-0 z-30 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-t from-black/50 via-transparent to-transparent transform skew-y-[2deg]">
               <div className="flex items-center justify-between text-white">
                 <div className="flex gap-3">
@@ -159,6 +171,41 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
           </div>
         </div>
       )}
+
+      {/* LIGHTBOX (IMAGEN AMPLIADA) */}
+      <AnimatePresence>
+        {selectedImg && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedImg(null)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-zoom-out"
+            />
+            
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-4xl max-h-[90vh] z-[101] flex items-center justify-center"
+            >
+              <button 
+                onClick={() => setSelectedImg(null)}
+                className="absolute -top-12 right-0 md:-right-12 text-white hover:text-[#b4a178] transition-colors p-2"
+              >
+                <X size={32} />
+              </button>
+              
+              <img 
+                src={selectedImg} 
+                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm border-2 border-white/10" 
+                alt="Imagen ampliada"
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

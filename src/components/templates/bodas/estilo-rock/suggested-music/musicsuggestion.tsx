@@ -19,6 +19,18 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
 
+  // --- LÓGICA PARA QUITAR EL SCROLL ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const buttonBase = "relative bg-[#a02133] text-white px-8 py-3 text-sm md:text-base font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 group z-10";
   const buttonBorder = "after:content-[''] after:absolute after:inset-0 after:border-2 after:border-black after:translate-x-1.5 after:translate-y-1.5 after:-z-10 after:transition-transform hover:after:translate-x-0 hover:after:translate-y-0 after:shadow-[4px_4px_0px_0px_#a02133]";
 
@@ -52,7 +64,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
     setIsSending(true);
     try {
-      // Llamada a la Server Action
       const result = await submitSongSuggestions(eventId, guestCode, songs);
       
       if (result.success) {
@@ -66,7 +77,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           confirmButtonColor: "#a02133"
         });
       } else {
-        // Aquí Swal muestra el error de "Ya enviado" o "Código inválido"
         Swal.fire({ 
           title: "Atención", 
           text: result.error || "No se pudo enviar", 
@@ -89,7 +99,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
   return (
     <>
-      <section className="relative py-20 overflow-hidden bg-[#1a1a1a]">
+      <section className="relative py-16 overflow-hidden bg-[#1a1a1a]">
         {/* FONDO */}
         <div className="absolute inset-0 z-0 opacity-60">
           <Image 
@@ -103,16 +113,16 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
         {/* CARD PRINCIPAL */}
         <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-2xl mx-auto bg-[#fdfcf0] border-4 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_#a02133] text-center relative overflow-hidden rotate-[-0.5deg]">
+          <div className="max-w-2xl mx-auto bg-[#fdfcf0] border-4 border-black p-8 md:p-10 shadow-[12px_12px_0px_0px_#a02133] text-center relative overflow-hidden rotate-[-0.5deg]">
             <div className="absolute bottom-4 left-4 text-[#33aba1] opacity-60">
               <StarIcon size={40} fill="currentColor" />
             </div>
 
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-4">
               <motion.div
                 animate={{ rotate: [0, -3, 3, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="relative w-24 h-24"
+                className="relative w-20 h-20 md:w-24 md:h-24"
               >
                 <Image 
                   src="/img-rock/tocadiscos.png" 
@@ -123,8 +133,8 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
               </motion.div>
             </div>
 
-            <div className="mb-8">
-              <h2 className="text-5xl md:text-6xl font-black italic text-[#a02133] uppercase tracking-tighter mb-4 [text-shadow:2px_2px_0px_rgba(0,0,0,0.1)]">
+            <div className="mb-6">
+              <h2 className="text-5xl md:text-6xl font-black italic text-[#a02133] uppercase tracking-tighter mb-2 [text-shadow:2px_2px_0px_rgba(0,0,0,0.1)]">
                 Música
               </h2>
               <p className="text-[#1a1a1a] font-black text-lg md:text-xl leading-tight mb-2 uppercase">
@@ -166,16 +176,16 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                   <X size={28} strokeWidth={3} />
                 </button>
 
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
                   <h4 className="text-4xl font-black italic text-[#a02133] uppercase tracking-tighter">
                     Backstage Play
                   </h4>
                   <div className="h-1 w-20 bg-[#33aba1] mx-auto mt-2 shadow-[2px_2px_0px_black]"></div>
                 </div>
 
-                <form className="space-y-5" onSubmit={handleSubmit}>
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_#a02133]">
-                    <label className="text-[10px] uppercase font-black text-[#a02133] mb-2 block tracking-widest">Código de Invitado</label>
+                    <label className="text-[10px] uppercase font-black text-[#a02133] mb-1 block tracking-widest">Código de Invitado</label>
                     <div className="flex items-center gap-3">
                       <KeyRound size={20} className="text-black" />
                       <input 
@@ -189,7 +199,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {[1, 2, 3].map((num) => (
                       <div key={num} className="bg-white border-2 border-black p-3 flex items-center gap-2 focus-within:translate-x-1 focus-within:translate-y-1 focus-within:shadow-none transition-all">
                         <span className="text-[#33aba1] font-black italic text-sm">{num}.</span>
@@ -205,7 +215,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                     ))}
                   </div>
                   
-                  <div className="pt-4 flex justify-center">
+                  <div className="pt-2 flex justify-center">
                     <button
                       type="submit"
                       disabled={isSending}

@@ -16,7 +16,6 @@ interface RSVPProps {
   };
 }
 
-// Componente de líneas de velocidad
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
@@ -41,6 +40,19 @@ export function RSVP({ config }: RSVPProps) {
     dietary: [] as string[],
     message: "",
   });
+
+  // EFECTO PARA QUITAR EL SCROLL
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
     day: 'numeric',
     month: 'long',
@@ -99,35 +111,31 @@ export function RSVP({ config }: RSVPProps) {
   if (!mounted) return null;
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden bg-transparent font-sans">
+    <section className="relative py-12 md:py-20 overflow-hidden bg-transparent font-sans">
       
-      {/* FONDO UNIFICADO: Ahora usa la heroImage del Hero */}
       <div 
         className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale"
         style={{ backgroundImage: `url(${config.heroImage})` }}
       />
       
-      {/* OVERLAY */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
 
-      {/* LÍNEAS DE VELOCIDAD */}
       <SpeedLinesBackground />
 
       <div className="container mx-auto px-6 relative z-10 flex justify-center">
         <div className="flex flex-col items-center">
           
-          {/* MARCO REDONDO TIPO ARTE */}
+          {/* MARCO REDONDO - mb-8 a mb-6 para acercar */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative bg-[#fcfaf2] p-3 md:p-4 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 mb-8 aspect-square flex items-center justify-center z-10"
+            className="relative bg-[#fcfaf2] p-3 md:p-4 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 mb-6 aspect-square flex items-center justify-center z-10"
           >
             <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
             <div className="absolute inset-5 md:inset-6 border border-black/80 rounded-full z-10 pointer-events-none" />
             
             <div className="relative w-36 h-36 md:w-48 md:h-48 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] bg-white shadow-[inset_0_0_30px_rgba(0,0,0,0.9)] z-20 aspect-square">
-              {/* IMAGEN DEL CÍRCULO: Sincronizada con el Hero */}
               <Image 
                 src={config.heroImage} 
                 alt="Pareja" 
@@ -138,12 +146,12 @@ export function RSVP({ config }: RSVPProps) {
             </div>
           </motion.div>
 
-          {/* CONTENIDO Y BOTÓN DORADO */}
           <div className="text-center px-4 max-w-sm relative z-10">
             <h2 className="text-2xl md:text-4xl font-serif italic text-white mb-2 drop-shadow-md">
               ¿Nos acompañas?
             </h2>
-            <p className="text-[#b5a47a] text-[10px] md:text-[11px] uppercase font-bold tracking-[0.2em] mb-8 drop-shadow-sm opacity-90">
+            {/* mb-8 a mb-6 para acercar el botón */}
+            <p className="text-[#b5a47a] text-[10px] md:text-[11px] uppercase font-bold tracking-[0.2em] mb-6 drop-shadow-sm opacity-90">
               Confirmar asistencia antes del {formattedDate}
             </p>
 
@@ -160,7 +168,6 @@ export function RSVP({ config }: RSVPProps) {
         </div>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -184,8 +191,8 @@ export function RSVP({ config }: RSVPProps) {
                 <X size={24} />
               </button>
 
-              <div className="p-12 text-center">
-                <div className="flex justify-center mb-8">
+              <div className="p-10 text-center">
+                <div className="flex justify-center mb-6">
                     <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-[#b5a47a] border border-gray-100 shadow-inner">
                         <KeyRound size={28} strokeWidth={1} />
                     </div>
@@ -194,8 +201,8 @@ export function RSVP({ config }: RSVPProps) {
                 <h4 className="text-2xl font-serif text-gray-800 uppercase tracking-widest mb-2">
                   Ingresa tu código
                 </h4>
-                <div className="w-10 h-px bg-[#b5a47a]/40 mx-auto mb-6" />
-                <p className="text-gray-400 text-xs font-light mb-10 tracking-wide italic">
+                <div className="w-10 h-px bg-[#b5a47a]/40 mx-auto mb-4" />
+                <p className="text-gray-400 text-xs font-light mb-8 tracking-wide italic">
                   Usa el código de tu invitación física para continuar.
                 </p>
                 

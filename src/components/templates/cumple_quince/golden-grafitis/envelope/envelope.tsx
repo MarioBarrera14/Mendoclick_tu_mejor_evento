@@ -1,90 +1,103 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import ReproductorMusica from "@/components/shared/MusicPlayer"
 
 export default function Envelope({ children, musicUrl }: { children: React.ReactNode, musicUrl: string }) {
-  const [passcode, setPasscode] = useState("")
-  const [isAuthorized, setIsAuthorized] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [error, setError] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  const SECRET_CODE = "LUZ" 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  const handleAccess = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (passcode.toUpperCase() === SECRET_CODE) {
-      setIsAuthorized(true)
-      setError(false)
-    } else {
-      setError(true)
-      setPasscode("")
-      setTimeout(() => setError(false), 2000)
-    }
-  }
+  if (!mounted) return null
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-neutral-100">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#0c001a] font-sans">
       
       <AnimatePresence>
         {!isOpen && (
           <motion.div
             key="envelope-wrapper"
             className="fixed inset-0 z-[100] flex items-center justify-center"
-            exit={{ opacity: 0 }} 
-            transition={{ duration: 0.8 }}
+            exit={{ opacity: 0, scale: 1.2, rotate: 5 }} 
+            transition={{ duration: 0.8, ease: "backIn" }}
           >
             <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+              
+              {/* Fondo de Pared con Graffiti / Tagging */}
               <motion.div 
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 bg-[#ebeae6] z-0" 
-              />
+                className="absolute inset-0 z-0 bg-[#0c001a]" 
+                style={{
+                  backgroundImage: `url('https://www.transparenttextures.com/patterns/brick-wall.png')`,
+                }}
+              >
+                {/* Luces de Neón de fondo */}
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/30 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-600/30 blur-[120px] rounded-full" />
+              </motion.div>
 
+              {/* Parte Superior del Sobre (Estilo Metal/Urbano) */}
               <motion.div
-                exit={{ y: "-100%", rotateX: 180, opacity: 0 }}
+                exit={{ y: "-100%", rotateX: 110, opacity: 0 }}
                 transition={{ duration: 0.9, ease: [0.45, 0, 0.55, 1] }}
-                className="absolute top-0 left-0 w-full h-1/2 bg-[#f9f9f9] origin-top z-40 shadow-xl"
+                className="absolute top-0 left-0 w-full h-1/2 bg-[#1a1a1a] origin-top z-40 shadow-[0_10px_40px_rgba(0,0,0,0.8)] border-b border-purple-500/20"
                 style={{
                   clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-                  perspective: "1200px"
                 }}
-              />
+              >
+                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+              </motion.div>
 
+              {/* Parte Inferior del Sobre */}
               <motion.div
                 exit={{ y: "100%", opacity: 0 }}
                 transition={{ duration: 0.9, ease: [0.45, 0, 0.55, 1] }}
-                className="absolute inset-0 z-30 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)]"
+                className="absolute inset-0 z-30 bg-[#111] shadow-[0_-15px_50px_rgba(0,0,0,0.9)]"
                 style={{
                   clipPath: "polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%)",
                 }}
-              />
+              >
+                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')]" />
+              </motion.div>
               
+              {/* Sello / Sticker Graffiti (Fucsia y Cian) */}
               <motion.div 
-                exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, scale: 0.5, rotate: -20, filter: "blur(15px)" }}
+                transition={{ duration: 0.5 }}
                 className="z-50 flex flex-col items-center justify-center px-6"
               >
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setIsOpen(true)}
-                  className="group relative flex h-32 w-32 sm:h-44 sm:w-44 items-center justify-center rounded-full bg-black text-white shadow-[0_15px_35px_rgba(0,0,0,0.4)] transition-all"
+                  className="group relative flex h-44 w-44 sm:h-56 sm:w-56 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-fuchsia-400 shadow-[0_0_60px_rgba(219,39,119,0.5)] transition-all border-4 border-white"
                 >
-                  <div className="text-center select-none z-10">
-                    <span className="block font-serif text-2xl sm:text-3xl font-light tracking-tight">
-                      Mis 15
+                  {/* Drip de Pintura Chorreada en Rosa Neon */}
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    <div className="w-3.5 h-12 bg-pink-500 rounded-full animate-bounce shadow-[0_0_15px_rgba(236,72,153,0.6)]" style={{ animationDelay: '0.1s' }} />
+                    <div className="w-3.5 h-20 bg-pink-400 rounded-full animate-bounce shadow-[0_0_15px_rgba(236,72,153,0.6)]" style={{ animationDelay: '0.3s' }} />
+                    <div className="w-3.5 h-10 bg-pink-600 rounded-full animate-bounce shadow-[0_0_15px_rgba(236,72,153,0.6)]" style={{ animationDelay: '0.2s' }} />
+                  </div>
+
+                  <div className="text-center select-none z-10 px-4">
+                    <span className="block font-black text-4xl sm:text-5xl italic tracking-tighter text-white uppercase drop-shadow-[4px_4px_0px_rgba(0,0,0,0.6)] leading-none">
+                      MIS <br /> 15
                     </span>
-                    <span className="block text-[10px] sm:text-xs tracking-[0.3em] uppercase mt-2 opacity-60">
-                      Abrir
+                    <span className="block text-[10px] sm:text-xs font-black tracking-[0.3em] uppercase mt-3 text-white bg-black px-3 py-1.5 rounded-sm -rotate-2 group-hover:rotate-2 transition-transform">
+                      EXPLORAR
                     </span>
                   </div>
-                  <div className="absolute inset-2 rounded-full border border-white/10 group-hover:border-white/30 transition-colors" />
+                  
+                  {/* Reflejo de luz tipo Sticker */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none" />
                 </motion.button>
                 
-                <motion.p className="mt-8 font-serif italic text-neutral-500 text-base sm:text-xl tracking-wide animate-pulse">
-                  Toca el sello para descubrir la magia
+                <motion.p className="mt-16 font-black italic text-pink-500 text-xl sm:text-3xl uppercase tracking-tighter drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                  <span className="bg-purple-600 text-white px-4 py-1 mr-2 shadow-xl border-l-4 border-white">CLICK</span> 
+                  THE VIBE
                 </motion.p>
               </motion.div>
             </div>
@@ -93,11 +106,12 @@ export default function Envelope({ children, musicUrl }: { children: React.React
       </AnimatePresence>
       
       <main className={`transition-opacity duration-1000 ${!isOpen ? "h-screen overflow-hidden opacity-0" : "min-h-screen opacity-100"}`}>
-        {/* MOVIMOS EL REPRODUCTOR AQUÍ: Solo se renderiza y aparece cuando isOpen es true */}
         {isOpen && (
           <>
             <ReproductorMusica url={musicUrl} autoPlay={true} />
-            {children}
+            <div className="relative z-10">
+              {children}
+            </div>
           </>
         )}
       </main>

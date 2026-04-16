@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReproductorMusica from "@/components/shared/MusicPlayer";
 
@@ -11,44 +11,53 @@ interface EnvelopeProps {
 
 export default function Envelope({ children, musicUrl }: EnvelopeProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Removí la lógica de passcode ya que no se estaba usando en el renderizado
-  // Pero si la necesitas, se puede reintegrar siguiendo este mismo patrón sin style.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-neutral-100 font-sans">
+    <div className="relative min-h-screen w-full overflow-hidden bg-black font-sans">
       
       <AnimatePresence>
         {!isOpen && (
           <motion.div
             key="envelope-wrapper"
             className="fixed inset-0 z-[100] flex items-center justify-center"
-            exit={{ opacity: 0 }} 
+            exit={{ opacity: 0, scale: 1.1 }} 
             transition={{ duration: 0.8 }}
           >
             <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-              {/* FONDO DEL SOBRE */}
-              <motion.div 
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 bg-[#ebeae6] z-0" 
-              />
+              
+              {/* FONDO INTERIOR */}
+              <div className="absolute inset-0 bg-black z-0" />
 
-              {/* SOLAPA SUPERIOR (Convertida a Tailwind puro) */}
+              {/* SOLAPA SUPERIOR */}
               <motion.div
                 exit={{ y: "-100%", rotateX: 180, opacity: 0 }}
                 transition={{ duration: 0.9, ease: [0.45, 0, 0.55, 1] }}
-                className="absolute top-0 left-0 w-full h-1/2 bg-[#f9f9f9] origin-top z-40 shadow-xl [clip-path:polygon(0_0,100%_0,50%_100%)] [perspective:1200px]"
+                className="absolute top-0 left-0 w-full h-1/2 bg-[#1a1a1a] origin-top z-40 shadow-2xl"
+                style={{
+                  clipPath: "polygon(0 0, 100% 0, 50% 100%)",
+                  backgroundImage: `url('https://www.transparenttextures.com/patterns/natural-paper.png')`,
+                }}
               />
 
               {/* CUERPO DEL SOBRE */}
               <motion.div
                 exit={{ y: "100%", opacity: 0 }}
                 transition={{ duration: 0.9, ease: [0.45, 0, 0.55, 1] }}
-                className="absolute inset-0 z-30 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] [clip-path:polygon(0_0,50%_50%,100%_0,100%_100%,0_100%)]"
+                className="absolute inset-0 z-30 bg-[#111111] shadow-2xl"
+                style={{
+                  clipPath: "polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%)",
+                  backgroundImage: `url('https://www.transparenttextures.com/patterns/dark-linen.png')`,
+                }}
               />
               
-              {/* SELLO / BOTÓN CENTRAL */}
+              {/* SELLO DORADO */}
               <motion.div 
                 exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
                 transition={{ duration: 0.4 }}
@@ -58,20 +67,25 @@ export default function Envelope({ children, musicUrl }: EnvelopeProps) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsOpen(true)}
-                  className="group relative flex h-32 w-32 sm:h-44 sm:w-44 items-center justify-center rounded-full bg-black text-white shadow-[0_15px_35px_rgba(0,0,0,0.4)] transition-all"
+                  className="group relative flex h-36 w-36 sm:h-48 sm:w-48 items-center justify-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#f5e1a4] to-[#C49B2F] text-black shadow-[0_15px_50px_rgba(0,0,0,0.8)] border-2 border-[#8C6F1F]/20"
                 >
                   <div className="text-center select-none z-10">
-                    <span className="block font-serif text-2xl sm:text-3xl font-light tracking-tight italic">
+                    <span className="block font-serif text-2xl sm:text-3xl font-bold italic tracking-tight text-[#42340b]">
                       Mis 15
                     </span>
-                    <span className="block text-[10px] sm:text-xs tracking-[0.3em] uppercase mt-2 opacity-60 font-bold">
+                    <span className="block text-[10px] sm:text-xs tracking-[0.4em] uppercase mt-2 font-black text-[#42340b]/60">
                       Abrir
                     </span>
                   </div>
-                  <div className="absolute inset-2 rounded-full border border-white/10 group-hover:border-white/30 transition-colors" />
+                  
+                  {/* Brillo dinámico */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  {/* Anillo de detalle */}
+                  <div className="absolute inset-3 rounded-full border border-[#8C6F1F]/30" />
                 </motion.button>
                 
-                <motion.p className="mt-8 font-serif italic text-neutral-500 text-base sm:text-xl tracking-wide animate-pulse">
+                <motion.p className="mt-10 font-serif italic text-[#D4AF37] text-base sm:text-xl tracking-wide animate-pulse drop-shadow-[0_2px_10px_rgba(0,0,0,1)]">
                   Toca el sello para descubrir la magia
                 </motion.p>
               </motion.div>
@@ -83,10 +97,12 @@ export default function Envelope({ children, musicUrl }: EnvelopeProps) {
       {/* CONTENIDO PRINCIPAL */}
       <main className={`transition-opacity duration-1000 ${!isOpen ? "h-screen overflow-hidden opacity-0" : "min-h-screen opacity-100"}`}>
         {isOpen && (
-          <>
+          <div className="bg-black">
             <ReproductorMusica url={musicUrl} autoPlay={true} />
-            {children}
-          </>
+            <div className="relative z-10">
+              {children}
+            </div>
+          </div>
         )}
       </main>
     </div>

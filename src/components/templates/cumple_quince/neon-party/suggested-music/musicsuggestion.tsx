@@ -19,6 +19,18 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
   useEffect(() => { setMounted(true); }, []);
 
+  // --- LÓGICA PARA BLOQUEAR SCROLL ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const buttonBase = "relative inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all shadow-[0_10px_30px_-5px_rgba(147,51,234,0.5)] hover:from-purple-500 hover:to-pink-500 italic group overflow-hidden";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +60,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           confirmButtonColor: "#db2777" 
         });
       } else {
-        // Manejo de error para códigos ya usados o inválidos
         Swal.fire({ 
           title: result.error?.includes("recibimos") ? "AVISO" : "ERROR", 
           text: result.error || "No se pudo procesar el código", 
@@ -124,7 +135,9 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
               initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 15 }}
               className="fixed inset-0 m-auto w-[92%] max-w-sm h-fit bg-[#0c001a] border border-white/10 p-8 z-[201] rounded-[2.5rem] shadow-[0_0_50px_rgba(147,51,234,0.3)]"
             >
-              <button onClick={() => setIsOpen(false)} className="absolute top-6 right-6 text-white/40"><X size={24} /></button>
+              <button onClick={() => setIsOpen(false)} className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors">
+                <X size={24} />
+              </button>
 
               <div className="text-center mb-6 font-sans">
                 <h4 className="text-2xl font-black italic text-white uppercase tracking-tight">Playlist Request</h4>

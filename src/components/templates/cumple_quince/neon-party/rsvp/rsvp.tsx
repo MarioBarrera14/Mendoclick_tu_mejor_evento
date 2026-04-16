@@ -35,10 +35,20 @@ export function RSVP({ config }: RSVPProps) {
   const [formData, setFormData] = useState({
     name: "",
     attendance: "", 
-    confirmados: 1, // Nuevo: para manejar cuántos van
+    confirmados: 1, 
     dietary: [] as string[],
     message: "",
   });
+
+  // --- LÓGICA PARA BLOQUEAR SCROLL ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isOpen]);
 
   const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
     day: 'numeric',
@@ -72,9 +82,7 @@ export function RSVP({ config }: RSVPProps) {
         setErrorMessage("Código no reconocido.");
         return;
       }
-      
       const invitadoEncontrado = await response.json();
-
       if (invitadoEncontrado) {
         if (invitadoEncontrado.status !== "PENDING" && invitadoEncontrado.status !== null) {
           setAlreadyResponded(true);
@@ -127,84 +135,90 @@ export function RSVP({ config }: RSVPProps) {
   if (!mounted) return null;
 
   return (
-    <section className="relative py-24 md:py-40 bg-[#0c001a] overflow-hidden font-sans">
-      
-      {/* FONDO NEONBAR */}
-      <div className="absolute inset-0 z-0">
-        <Image 
-          src="/neonbar.png" 
-          alt="Neon Background" 
-          fill 
-          className="object-cover opacity-50"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a] opacity-90" />
-        <div className="absolute inset-0 bg-black/30" />
-      </div>
-
-      <div className="container mx-auto px-6 relative z-20">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20">
-          
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative w-full max-w-sm aspect-[3/4] group cursor-pointer"
-          >
-            <div className="absolute -inset-4 bg-purple-600/30 rounded-[3rem] blur-2xl group-hover:bg-purple-500/50 transition-all duration-700" />
-            
-            <div className="relative w-full h-full rounded-[3rem] overflow-hidden border-2 border-purple-500/40 shadow-2xl bg-[#0c001a]">
-              <Image 
-                src={config.heroImage} 
-                alt="Quinceañera"
-                fill
-                className="object-cover transition-all duration-700 scale-105 group-hover:scale-100 opacity-100 brightness-100"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0c001a]/80 via-transparent to-transparent opacity-60 pointer-events-none" />
-            </div>
-            
-            <div className="absolute -bottom-6 -right-6 bg-purple-600 p-4 rounded-2xl shadow-xl shadow-purple-900/50 z-30 group-hover:scale-110 transition-transform duration-500">
-              <Zap size={24} className="text-white fill-white" />
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-xl"
-          >
-            <p className="text-purple-400 font-black tracking-[0.5em] mb-6 uppercase text-xs italic drop-shadow-lg">R.S.V.P.</p>
-            <h2 className="text-6xl md:text-8xl font-black italic text-white tracking-tighter uppercase leading-[0.8] mb-8 drop-shadow-2xl">
-              ¡No podés <br /> <span className="text-purple-600">faltar!</span>
-            </h2>
-            <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-10 leading-relaxed max-w-md">
-              Queremos compartir esta noche mágica con vos. Por favor, confirma tu asistencia antes del {formattedDate}.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.05, x: 5 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsOpen(true)}
-              className="px-12 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(147,51,234,0.5)] hover:bg-purple-500 italic flex items-center gap-4"
-            >
-              CONFIRMAR MI ASISTENCIA <Heart size={16} fill="currentColor" />
-            </motion.button>
-          </motion.div>
+    <>
+      <section className="relative py-24 md:py-40 bg-[#0c001a] overflow-hidden font-sans">
+        
+        {/* FONDO NEONBAR */}
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="/neonbar.png" 
+            alt="Neon Background" 
+            fill 
+            className="object-cover opacity-50"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a] opacity-90" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-      </div>
 
+        <div className="container mx-auto px-6 relative z-20">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20">
+            
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative w-full max-w-sm aspect-[3/4] group cursor-pointer"
+            >
+              <div className="absolute -inset-4 bg-purple-600/30 rounded-[3rem] blur-2xl group-hover:bg-purple-500/50 transition-all duration-700" />
+              <div className="relative w-full h-full rounded-[3rem] overflow-hidden border-2 border-purple-500/40 shadow-2xl bg-[#0c001a]">
+                <Image src={config.heroImage} alt="Quinceañera" fill className="object-cover transition-all duration-700 scale-105 group-hover:scale-100 opacity-100 brightness-100" priority />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0c001a]/80 via-transparent to-transparent opacity-60 pointer-events-none" />
+              </div>
+              <div className="absolute -bottom-6 -right-6 bg-purple-600 p-4 rounded-2xl shadow-xl shadow-purple-900/50 z-30 group-hover:scale-110 transition-transform duration-500">
+                <Zap size={24} className="text-white fill-white" />
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-xl"
+            >
+              <p className="text-purple-400 font-black tracking-[0.5em] mb-6 uppercase text-xs italic drop-shadow-lg">R.S.V.P.</p>
+              <h2 className="text-6xl md:text-8xl font-black italic text-white tracking-tighter uppercase leading-[0.8] mb-8 drop-shadow-2xl">
+                ¡No podés <br /> <span className="text-purple-600">faltar!</span>
+              </h2>
+              <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-10 leading-relaxed max-w-md">
+                Queremos compartir esta noche mágica con vos. Por favor, confirma tu asistencia antes del {formattedDate}.
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05, x: 5 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen(true)}
+                className="px-12 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(147,51,234,0.5)] hover:bg-purple-500 italic flex items-center gap-4"
+              >
+                CONFIRMAR MI ASISTENCIA <Heart size={16} fill="currentColor" />
+              </motion.button>
+            </motion.div>
+          </div>
+        </div>
+        <NeonDivider />
+      </section>
+
+      {/* MODAL GLOBAL FUERA DEL SECTION */}
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/95 backdrop-blur-2xl" />
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            
+            {/* OVERLAY: Radial Dorado/Negro como los anteriores */}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={handleClose} 
+              className="fixed inset-0 backdrop-blur-md"
+              style={{
+                background: "radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, rgba(0, 0, 0, 0.95) 100%)"
+              }}
+            />
 
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 50 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.9, y: 50 }}
-              className="relative w-full max-w-md bg-[#0c001a] rounded-[3rem] shadow-[0_0_80px_rgba(147,51,234,0.3)] overflow-hidden border border-purple-500/30"
+              className="relative w-full max-w-md bg-[#0c001a] rounded-[3rem] shadow-[0_0_80px_rgba(147,51,234,0.3)] overflow-hidden border border-purple-500/30 z-[100000]"
             >
               {!isValidated ? (
                 <div className="p-10 text-center">
@@ -225,7 +239,7 @@ export function RSVP({ config }: RSVPProps) {
                 <div className="p-12 text-center bg-[#0c001a]">
                   <PartyPopper size={60} strokeWidth={1} className="text-purple-500 mx-auto mb-6" />
                   <h4 className="text-4xl font-black italic text-white mb-4 uppercase tracking-tighter">¡LISTO!</h4>
-                  <p className="text-purple-100/50 text-xs font-mono tracking-widest mb-10 uppercase">RESPUESTA RECIBIDA. NOS VEMOS EN LA PISTA.</p>
+                  <p className="text-purple-100/50 text-xs font-mono tracking-widest mb-10 uppercase text-center">RESPUESTA RECIBIDA. NOS VEMOS EN LA PISTA.</p>
                   <button onClick={handleClose} className="px-12 py-5 bg-white/5 border border-white/10 text-white rounded-full text-[10px] font-black tracking-widest uppercase italic">CERRAR</button>
                 </div>
               ) : (
@@ -248,7 +262,6 @@ export function RSVP({ config }: RSVPProps) {
 
                     {formData.attendance === "YES" && (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                        {/* CONTADOR CUPOS NEON */}
                         <div className="space-y-4">
                           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500 text-center">Confirmar cantidad:</p>
                           <div className="flex items-center justify-center gap-6 bg-white/5 rounded-2xl p-4 border border-purple-500/20">
@@ -291,7 +304,6 @@ export function RSVP({ config }: RSVPProps) {
           </div>
         )}
       </AnimatePresence>
-      <NeonDivider />
-    </section>
+    </>
   );
 }

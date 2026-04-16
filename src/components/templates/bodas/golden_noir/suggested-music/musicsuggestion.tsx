@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // 1. Importar useEffect
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, KeyRound, Music as MusicIcon } from "lucide-react";
 import { submitSongSuggestions } from "@/actions/songs.actions";
@@ -24,6 +24,19 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [isSending, setIsSending] = useState(false);
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
+
+  // --- LÓGICA PARA QUITAR EL SCROLL ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+  // ------------------------------------
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,7 +79,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   };
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden bg-transparent">
+    <section className="relative py-12 md:py-20 overflow-hidden bg-transparent">
       {/* FONDO UNIFICADO MANTENIDO */}
       <div className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
@@ -80,7 +93,8 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           className="flex flex-col items-center group cursor-pointer relative"
           onClick={() => setIsOpen(true)}
         >
-          <div className="relative z-10 bg-[#fcfaf2] p-3 md:p-4 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] mb-6 aspect-square flex items-center justify-center">
+          {/* mb-6 a mb-4 para acercar componentes */}
+          <div className="relative z-10 bg-[#fcfaf2] p-3 md:p-4 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] mb-4 aspect-square flex items-center justify-center">
             <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
             <div className="absolute inset-5 md:inset-6 border border-black/80 rounded-full z-10 pointer-events-none" />
             <div className="relative w-36 h-36 md:w-48 md:h-48 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] bg-white flex flex-col items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.1)] z-20">
@@ -90,18 +104,17 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           </div>
 
           <div className="text-center px-4 relative z-10">
-            <h2 className="text-xl md:text-3xl font-serif italic text-white mb-2 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-500">
+            <h2 className="text-xl md:text-3xl font-serif italic text-white mb-1.5 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-500">
               ¿Bailamos?
             </h2>
-            <div className="w-8 h-px bg-[#b5a47a]/40 mx-auto mb-3 shadow-sm" />
+            <div className="w-8 h-px bg-[#b5a47a]/40 mx-auto mb-2 shadow-sm" />
             <p className="text-[#b5a47a] text-[9px] md:text-[10px] uppercase font-bold tracking-[0.3em] drop-shadow-sm opacity-90 group-hover:opacity-100 transition-opacity">
-              Sugerir tu canción favorita
+              Sugiere tu canción favorita
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* MODAL REDISEÑADO PARA MÁS ELEGANCIA */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -127,7 +140,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
               </button>
 
               <div className="p-8 md:p-10 text-center">
-                <header className="mb-8">
+                <header className="mb-6">
                   <h4 className="text-2xl md:text-3xl font-serif text-gray-900 tracking-tight italic">
                     Sugerencias Musicales
                   </h4>
@@ -135,8 +148,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                   <p className="text-[#b5a47a] text-[9px] uppercase tracking-[0.4em] font-semibold">Ready for the Party</p>
                 </header>
 
-                <form className="space-y-5" onSubmit={handleSubmit}>
-                  {/* CÓDIGO DE INVITADO */}
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="space-y-1.5 text-left">
                     <label className="text-[8px] uppercase font-bold text-[#b5a47a] tracking-[0.2em] ml-1">Validar Identidad</label>
                     <div className="relative group">
@@ -146,13 +158,12 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                         value={guestCode}
                         onChange={(e) => setGuestCode(e.target.value)}
                         placeholder="INGRESA TU CÓDIGO AQUÍ" 
-                        className="w-full bg-white border border-gray-100 pl-11 pr-4 py-4 rounded-2xl text-xs uppercase tracking-widest focus:outline-none focus:border-[#b5a47a]/40 focus:ring-4 focus:ring-[#b5a47a]/5 transition-all shadow-sm" 
+                        className="w-full bg-white border border-gray-100 pl-11 pr-4 py-4 rounded-2xl text-xs uppercase tracking-widest focus:outline-none focus:border-[#b5a47a]/40 focus:ring-4 focus:ring-[#b5a47a]/5 transition-all shadow-sm text-black" 
                       />
                     </div>
                   </div>
 
-                  {/* TEMAS FAVORITOS */}
-                  <div className="space-y-3 pt-2">
+                  <div className="space-y-2 pt-2">
                     <p className="text-[8px] uppercase font-bold text-gray-400 tracking-[0.2em] text-center">Top 3 para la pista</p>
                     {[1, 2, 3].map((num) => (
                       <div key={num} className="relative">
@@ -161,14 +172,14 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                           name={`tema${num}`}
                           value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
                           onChange={handleChange}
-                          placeholder={`Nombre de la canción o artista #${num}`}
-                          className="w-full bg-white border border-gray-100 px-5 py-3.5 rounded-xl text-[13px] italic text-gray-600 placeholder:text-gray-300 focus:outline-none focus:border-[#b5a47a]/30 transition-all shadow-sm"
+                          placeholder={`Canción o artista #${num}`}
+                          className="w-full bg-white border border-gray-100 px-5 py-3 rounded-xl text-[13px] italic text-gray-600 placeholder:text-gray-300 focus:outline-none focus:border-[#b5a47a]/30 transition-all shadow-sm"
                         />
                       </div>
                     ))}
                   </div>
                   
-                  <div className="pt-6">
+                  <div className="pt-4">
                     <button
                       type="submit"
                       disabled={isSending}

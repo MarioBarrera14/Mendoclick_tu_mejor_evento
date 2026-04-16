@@ -40,6 +40,18 @@ export function RSVP({ config }: RSVPProps) {
     message: "",   
   });
 
+  // --- LÓGICA PARA QUITAR EL SCROLL ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const cardVariants: Variants = {
     offscreen: { opacity: 0, scale: 0.9 },
     onscreen: { 
@@ -137,7 +149,8 @@ export function RSVP({ config }: RSVPProps) {
 
   return (
     <>
-    <section className="relative py-24 md:py-32 bg-[#1a1a1a] overflow-hidden font-sans">
+    {/* py-24 md:py-32 a py-16 md:py-24 para acercar componentes */}
+    <section className="relative py-16 md:py-24 bg-[#1a1a1a] overflow-hidden font-sans">
       
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none flex items-center justify-center">
         <div className="w-[150%] h-[150%] animate-[spin_60s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0deg_10deg,#b02a30_10deg_20deg,transparent_20deg_30deg,#b02a30_30deg_40deg)] [mask-image:radial-gradient(circle,black_30%,transparent_70%)]" />
@@ -154,7 +167,7 @@ export function RSVP({ config }: RSVPProps) {
           <div className="absolute -top-6 -left-6 text-[#33aba1] text-5xl hidden md:block animate-pulse">✦</div>
           <div className="absolute -bottom-6 -right-6 text-[#33aba1] text-5xl hidden md:block animate-pulse">✦</div>
 
-          <div className="w-full md:w-1/2 h-[400px] md:h-[600px] relative p-6 bg-white border-r-4 border-black">
+          <div className="w-full md:w-1/2 h-[350px] md:h-[550px] relative p-6 bg-white border-r-4 border-black">
             <div className="w-full h-full relative border-2 border-black overflow-hidden group">
               <Image 
                 src={config.heroImage}
@@ -170,17 +183,17 @@ export function RSVP({ config }: RSVPProps) {
             </div>
           </div>
 
-          <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col items-center justify-center text-center relative">
+          <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col items-center justify-center text-center relative">
             <div className="absolute inset-4 border-2 border-dotted border-[#b02a30] pointer-events-none opacity-40"></div>
-            <div className="mb-6">
-              <div className="relative w-20 h-20 mx-auto">
+            <div className="mb-4">
+              <div className="relative w-16 h-16 mx-auto">
                  <Image src="/img-rock/invitacion.png" alt="icon" fill className="object-contain rotate-12" />
               </div>
             </div>
-            <p className="text-black font-black text-lg md:text-xl leading-tight mb-4 max-w-xs uppercase tracking-tighter italic">
+            <p className="text-black font-black text-lg md:text-xl leading-tight mb-3 max-w-xs uppercase tracking-tighter italic">
               Esperamos que puedas <span className="text-[#b02a30]">Festejar</span> con nosotros.
             </p>
-            <p className="text-gray-600 text-sm md:text-base font-bold mb-10 italic">
+            <p className="text-gray-600 text-sm md:text-base font-bold mb-8 italic">
               ¡Confirmá tu asistencia antes del {formattedDate}!
             </p>
             <button 
@@ -189,7 +202,7 @@ export function RSVP({ config }: RSVPProps) {
             >
               CONFIRMAR
             </button>
-            <div className="mt-10 opacity-70 text-[#33aba1]">
+            <div className="mt-8 opacity-70 text-[#33aba1]">
                 <Ticket size={40} className="rotate-[-20deg]" />
             </div>
           </div>
@@ -212,7 +225,7 @@ export function RSVP({ config }: RSVPProps) {
               </button>
 
               {!isValidated ? (
-                <div className="space-y-8 py-6 text-center">
+                <div className="space-y-6 py-4 text-center">
                   <h3 className="text-4xl font-black uppercase italic tracking-tighter text-[#b02a30]">¿Quién eres?</h3>
                   
                   {alreadyConfirmed && (
@@ -227,7 +240,6 @@ export function RSVP({ config }: RSVPProps) {
 
                   <div className="space-y-4">
                     <p className="font-bold uppercase text-[10px] tracking-widest opacity-60">Ingresa el código de tu invitación</p>
-                    {/* AGREGADO: text-black */}
                     <input 
                         type="text" 
                         value={familyCode}
@@ -250,7 +262,7 @@ export function RSVP({ config }: RSVPProps) {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-8 py-6">
+                <div className="space-y-6 py-4">
                   <h3 className="text-3xl font-black uppercase italic text-center text-[#b02a30]">
                     ¡Hola {guestInfo?.nombre}!
                   </h3>
@@ -293,7 +305,6 @@ export function RSVP({ config }: RSVPProps) {
 
                       <div className="space-y-2">
                         <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50 text-[#b02a30]">Comentarios / Dieta especial:</p>
-                        {/* AGREGADO: text-black */}
                         <textarea 
                             className={`w-full bg-white border-2 border-black p-4 font-bold text-black focus:outline-none shadow-[4px_4px_0px_0px_${colorRojo}]`}
                             placeholder="Celiaquía, vegetariano, etc..."
@@ -305,7 +316,6 @@ export function RSVP({ config }: RSVPProps) {
 
                       <div className="space-y-2">
                         <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50 text-[#b02a30]">Un mensaje para nosotros:</p>
-                        {/* AGREGADO: text-black */}
                         <textarea 
                             className={`w-full bg-white border-2 border-black p-4 font-bold text-black focus:outline-none shadow-[4px_4px_0px_0px_${colorRojo}]`}
                             placeholder="Escribe algo lindo..."

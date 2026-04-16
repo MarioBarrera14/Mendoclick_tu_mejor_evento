@@ -2,7 +2,10 @@
 
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, Film, Zap, X, Sparkles } from "lucide-react";
+import { 
+  Volume2, VolumeX, Film, Zap, X, Sparkles, 
+  Play, Pause, Maximize // Nuevos iconos
+} from "lucide-react";
 import Image from "next/image";
 
 interface FotoCarouselProps {
@@ -20,6 +23,7 @@ const NeonDivider = () => (
 
 export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true); // Estado para play/pause
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -43,6 +47,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
     return [...baseFotos, ...baseFotos, ...baseFotos];
   }, [images]);
 
+  // --- FUNCIONES DE CONTROL ---
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
@@ -50,8 +55,29 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
     }
   };
 
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleFullscreen = () => {
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      } else if ((videoRef.current as any).webkitRequestFullscreen) {
+        (videoRef.current as any).webkitRequestFullscreen();
+      }
+    }
+  };
+
   return (
-    <section className="relative py-16 bg-[#0c001a] overflow-hidden">
+    <section className="relative py-16 bg-[#0c001a] overflow-hidden font-sans">
       
       {/* Fondo Decorativo Grilla */}
       <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
@@ -68,7 +94,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </h3>
       </div>
 
-      {/* --- CARRUSEL ACHICADO --- */}
+      {/* --- CARRUSEL --- */}
       <div className="relative z-30 py-10"> 
         <div className="flex whitespace-nowrap overflow-hidden group">
           <div className="flex gap-6 animate-marquee-infinite group-hover:[animation-play-state:paused] py-2">
@@ -94,7 +120,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
                     <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 via-transparent to-transparent" />
                   </div>
                 </div>
-
                 {i % 3 === 0 && (
                   <div className="absolute -top-3 -right-3 bg-white text-purple-600 p-1.5 rounded-full shadow-lg z-40">
                     <Sparkles size={14} className="animate-pulse" />
@@ -106,7 +131,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       </div>
 
-      {/* --- VIDEO ACHICADO --- */}
+      {/* --- VIDEO --- */}
       <div className="mt-8 container mx-auto px-6 relative z-10">
         <div className="max-w-3xl mx-auto">
           <div className="relative group p-1 bg-gradient-to-br from-purple-500/10 to-transparent rounded-[2rem]">
@@ -121,9 +146,35 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700" 
                     loop muted={isMuted} autoPlay playsInline 
                   />
-                  <button onClick={toggleMute} className="absolute bottom-4 left-4 p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all">
-                    {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                  </button>
+                  
+                  {/* BOTONES DE CONTROL */}
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={togglePlay} 
+                        className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
+                        title={isPlaying ? "Pausar" : "Reproducir"}
+                      >
+                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                      </button>
+                      
+                      <button 
+                        onClick={toggleMute} 
+                        className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
+                        title={isMuted ? "Activar Sonido" : "Silenciar"}
+                      >
+                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                      </button>
+                    </div>
+
+                    <button 
+                      onClick={handleFullscreen} 
+                      className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
+                      title="Pantalla completa"
+                    >
+                      <Maximize size={18} />
+                    </button>
+                  </div>
                 </>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-purple-900">
@@ -136,7 +187,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       </div>
 
-      {/* MODAL FULLSCREEN */}
+      {/* MODAL FULLSCREEN FOTO */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div 

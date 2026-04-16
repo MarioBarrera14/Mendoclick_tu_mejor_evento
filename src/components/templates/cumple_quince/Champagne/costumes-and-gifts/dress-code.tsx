@@ -1,10 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Gift, Shirt, X, Copy, Check } from "lucide-react";
 
-// --- INTERFAZ CONECTADA AL SCHEMA DE PRISMA ---
 interface DetailsProps {
   config: {
     dressCode?: string | null;
@@ -20,6 +19,18 @@ export function Details({ config }: DetailsProps) {
   const [activeModal, setActiveModal] = useState<"dress" | "gift" | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
+  // --- LÓGICA PARA BLOQUEAR SCROLL ---
+  useEffect(() => {
+    if (activeModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [activeModal]);
+
   const handleCopy = async (text: string, field: string) => {
     if (!text) return;
     await navigator.clipboard.writeText(text);
@@ -30,7 +41,7 @@ export function Details({ config }: DetailsProps) {
   return (
     <section className="relative py-24 md:py-24 bg-white overflow-hidden font-sans">
       
-      {/* LA FRANJA INCLINADA - Estética Champagne */}
+      {/* LA FRANJA INCLINADA - Ajustada para mejor transición */}
       <div 
         className="absolute inset-0 bg-[#d1d1d1] z-0"
         style={{ 
@@ -39,10 +50,9 @@ export function Details({ config }: DetailsProps) {
       />
 
       <div className="container mx-auto px-6 max-w-4xl relative z-10">
-        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-4 items-start pt-6">
           
-          {/* COLUMNA IZQUIERDA: REGALOS */}
+          {/* REGALOS */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }} 
             whileInView={{ opacity: 1, y: 0 }} 
@@ -66,7 +76,7 @@ export function Details({ config }: DetailsProps) {
             </div>
           </motion.div>
 
-          {/* COLUMNA DERECHA: DRESS CODE */}
+          {/* DRESS CODE */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }} 
             whileInView={{ opacity: 1, y: 0 }} 
@@ -74,14 +84,10 @@ export function Details({ config }: DetailsProps) {
             transition={{ delay: 0.1 }}
             className="flex flex-col items-center text-center space-y-4 px-2"
           >
-            <div className="space-y-1">
-             <h2 className="font-script text-4xl md:text-5xl text-[#b4a178]">Dress Code</h2>
-            </div>
-            
-          <p className="text-gray-500 text-[11px] md:text-[13px] leading-relaxed font-light max-w-[260px]">
-          La elegancia es la única belleza que nunca desaparece. Te esperamos con tu mejor gala.
+            <h2 className="font-script text-4xl md:text-5xl text-[#b4a178]">Dress Code</h2>
+            <p className="text-gray-500 text-[11px] md:text-[13px] leading-relaxed font-light max-w-[260px]">
+              La elegancia es la única belleza que nunca desaparece. Te esperamos con tu mejor gala.
             </p>
-
             <div className="w-full max-w-[220px]">
               <motion.button 
                 whileHover={{ scale: 1.02 }}
@@ -94,23 +100,38 @@ export function Details({ config }: DetailsProps) {
               </motion.button>
             </div>
           </motion.div>
-
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* MODAL GLOBAL */}
       <AnimatePresence>
         {activeModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            
+            {/* OVERLAY: Cobertura total con degradado Champagne/Noir */}
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-white w-full max-w-sm p-8 rounded-sm shadow-xl text-center text-gray-800"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveModal(null)}
+              className="fixed inset-0 backdrop-blur-md"
+              style={{
+                background: "radial-gradient(circle, rgba(180, 161, 120, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%)"
+              }}
+            />
+
+            {/* CAJA DEL MODAL */}
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} 
+              animate={{ scale: 1, opacity: 1, y: 0 }} 
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white w-full max-w-sm p-8 rounded-sm shadow-2xl text-center text-gray-800 z-[10000]"
             >
-              <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
-                <X size={18} />
+              <button 
+                onClick={() => setActiveModal(null)} 
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={20} />
               </button>
 
               {activeModal === "gift" ? (
@@ -127,7 +148,7 @@ export function Details({ config }: DetailsProps) {
                           <p className="text-[9px] uppercase tracking-widest text-gray-400">CBU / CVU</p>
                           <p className="text-[11px] text-gray-700 pr-2 tabular-nums font-bold">{config.cbu}</p>
                         </div>
-                        <button onClick={() => handleCopy(config.cbu!, 'cbu')} className="text-[#b4a178] shrink-0 hover:scale-110 transition-transform">
+                        <button onClick={() => handleCopy(config.cbu!, 'cbu')} className="text-[#b4a178] shrink-0">
                           {copied === 'cbu' ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
                         </button>
                       </div>
@@ -138,15 +159,10 @@ export function Details({ config }: DetailsProps) {
                           <p className="text-[9px] uppercase tracking-widest text-gray-400">Alias</p>
                           <p className="text-sm text-gray-700 font-bold italic lowercase">{config.alias}</p>
                         </div>
-                        <button onClick={() => handleCopy(config.alias!, 'alias')} className="text-[#b4a178] shrink-0 hover:scale-110 transition-transform">
+                        <button onClick={() => handleCopy(config.alias!, 'alias')} className="text-[#b4a178] shrink-0">
                           {copied === 'alias' ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
                         </button>
                       </div>
-                    )}
-                    {config.bankName && (
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest pt-1">
-                        Entidad: {config.bankName}
-                      </p>
                     )}
                   </div>
                 </div>
@@ -158,7 +174,7 @@ export function Details({ config }: DetailsProps) {
                   </p>
                   <div className="w-8 h-[1px] bg-[#b4a178] mx-auto" />
                   <p className="text-[12px] text-gray-500 font-medium leading-relaxed italic">
-                    "{config.dressDescription || "Tu estilo es el mejor detalle para esta celebración. ¡Te esperamos para brillar!"}"
+                    "{config.dressDescription || "Tu estilo es el mejor detalle para esta celebración."}"
                   </p>
                 </div>
               )}

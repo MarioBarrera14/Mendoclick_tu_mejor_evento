@@ -1,20 +1,17 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MapPin, Church, Wine, X } from "lucide-react";
+import { MapPin, Church, Wine, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-// 1. Interfaz conectada a tu Schema de Prisma
 interface LocationsSectionProps {
   config: {
     eventDate: string;
     eventTime: string;
-    // Salón
     venueName: string;
     venueAddress: string;
     mapLink: string;
-    // Iglesia (Opcionales)
     churchName?: string | null;
     churchAddress?: string | null;
     churchMapLink?: string | null;
@@ -47,7 +44,8 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
       onClick={onOpen}
       className="relative flex flex-col items-center group cursor-pointer"
     >
-      <div className="relative bg-[#fcfaf2] p-2 md:p-3 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] group-hover:shadow-[0_35px_65px_-12px_rgba(0,0,0,0.9)] mb-6 aspect-square flex items-center justify-center z-10">
+      {/* Reducido mb-6 a mb-4 para acercar la imagen al texto */}
+      <div className="relative bg-[#fcfaf2] p-2 md:p-3 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] group-hover:shadow-[0_35px_65px_-12px_rgba(0,0,0,0.9)] mb-4 aspect-square flex items-center justify-center z-10">
         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
         <div className="absolute inset-4 md:inset-5 border border-black/80 rounded-full z-10 pointer-events-none" />
         <div className="relative w-32 h-32 md:w-44 md:h-44 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] z-20 transition-all duration-700 aspect-square">
@@ -62,7 +60,8 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
       </div>
 
       <div className="text-center px-2 relative z-10">
-        <div className="mb-2 text-[#b5a47a] flex justify-center drop-shadow-md transition-transform duration-500 group-hover:scale-110">
+        {/* Reducido mb-2 a mb-1 */}
+        <div className="mb-1 text-[#b5a47a] flex justify-center drop-shadow-md transition-transform duration-500 group-hover:scale-110">
           {location.icon}
         </div>
         <h3 className="text-lg md:text-xl font-serif italic text-white mb-1 tracking-tight uppercase drop-shadow-md">
@@ -80,10 +79,18 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
 export function LocationsSection({ config }: LocationsSectionProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
 
-  // 2. Construimos el array dinámicamente basado en los datos existentes
+  // EFECTO PARA QUITAR EL SCROLL
+  useEffect(() => {
+    if (selectedLocation) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [selectedLocation]);
+
   const locations: LocationData[] = [];
 
-  // Siempre agregamos la Celebración (Salón)
   locations.push({
     icon: <Wine size={24} strokeWidth={1} />,
     title: "Celebración",
@@ -95,14 +102,13 @@ export function LocationsSection({ config }: LocationsSectionProps) {
     googleMapsUrl: config.mapLink
   });
 
-  // Si existe el nombre de la iglesia, agregamos la Ceremonia
   if (config.churchName && config.churchName.trim() !== "") {
-    locations.unshift({ // unshift para que aparezca primero
+    locations.unshift({
       icon: <Church size={24} strokeWidth={1} />,
       title: "Ceremonia",
       image: "/img_boda/iglesia.jpg", 
       date: config.eventDate,
-      time: config.eventTime, // Podrías añadir un campo churchTime en el schema si varían
+      time: config.eventTime,
       placeName: config.churchName,
       address: config.churchAddress || "",
       googleMapsUrl: config.churchMapLink || ""
@@ -110,12 +116,14 @@ export function LocationsSection({ config }: LocationsSectionProps) {
   }
 
   return (
-    <section className="relative py-20 md:py-28 bg-transparent overflow-hidden">
+    // Reducido py-20/28 a py-12/16 para acercar la sección a las de arriba/abajo
+    <section className="relative py-12 md:py-16 bg-transparent overflow-hidden">
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
       <SpeedLinesBackground />
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className={`grid grid-cols-1 ${locations.length > 1 ? 'md:grid-cols-2' : 'max-w-md'} gap-12 lg:gap-20 items-center justify-center mx-auto`}>
+        {/* Reducido gap-12 a gap-6 para acercar las dos tarjetas entre sí */}
+        <div className={`grid grid-cols-1 ${locations.length > 1 ? 'md:grid-cols-2' : 'max-w-md'} gap-6 lg:gap-10 items-center justify-center mx-auto`}>
           {locations.map((loc, index) => (
             <LocationCard key={index} location={loc} onOpen={() => setSelectedLocation(loc)} />
           ))}
