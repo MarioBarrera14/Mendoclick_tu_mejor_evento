@@ -19,33 +19,44 @@ interface WeddingDetailsProps {
 const buttonBase = "relative text-white px-6 py-2 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 rounded-full shadow-lg bg-[#5ba394] hover:bg-[#4d8a7d]";
 
 function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
-  // BLOQUEO DE SCROLL: Se ejecuta cada vez que cambia 'isOpen'
+  
+  // BLOQUEO DE SCROLL ROBUSTO (HTML + BODY)
   useEffect(() => {
     if (isOpen) {
-      // Guardamos la posición actual para evitar saltos en algunos navegadores
-      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
 
-    // Limpieza al desmontar el componente (importante)
+    // Limpieza al desmontar el componente
     return () => {
-      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div key="modal-wrapper" className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Fondo / Overlay */}
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm touch-none"
           />
+          
+          {/* Contenedor del Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 m-auto w-[90%] max-w-lg h-fit bg-white/30 backdrop-blur-xl p-10 z-[101] rounded-[2rem] shadow-2xl text-center border border-white/40"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-lg bg-white/30 backdrop-blur-xl p-10 rounded-[2rem] shadow-2xl text-center border border-white/40 z-10 touch-auto"
+            onClick={(e) => e.stopPropagation()}
           >
             <button onClick={onClose} className="absolute top-6 right-6 text-black hover:scale-110 transition-transform">
               <X className="w-6 h-6 stroke-[3px]" />
@@ -55,13 +66,12 @@ function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; on
             </h3>
             <div className="text-black font-medium">{children}</div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
 }
 
-// ... (CopyButton se mantiene igual)
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
@@ -129,7 +139,7 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
           className="flex-1 bg-white/30 backdrop-blur-xl rounded-2xl p-8 shadow-2xl text-center flex flex-col items-center border border-white/30"
         >
           <div className="mb-4 w-14 h-14 relative">
-            <Image src="/images/img-grafitis/regalos.png" alt="Icon Gift" fill className="object-contain" />
+            <Image src="/images/img-grafitis/regalos.png" alt="Icon Dress" fill className="object-contain" />
           </div>
           <h2 className="text-3xl md:text-4xl text-black mb-3 uppercase tracking-tighter">
             Regalos

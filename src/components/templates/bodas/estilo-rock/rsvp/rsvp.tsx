@@ -40,15 +40,18 @@ export function RSVP({ config }: RSVPProps) {
     message: "",   
   });
 
-  // --- LÓGICA PARA QUITAR EL SCROLL ---
+  // --- LÓGICA DE BLOQUEO DE SCROLL ROBUSTA ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -149,7 +152,6 @@ export function RSVP({ config }: RSVPProps) {
 
   return (
     <>
-    {/* py-24 md:py-32 a py-16 md:py-24 para acercar componentes */}
     <section className="relative py-16 md:py-24 bg-[#1a1a1a] overflow-hidden font-sans">
       
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none flex items-center justify-center">
@@ -212,13 +214,20 @@ export function RSVP({ config }: RSVPProps) {
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/90 backdrop-blur-md" />
+            {/* touch-none en el fondo para evitar scroll táctil */}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={handleClose} 
+              className="absolute inset-0 bg-black/90 backdrop-blur-md touch-none" 
+            />
             
             <motion.div 
               initial={{ scale: 0.5, y: 100, rotate: 5 }} 
               animate={{ scale: 1, y: 0, rotate: 0 }} 
               exit={{ scale: 0.5, y: 100, rotate: -5 }} 
-              className={`relative w-full max-w-xl bg-[#fdfcf0] border-4 border-black p-8 shadow-[15px_15px_0px_0px_${colorRojo}] overflow-y-auto max-h-[90vh]`}
+              className={`relative w-full max-w-xl bg-[#fdfcf0] border-4 border-black p-8 shadow-[15px_15px_0px_0px_${colorRojo}] overflow-y-auto max-h-[90vh] touch-auto`}
             >
               <button onClick={handleClose} className="absolute top-4 right-4 text-black hover:rotate-90 transition-transform">
                 <X size={32} strokeWidth={3} />

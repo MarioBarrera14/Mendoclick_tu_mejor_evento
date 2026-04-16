@@ -19,15 +19,18 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
   useEffect(() => { setMounted(true); }, []);
 
-  // --- LÓGICA PARA BLOQUEAR SCROLL ---
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -125,15 +128,23 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
       <AnimatePresence>
         {isOpen && (
-          <>
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            {/* Overlay con touch-none para blindar el scroll táctil de fondo */}
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
               onClick={() => !isSending && setIsOpen(false)}
-              className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200]"
+              className="absolute inset-0 bg-black/90 backdrop-blur-xl touch-none"
             />
+            
+            {/* Contenido del Modal con touch-auto para permitir interacción interna */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 15 }}
-              className="fixed inset-0 m-auto w-[92%] max-w-sm h-fit bg-[#0c001a] border border-white/10 p-8 z-[201] rounded-[2.5rem] shadow-[0_0_50px_rgba(147,51,234,0.3)]"
+              initial={{ opacity: 0, scale: 0.9, y: 15 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              className="relative w-full max-w-sm bg-[#0c001a] border border-white/10 p-8 rounded-[2.5rem] shadow-[0_0_50px_rgba(147,51,234,0.3)] z-10 touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button onClick={() => setIsOpen(false)} className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors">
                 <X size={24} />
@@ -176,7 +187,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                 </div>
               </form>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </section>

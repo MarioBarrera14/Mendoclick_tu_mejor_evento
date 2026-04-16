@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, X, Expand } from "lucide-react";
 
 interface FotoCarouselRetroProps {
-  images?: string | any[] | null; // Aceptamos string o array para evitar errores de tipo
+  images?: string | any[] | null;
   videoUrl?: string | null;
 }
 
@@ -16,9 +16,20 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Bloqueo de scroll robusto (HTML + BODY)
   useEffect(() => {
-    document.body.style.overflow = selectedImg ? "hidden" : "auto";
-    return () => { document.body.style.overflow = "auto"; };
+    if (selectedImg) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [selectedImg]);
 
   const toggleFullscreen = () => {
@@ -27,18 +38,15 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
     if (v.requestFullscreen) v.requestFullscreen();
   };
 
-  // ESCUDO DE PROTECCIÓN CONTRA JSON ERROR
   const duplicatedPhotos = useMemo(() => {
     const defaultPhotos = ["/img_boda/gallery-1.jpg", "/img_boda/gallery-2.jpg", "/img_boda/gallery-4.jpg"];
     let base = defaultPhotos;
     
     try {
       if (images) {
-        // Si ya es un array (Prisma lo devuelve así a veces), lo usamos directo
         if (Array.isArray(images)) {
           base = images.length > 0 ? images : defaultPhotos;
         } else if (typeof images === 'string' && images.trim() !== "") {
-          // Solo intentamos parsear si es un string no vacío
           const urls = JSON.parse(images);
           if (Array.isArray(urls) && urls.length > 0) {
             base = urls.filter((u: string) => u);
@@ -70,6 +78,7 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
         </h3>
       </div>
 
+      {/* Carrusel Infinito */}
       <div className="relative mb-12 z-20 overflow-hidden py-4">
         <motion.div
           className="flex gap-4 md:gap-6 w-max"
@@ -100,6 +109,7 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
         </motion.div>
       </div>
 
+      {/* Video Player Section */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-2xl mx-auto relative group">
           <div className="relative border-[5px] border-black bg-black overflow-hidden shadow-[8px_8px_0px_0px_#a02133]">
@@ -138,23 +148,37 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
         </div>
       </div>
 
+      {/* Modal / Lightbox */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
             onClick={() => setSelectedImg(null)}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md touch-none"
           >
             <motion.div 
-              initial={{ scale: 0.85 }} animate={{ scale: 1 }} exit={{ scale: 0.85 }}
-              className="bg-white p-2 border-4 border-black shadow-[12px_12px_0px_#a02133] max-w-lg w-full relative"
+              initial={{ scale: 0.85 }} 
+              animate={{ scale: 1 }} 
+              exit={{ scale: 0.85 }}
+              className="bg-white p-2 border-4 border-black shadow-[12px_12px_0px_#a02133] max-w-lg w-full relative touch-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <button onClick={() => setSelectedImg(null)} className="absolute -top-12 right-0 text-white flex items-center gap-1.5 font-black uppercase text-[10px]">
+              <button 
+                onClick={() => setSelectedImg(null)} 
+                className="absolute -top-12 right-0 text-white flex items-center gap-1.5 font-black uppercase text-[10px] hover:text-[#33aba1] transition-colors"
+              >
                 Cerrar <X size={24}/>
               </button>
               <div className="relative w-full h-[70vh]">
-                <Image src={selectedImg} alt="Full view" fill className="object-contain" />
+                <Image 
+                  src={selectedImg} 
+                  alt="Full view" 
+                  fill 
+                  className="object-contain" 
+                  priority
+                />
               </div>
             </motion.div>
           </motion.div>

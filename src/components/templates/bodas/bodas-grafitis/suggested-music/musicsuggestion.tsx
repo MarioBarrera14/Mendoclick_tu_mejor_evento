@@ -19,15 +19,18 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
   const [mounted, setMounted] = useState(false);
 
-  // BLOQUEO DE SCROLL AL ABRIR EL MODAL
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -64,7 +67,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           confirmButtonColor: "#5ba394"
         });
       } else {
-        // Manejo de error de duplicados o código inválido
         Swal.fire({ 
           title: result.error?.includes("recibimos") ? "AVISO" : "ERROR", 
           text: result.error || "Código inválido", 
@@ -97,6 +99,8 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           className="max-w-xl w-full bg-white/20 backdrop-blur-xl p-6 md:p-12 shadow-2xl text-center rounded-[1.5rem] md:rounded-[2.5rem] border border-white/30"
+          onClick={() => setIsOpen(true)}
+          style={{ cursor: 'pointer' }}
         >
           <div className="flex justify-center mb-4">
             <div className="relative w-14 h-14 md:w-20 md:h-20">
@@ -120,7 +124,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsOpen(true)}
               className="w-full sm:w-auto bg-[#5ba394] hover:bg-[#4d8a7d] text-white px-8 md:px-12 py-4 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 rounded-full shadow-lg transition-all font-sans"
             >
               <MusicIcon size={16} />
@@ -130,22 +133,25 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         </motion.div>
       </div>
 
-      {/* MODAL RESPONSIVO */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => !isSending && setIsOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm touch-none"
             />
+            
+            {/* Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40"
+              className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setIsOpen(false)} 

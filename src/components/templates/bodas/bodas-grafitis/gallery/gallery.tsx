@@ -22,16 +22,22 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
   const videoRef = useRef<HTMLVideoElement>(null);
   const graffitiColor = "#4B664B"; 
 
-  // --- SOLUCIÓN PARA BLOQUEAR EL SCROLL ---
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
-    if (selectedImg || isVideoModalOpen) {
+    const isAnyModalOpen = selectedImg || isVideoModalOpen;
+
+    if (isAnyModalOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    // Limpieza al desmontar el componente
+
+    // Cleanup al desmontar
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [selectedImg, isVideoModalOpen]);
 
@@ -138,9 +144,13 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 touch-none"
           >
             <X className="absolute top-6 right-6 text-white/70 w-8 h-8 cursor-pointer z-[110]" />
-            <div className="relative w-full max-w-4xl h-[85vh]">
+            <motion.div 
+              initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+              className="relative w-full max-w-4xl h-[85vh] touch-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Image src={selectedImg} alt="Imagen seleccionada" fill className="object-contain rounded-lg" />
-            </div>
+            </motion.div>
           </motion.div>
         )}
 
@@ -152,9 +162,13 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
             <button onClick={() => setIsVideoModalOpen(false)} className="absolute top-6 right-6 text-white/50 hover:text-white z-[120]">
               <X size={40} />
             </button>
-            <div className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden shadow-2xl">
+            <motion.div 
+              initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+              className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden shadow-2xl touch-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <video src={videoUrl} className="w-full h-full" controls autoPlay />
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

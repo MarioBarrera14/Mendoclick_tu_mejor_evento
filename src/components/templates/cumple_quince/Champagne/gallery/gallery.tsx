@@ -10,7 +10,7 @@ import {
   Play, 
   Pause, 
   Maximize,
-  X // Importado para el botón de cerrar
+  X 
 } from "lucide-react";
 
 interface FotoCarouselProps {
@@ -22,17 +22,22 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const [selectedImg, setSelectedImg] = useState<string | null>(null); // Estado para la foto ampliada
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Bloqueo de scroll cuando la imagen está abierta
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (selectedImg) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [selectedImg]);
 
   const fotos = useMemo(() => {
@@ -139,7 +144,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       </div>
 
-      {/* VIDEO CON CONTROLES */}
+      {/* VIDEO */}
       {videoUrl && (
         <div className="mt-12 container mx-auto px-6 max-w-2xl">
           <div 
@@ -172,7 +177,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       )}
 
-      {/* LIGHTBOX (IMAGEN AMPLIADA) */}
+      {/* LIGHTBOX */}
       <AnimatePresence>
         {selectedImg && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -181,14 +186,15 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedImg(null)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-zoom-out"
+              className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-zoom-out touch-none"
             />
             
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-4xl max-h-[90vh] z-[101] flex items-center justify-center"
+              className="relative max-w-4xl max-h-[90vh] z-[101] flex items-center justify-center touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setSelectedImg(null)}

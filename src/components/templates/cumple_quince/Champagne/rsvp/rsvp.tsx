@@ -34,13 +34,19 @@ export function RSVP({ config }: RSVPProps) {
     message: "",
   });
 
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const resetAll = () => {
@@ -121,12 +127,7 @@ export function RSVP({ config }: RSVPProps) {
   return (
     <>
       <section 
-        className="relative py-20 md:py-24 overflow-hidden font-sans bg-[#b4a178]"
-        style={{ 
-          clipPath: "polygon(0 4%, 100% 0, 100% 98%, 0 100%)",
-          marginTop: "-40px",
-          marginBottom: "-40px"
-        }}
+        className="relative py-20 md:py-24 overflow-hidden font-sans bg-[#b4a178] [clip-path:polygon(0_4%,100%_0,100%_98%,0_100%)] mt-[-40px] mb-[-40px]"
       >
         <div className="container mx-auto px-6 relative z-20 max-w-7xl">
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
@@ -150,7 +151,6 @@ export function RSVP({ config }: RSVPProps) {
               </motion.button>
             </div>
 
-            {/* CONTENEDOR DE LA FOTO */}
             <motion.div 
               initial={{ opacity: 0, x: 50, rotate: 10 }}
               whileInView={{ opacity: 1, x: 0, rotate: -5 }}
@@ -165,14 +165,12 @@ export function RSVP({ config }: RSVPProps) {
                 </div>
               </div>
 
-              {/* CORAZÓN EN LA ESQUINA (EFECTO CINTA) */}
               <motion.div
                 animate={{ y: [0, -4, 0], rotate: [15, 12, 15] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute -top-6 -right-4 z-30"
               >
                 <div className="relative flex items-center justify-center">
-                  {/* Cinta adhesiva semitransparente */}
                   <div className="absolute w-14 h-14 bg-white/30 backdrop-blur-[2px] rounded-full border border-white/40 shadow-sm" />
                   <Heart className="w-9 h-9 text-white fill-white stroke-[1.5] drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)] relative z-10" />
                 </div>
@@ -190,14 +188,14 @@ export function RSVP({ config }: RSVPProps) {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={handleClose} 
-              className="fixed inset-0 backdrop-blur-md"
-              style={{ background: "radial-gradient(circle, rgba(180, 161, 120, 0.3) 0%, rgba(0, 0, 0, 0.95) 100%)" }}
+              className="fixed inset-0 backdrop-blur-md touch-none bg-[radial-gradient(circle,_rgba(180,161,120,0.3)_0%,_rgba(0,0,0,0.95)_100%)]"
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md bg-white p-8 rounded-sm shadow-2xl flex flex-col max-h-[90vh] overflow-hidden text-gray-800"
+              className="relative w-full max-w-md bg-white p-8 rounded-sm shadow-2xl flex flex-col max-h-[90vh] overflow-hidden text-gray-800 touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button onClick={handleClose} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 z-50"><X size={20} /></button>
 

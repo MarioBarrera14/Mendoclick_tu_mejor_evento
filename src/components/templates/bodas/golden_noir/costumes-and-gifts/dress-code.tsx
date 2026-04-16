@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Check, X, Shirt, Gift, Landmark } from "lucide-react";
 import { useState, useEffect } from "react";
 
-// Mantenemos la interfaz idéntica al primer componente para facilitar la integración
+// Interfaz unificada
 interface WeddingDetailsProps {
   config: {
     dressCode?: string | null;
@@ -24,6 +24,7 @@ const SpeedLinesBackground = () => (
   </div>
 );
 
+// --- MODAL CON CORRECCIÓN DE SCROLL ---
 function DetailModal({ 
   isOpen, 
   onClose, 
@@ -37,14 +38,22 @@ function DetailModal({
   children: React.ReactNode; 
   icon?: React.ElementType 
 }) {
-  // Bloqueo de scroll al abrir modal
+  
+  // BLOQUEO DE SCROLL ROBUSTO (HTML + BODY)
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = 'unset'; };
+
+    // Limpieza al cerrar o desmontar
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   return (
@@ -56,13 +65,13 @@ function DetailModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100]"
+            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] touch-none" // touch-none evita scroll táctil
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 m-auto w-[90%] max-w-[400px] h-fit bg-white z-[101] rounded-[2rem] shadow-2xl overflow-hidden"
+            className="fixed inset-0 m-auto w-[90%] max-w-[400px] h-fit bg-white z-[101] rounded-[2rem] shadow-2xl overflow-hidden touch-auto"
           >
             <div className="relative p-8 pt-12 flex flex-col items-center">
               <button 
@@ -127,16 +136,14 @@ export default function Details({ config }: WeddingDetailsProps) {
   return (
     <section className="relative py-16 md:py-24 overflow-hidden bg-transparent">
       
-      {/* OVERLAY DE LEGIBILIDAD */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
 
-      {/* LÍNEAS DE VELOCIDAD */}
       <SpeedLinesBackground />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-20 max-w-4xl mx-auto">
           
-          {/* TARJETA 1: DRESS CODE */}
+          {/* DRESS CODE */}
           <motion.div 
             whileHover={{ y: -10, scale: 1.05 }}
             className="flex flex-col items-center group cursor-pointer"
@@ -156,7 +163,7 @@ export default function Details({ config }: WeddingDetailsProps) {
             </div>
           </motion.div>
 
-          {/* TARJETA 2: REGALOS */}
+          {/* REGALOS */}
           <motion.div 
             whileHover={{ y: -10, scale: 1.05 }}
             className="flex flex-col items-center group cursor-pointer"
@@ -179,7 +186,7 @@ export default function Details({ config }: WeddingDetailsProps) {
         </div>
       </div>
 
-      {/* MODALES DINÁMICOS CON DATA DE CONFIG */}
+      {/* MODALES DINÁMICOS */}
       <DetailModal isOpen={activeModal === "dress"} onClose={() => setActiveModal(null)} title="Dress Code" icon={Shirt}>
         <div className="text-center space-y-4">
           <p className="text-sm text-gray-500 italic leading-relaxed">

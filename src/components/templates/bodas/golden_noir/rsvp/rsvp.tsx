@@ -7,7 +7,6 @@ import {
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-// --- INTERFAZ DE PROPS CONECTADA ---
 interface RSVPProps {
   config: {
     heroImage: string;
@@ -41,15 +40,18 @@ export function RSVP({ config }: RSVPProps) {
     message: "",
   });
 
-  // EFECTO PARA QUITAR EL SCROLL
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -125,7 +127,6 @@ export function RSVP({ config }: RSVPProps) {
       <div className="container mx-auto px-6 relative z-10 flex justify-center">
         <div className="flex flex-col items-center">
           
-          {/* MARCO REDONDO - mb-8 a mb-6 para acercar */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -150,7 +151,6 @@ export function RSVP({ config }: RSVPProps) {
             <h2 className="text-2xl md:text-4xl font-serif italic text-white mb-2 drop-shadow-md">
               ¿Nos acompañas?
             </h2>
-            {/* mb-8 a mb-6 para acercar el botón */}
             <p className="text-[#b5a47a] text-[10px] md:text-[11px] uppercase font-bold tracking-[0.2em] mb-6 drop-shadow-sm opacity-90">
               Confirmar asistencia antes del {formattedDate}
             </p>
@@ -176,13 +176,13 @@ export function RSVP({ config }: RSVPProps) {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={handleClose} 
-              className="absolute inset-0 bg-black/95 backdrop-blur-md" 
+              className="absolute inset-0 bg-black/95 backdrop-blur-md touch-none" 
             />
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
               exit={{ scale: 0.95, opacity: 0, y: 20 }} 
-              className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden touch-auto"
             >
               <button 
                 onClick={handleClose}

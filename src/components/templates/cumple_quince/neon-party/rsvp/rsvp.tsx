@@ -40,14 +40,19 @@ export function RSVP({ config }: RSVPProps) {
     message: "",
   });
 
-  // --- LÓGICA PARA BLOQUEAR SCROLL ---
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
@@ -197,18 +202,17 @@ export function RSVP({ config }: RSVPProps) {
         <NeonDivider />
       </section>
 
-      {/* MODAL GLOBAL FUERA DEL SECTION */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
             
-            {/* OVERLAY: Radial Dorado/Negro como los anteriores */}
+            {/* OVERLAY con touch-none para evitar scroll por gestos táctiles */}
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               onClick={handleClose} 
-              className="fixed inset-0 backdrop-blur-md"
+              className="fixed inset-0 backdrop-blur-md touch-none"
               style={{
                 background: "radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, rgba(0, 0, 0, 0.95) 100%)"
               }}
@@ -218,7 +222,8 @@ export function RSVP({ config }: RSVPProps) {
               initial={{ opacity: 0, scale: 0.9, y: 50 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.9, y: 50 }}
-              className="relative w-full max-w-md bg-[#0c001a] rounded-[3rem] shadow-[0_0_80px_rgba(147,51,234,0.3)] overflow-hidden border border-purple-500/30 z-[100000]"
+              className="relative w-full max-w-md bg-[#0c001a] rounded-[3rem] shadow-[0_0_80px_rgba(147,51,234,0.3)] overflow-hidden border border-purple-500/30 z-10 touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               {!isValidated ? (
                 <div className="p-10 text-center">

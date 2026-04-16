@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Volume2, VolumeX, Film, Zap, X, Sparkles, 
-  Play, Pause, Maximize // Nuevos iconos
+  Play, Pause, Maximize 
 } from "lucide-react";
 import Image from "next/image";
 
@@ -23,12 +23,23 @@ const NeonDivider = () => (
 
 export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true); // Estado para play/pause
+  const [isPlaying, setIsPlaying] = useState(true);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // --- BLOQUEO DE SCROLL ROBUSTO ---
   useEffect(() => {
-    document.body.style.overflow = selectedImg ? "hidden" : "unset";
+    if (selectedImg) {
+      document.documentElement.classList.add("overflow-hidden");
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.documentElement.classList.remove("overflow-hidden");
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      document.documentElement.classList.remove("overflow-hidden");
+      document.body.classList.remove("overflow-hidden");
+    };
   }, [selectedImg]);
 
   const fotos = useMemo((): string[] => {
@@ -47,7 +58,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
     return [...baseFotos, ...baseFotos, ...baseFotos];
   }, [images]);
 
-  // --- FUNCIONES DE CONTROL ---
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
@@ -79,7 +89,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   return (
     <section className="relative py-16 bg-[#0c001a] overflow-hidden font-sans">
       
-      {/* Fondo Decorativo Grilla */}
       <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(#9333ea_1px,transparent_1px),linear-gradient(90deg,#9333ea_1px,transparent_1px)] bg-[size:30px_30px]" />
       </div>
@@ -94,7 +103,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </h3>
       </div>
 
-      {/* --- CARRUSEL --- */}
       <div className="relative z-30 py-10"> 
         <div className="flex whitespace-nowrap overflow-hidden group">
           <div className="flex gap-6 animate-marquee-infinite group-hover:[animation-play-state:paused] py-2">
@@ -131,7 +139,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       </div>
 
-      {/* --- VIDEO --- */}
       <div className="mt-8 container mx-auto px-6 relative z-10">
         <div className="max-w-3xl mx-auto">
           <div className="relative group p-1 bg-gradient-to-br from-purple-500/10 to-transparent rounded-[2rem]">
@@ -147,13 +154,11 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
                     loop muted={isMuted} autoPlay playsInline 
                   />
                   
-                  {/* BOTONES DE CONTROL */}
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="flex gap-2">
                       <button 
                         onClick={togglePlay} 
                         className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
-                        title={isPlaying ? "Pausar" : "Reproducir"}
                       >
                         {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                       </button>
@@ -161,7 +166,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
                       <button 
                         onClick={toggleMute} 
                         className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
-                        title={isMuted ? "Activar Sonido" : "Silenciar"}
                       >
                         {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                       </button>
@@ -170,7 +174,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
                     <button 
                       onClick={handleFullscreen} 
                       className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
-                      title="Pantalla completa"
                     >
                       <Maximize size={18} />
                     </button>
@@ -187,25 +190,41 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       </div>
 
-      {/* MODAL FULLSCREEN FOTO */}
+      {/* MODAL CON SOLUCIÓN TOUCH-NONE */}
       <AnimatePresence>
         {selectedImg && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setSelectedImg(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4"
-          >
-            <button className="absolute top-5 right-5 text-white/50 hover:text-white transition-colors">
-              <X size={32} />
-            </button>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Fondo / Overlay: touch-none desactiva el scroll táctil por completo */}
             <motion.div 
-              initial={{ scale: 0.9 }} animate={{ scale: 1 }} 
-              className="relative w-full h-[80vh]"
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedImg(null)}
+              className="fixed inset-0 bg-black/90 backdrop-blur-md touch-none"
+            />
+            
+            {/* Contenido del Modal: touch-auto para permitir interacción dentro */}
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full h-[80vh] z-10 touch-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <Image src={selectedImg} alt="Preview" fill className="object-contain" />
+              <button 
+                onClick={() => setSelectedImg(null)}
+                className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors"
+              >
+                <X size={32} />
+              </button>
+              <Image 
+                src={selectedImg} 
+                alt="Preview" 
+                fill 
+                className="object-contain" 
+              />
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
       <NeonDivider />

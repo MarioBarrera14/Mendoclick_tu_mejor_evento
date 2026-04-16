@@ -19,15 +19,21 @@ export function Details({ config }: DetailsProps) {
   const [activeModal, setActiveModal] = useState<"dress" | "gift" | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
-  // --- LÓGICA PARA BLOQUEAR SCROLL ---
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (activeModal) {
+      // Bloqueamos ambos para asegurar compatibilidad en móviles y desktop
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
+
+    // Cleanup: Al desmontar el componente, nos aseguramos de devolver el scroll
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [activeModal]);
 
@@ -41,7 +47,7 @@ export function Details({ config }: DetailsProps) {
   return (
     <section className="relative py-24 md:py-24 bg-white overflow-hidden font-sans">
       
-      {/* LA FRANJA INCLINADA - Ajustada para mejor transición */}
+      {/* LA FRANJA INCLINADA */}
       <div 
         className="absolute inset-0 bg-[#d1d1d1] z-0"
         style={{ 
@@ -108,24 +114,25 @@ export function Details({ config }: DetailsProps) {
         {activeModal && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             
-            {/* OVERLAY: Cobertura total con degradado Champagne/Noir */}
+            {/* OVERLAY: touch-none evita scroll táctil en el fondo */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setActiveModal(null)}
-              className="fixed inset-0 backdrop-blur-md"
+              className="fixed inset-0 backdrop-blur-md touch-none"
               style={{
                 background: "radial-gradient(circle, rgba(180, 161, 120, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%)"
               }}
             />
 
-            {/* CAJA DEL MODAL */}
+            {/* CAJA DEL MODAL: touch-auto permite scroll interno si el contenido crece */}
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white w-full max-w-sm p-8 rounded-sm shadow-2xl text-center text-gray-800 z-[10000]"
+              className="relative bg-white w-full max-w-sm p-8 rounded-sm shadow-2xl text-center text-gray-800 z-[10000] touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setActiveModal(null)} 

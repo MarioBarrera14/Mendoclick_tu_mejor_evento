@@ -19,15 +19,19 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
 
-  // --- LÓGICA PARA QUITAR EL SCROLL ---
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
+
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -160,13 +164,13 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => !isSending && setIsOpen(false)}
-                className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100]"
+                className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] touch-none"
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="fixed inset-0 m-auto w-[95%] max-w-md h-fit bg-[#fdfcf0] border-4 border-black p-8 z-[101] shadow-[15px_15px_0px_0px_#a02133]"
+                className="fixed inset-0 m-auto w-[95%] max-w-md h-fit bg-[#fdfcf0] border-4 border-black p-8 z-[101] shadow-[15px_15px_0px_0px_#a02133] touch-auto"
               >
                 <button 
                   onClick={() => setIsOpen(false)} 

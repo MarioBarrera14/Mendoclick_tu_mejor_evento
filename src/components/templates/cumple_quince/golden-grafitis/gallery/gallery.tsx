@@ -22,16 +22,18 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
   const videoRef = useRef<HTMLVideoElement>(null);
   const graffitiColor = "#4B664B"; 
 
-  // --- SOLUCIÓN PARA BLOQUEAR EL SCROLL ---
+  // --- SOLUCIÓN ROBUSTA PARA BLOQUEAR EL SCROLL (HTML + BODY) ---
   useEffect(() => {
     if (selectedImg || isVideoModalOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    // Limpieza al desmontar el componente
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [selectedImg, isVideoModalOpen]);
 
@@ -132,30 +134,39 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
       {/* MODALES */}
       <AnimatePresence>
         {selectedImg && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setSelectedImg(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 touch-none"
-          >
-            <X className="absolute top-6 right-6 text-white/70 w-8 h-8 cursor-pointer z-[110]" />
-            <div className="relative w-full max-w-4xl h-[85vh]">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSelectedImg(null)}
+              className="fixed inset-0 bg-black/90 backdrop-blur-sm touch-none"
+            />
+            <X className="absolute top-6 right-6 text-white/70 w-8 h-8 cursor-pointer z-[110]" onClick={() => setSelectedImg(null)} />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl h-[85vh] z-10 touch-auto"
+            >
               <Image src={selectedImg} alt="Imagen seleccionada" fill className="object-contain rounded-lg" />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
 
         {isVideoModalOpen && videoUrl && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 touch-none"
-          >
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsVideoModalOpen(false)}
+              className="fixed inset-0 bg-black/95 backdrop-blur-md touch-none"
+            />
             <button onClick={() => setIsVideoModalOpen(false)} className="absolute top-6 right-6 text-white/50 hover:text-white z-[120]">
               <X size={40} />
             </button>
-            <div className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden shadow-2xl">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden shadow-2xl z-10 touch-auto"
+            >
               <video src={videoUrl} className="w-full h-full" controls autoPlay />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </section>

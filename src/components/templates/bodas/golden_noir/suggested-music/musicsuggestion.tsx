@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react"; // 1. Importar useEffect
+import { useState, useEffect } from "react"; 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, KeyRound, Music as MusicIcon } from "lucide-react";
 import { submitSongSuggestions } from "@/actions/songs.actions";
-
 import Swal from "sweetalert2";
 
 interface MusicSuggestionProps {
@@ -25,18 +24,19 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
 
-  // --- LÓGICA PARA QUITAR EL SCROLL ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
-  // ------------------------------------
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,7 +80,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
   return (
     <section className="relative py-12 md:py-20 overflow-hidden bg-transparent">
-      {/* FONDO UNIFICADO MANTENIDO */}
       <div className="absolute inset-0 z-0 bg-fixed bg-cover bg-center pointer-events-none opacity-40 grayscale" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
       <SpeedLinesBackground />
@@ -93,7 +92,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           className="flex flex-col items-center group cursor-pointer relative"
           onClick={() => setIsOpen(true)}
         >
-          {/* mb-6 a mb-4 para acercar componentes */}
           <div className="relative z-10 bg-[#fcfaf2] p-3 md:p-4 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] mb-4 aspect-square flex items-center justify-center">
             <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
             <div className="absolute inset-5 md:inset-6 border border-black/80 rounded-full z-10 pointer-events-none" />
@@ -117,83 +115,85 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
       <AnimatePresence>
         {isOpen && (
-          <>
+          <div key="modal-container" className="fixed inset-0 z-[100] flex items-center justify-center">
+            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => !isSending && setIsOpen(false)}
-              className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100]"
+              className="absolute inset-0 bg-black/90 backdrop-blur-md touch-none"
             />
+            
+            {/* Modal Content */}
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              className="fixed inset-x-0 bottom-0 md:inset-0 m-auto w-full md:w-[92%] max-w-md h-fit bg-[#fdfcf9] z-[101] rounded-t-[2.5rem] md:rounded-[2rem] shadow-2xl overflow-hidden border-t border-white/20"
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="relative w-full md:w-[92%] max-w-md h-fit bg-[#fdfcf9] rounded-t-[2.5rem] md:rounded-[2rem] shadow-2xl overflow-hidden border-t border-white/20 touch-auto p-8 md:p-10 text-center"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setIsOpen(false)} 
-                className="absolute top-6 right-6 text-gray-300 hover:text-[#b5a47a] transition-colors p-2"
+                className="absolute top-6 right-6 text-gray-400 hover:text-[#b5a47a] transition-colors p-2"
                 disabled={isSending}
               >
                 <X size={20} />
               </button>
 
-              <div className="p-8 md:p-10 text-center">
-                <header className="mb-6">
-                  <h4 className="text-2xl md:text-3xl font-serif text-gray-900 tracking-tight italic">
-                    Sugerencias Musicales
-                  </h4>
-                  <div className="w-12 h-[1px] bg-[#b5a47a]/60 mx-auto my-3" />
-                  <p className="text-[#b5a47a] text-[9px] uppercase tracking-[0.4em] font-semibold">Ready for the Party</p>
-                </header>
+              <header className="mb-6">
+                <h4 className="text-2xl md:text-3xl font-serif text-gray-900 tracking-tight italic">
+                  Sugerencias Musicales
+                </h4>
+                <div className="w-12 h-[1px] bg-[#b5a47a]/60 mx-auto my-3" />
+                <p className="text-[#b5a47a] text-[9px] uppercase tracking-[0.4em] font-semibold">Ready for the Party</p>
+              </header>
 
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                  <div className="space-y-1.5 text-left">
-                    <label className="text-[8px] uppercase font-bold text-[#b5a47a] tracking-[0.2em] ml-1">Validar Identidad</label>
-                    <div className="relative group">
-                      <KeyRound size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b5a47a]/60 group-focus-within:text-[#b5a47a] transition-colors" />
-                      <input 
-                        type="text" 
-                        value={guestCode}
-                        onChange={(e) => setGuestCode(e.target.value)}
-                        placeholder="INGRESA TU CÓDIGO AQUÍ" 
-                        className="w-full bg-white border border-gray-100 pl-11 pr-4 py-4 rounded-2xl text-xs uppercase tracking-widest focus:outline-none focus:border-[#b5a47a]/40 focus:ring-4 focus:ring-[#b5a47a]/5 transition-all shadow-sm text-black" 
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-[8px] uppercase font-bold text-[#b5a47a] tracking-[0.2em] ml-1">Validar Identidad</label>
+                  <div className="relative group">
+                    <KeyRound size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b5a47a]/60 group-focus-within:text-[#b5a47a] transition-colors" />
+                    <input 
+                      type="text" 
+                      value={guestCode}
+                      onChange={(e) => setGuestCode(e.target.value)}
+                      placeholder="INGRESA TU CÓDIGO AQUÍ" 
+                      className="w-full bg-white border border-gray-100 pl-11 pr-4 py-4 rounded-2xl text-xs uppercase tracking-widest focus:outline-none focus:border-[#b5a47a]/40 focus:ring-4 focus:ring-[#b5a47a]/5 transition-all shadow-sm text-black" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <p className="text-[8px] uppercase font-bold text-gray-400 tracking-[0.2em] text-center">Top 3 para la pista</p>
+                  {[1, 2, 3].map((num) => (
+                    <div key={num} className="relative">
+                      <input
+                        type="text"
+                        name={`tema${num}`}
+                        value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
+                        onChange={handleChange}
+                        placeholder={`Canción o artista #${num}`}
+                        className="w-full bg-white border border-gray-100 px-5 py-3 rounded-xl text-[13px] italic text-gray-600 placeholder:text-gray-300 focus:outline-none focus:border-[#b5a47a]/30 transition-all shadow-sm"
                       />
                     </div>
-                  </div>
-
-                  <div className="space-y-2 pt-2">
-                    <p className="text-[8px] uppercase font-bold text-gray-400 tracking-[0.2em] text-center">Top 3 para la pista</p>
-                    {[1, 2, 3].map((num) => (
-                      <div key={num} className="relative">
-                        <input
-                          type="text"
-                          name={`tema${num}`}
-                          value={num === 1 ? songs.tema1 : num === 2 ? songs.tema2 : songs.tema3}
-                          onChange={handleChange}
-                          placeholder={`Canción o artista #${num}`}
-                          className="w-full bg-white border border-gray-100 px-5 py-3 rounded-xl text-[13px] italic text-gray-600 placeholder:text-gray-300 focus:outline-none focus:border-[#b5a47a]/30 transition-all shadow-sm"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      disabled={isSending}
-                      className="w-full py-4 bg-gradient-to-r from-gray-900 to-black text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.01] active:scale-95 disabled:opacity-50 transition-all duration-300 flex items-center justify-center gap-3"
-                    >
-                      {isSending ? <Loader2 className="animate-spin" size={16} /> : <Send size={14} className="opacity-80" />}
-                      {isSending ? "PROCESANDO..." : "ENVIAR AL DJ"}
-                    </button>
-                    <p className="mt-4 text-[7px] text-gray-300 uppercase tracking-widest">Tu música hace la fiesta</p>
-                  </div>
-                </form>
-              </div>
+                  ))}
+                </div>
+                
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    className="w-full py-4 bg-gradient-to-r from-gray-900 to-black text-white text-[10px] font-bold uppercase tracking-[0.4em] rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.01] active:scale-95 disabled:opacity-50 transition-all duration-300 flex items-center justify-center gap-3"
+                  >
+                    {isSending ? <Loader2 className="animate-spin" size={16} /> : <Send size={14} className="opacity-80" />}
+                    {isSending ? "PROCESANDO..." : "ENVIAR AL DJ"}
+                  </button>
+                  <p className="mt-4 text-[7px] text-gray-300 uppercase tracking-widest">Tu música hace la fiesta</p>
+                </div>
+              </form>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </section>

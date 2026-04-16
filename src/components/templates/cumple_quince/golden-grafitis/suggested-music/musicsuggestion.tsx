@@ -19,15 +19,18 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
   const [mounted, setMounted] = useState(false);
 
-  // BLOQUEO DE SCROLL AL ABRIR EL MODAL
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -64,7 +67,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           confirmButtonColor: "#5ba394"
         });
       } else {
-        // Manejo de error de duplicados o código inválido
         Swal.fire({ 
           title: result.error?.includes("recibimos") ? "AVISO" : "ERROR", 
           text: result.error || "Código inválido", 
@@ -134,18 +136,22 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay: touch-none evita scroll táctil de fondo */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => !isSending && setIsOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm touch-none"
             />
+            
+            {/* Contenido: touch-auto permite scroll interno si el contenido crece */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40"
+              className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setIsOpen(false)} 

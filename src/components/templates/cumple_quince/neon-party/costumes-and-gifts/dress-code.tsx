@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Check, X, Shirt, Gift, Zap, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 
-// --- INTERFAZ CONECTADA AL SCHEMA ---
 interface DetailsProps {
   config: {
     dressCode?: string | null;
@@ -17,24 +16,50 @@ interface DetailsProps {
 }
 
 function DetailModal({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
-  // Bloqueo de scroll al abrir el modal
+  
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
+    if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100]" />
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="fixed inset-0 m-auto w-[90%] max-w-md h-fit bg-[#0c001a] p-8 md:p-10 z-[101] rounded-[2.5rem] shadow-2xl border border-purple-500/30 text-center">
-            <button onClick={onClose} className="absolute top-6 right-6 text-purple-500/40 hover:text-purple-400 transition-colors"><X size={24} /></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Overlay con touch-none para blindar el scroll táctil de fondo */}
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            onClick={onClose} 
+            className="absolute inset-0 bg-black/90 backdrop-blur-md touch-none" 
+          />
+          
+          {/* Contenedor del Modal con touch-auto para permitir interacción interna */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 10 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 10 }} 
+            className="relative w-full max-w-md bg-[#0c001a] p-8 md:p-10 rounded-[2.5rem] shadow-2xl border border-purple-500/30 text-center z-10 touch-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={onClose} className="absolute top-6 right-6 text-purple-500/40 hover:text-purple-400 transition-colors">
+              <X size={24} />
+            </button>
             <h3 className="text-3xl font-black italic text-white mb-6 tracking-tighter uppercase">{title}</h3>
             <div className="text-purple-100/70 text-sm font-medium leading-relaxed">{children}</div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
@@ -65,7 +90,6 @@ export function Details({ config }: DetailsProps) {
   return (
     <section className="relative min-h-[60vh] flex flex-col items-center justify-center py-16 bg-[#0c001a] overflow-hidden">
       
-      {/* FONDO CON IMAGEN Y OVERLAY DINÁMICO */}
       <div className="absolute inset-0 z-0">
         <img 
           src="/regalosyropa.png" 
@@ -85,7 +109,6 @@ export function Details({ config }: DetailsProps) {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
-          {/* CARD: DRESS CODE */}
           <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="group bg-black/50 backdrop-blur-md border border-purple-500/20 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-purple-500/50 transition-all">
             <Shirt size={28} className="text-purple-500 mb-4" />
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 italic mb-2">// Estilo</p>
@@ -97,7 +120,6 @@ export function Details({ config }: DetailsProps) {
             </button>
           </motion.div>
 
-          {/* CARD: REGALOS */}
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="group bg-black/50 backdrop-blur-md border border-purple-500/20 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-purple-500/50 transition-all">
             <Gift size={28} className="text-purple-500 mb-4" />
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 italic mb-2">// Presentes</p>
@@ -109,7 +131,6 @@ export function Details({ config }: DetailsProps) {
         </div>
       </div>
 
-      {/* MODALES DINÁMICOS */}
       <DetailModal isOpen={activeModal === "dress"} onClose={() => setActiveModal(null)} title="Dress Code">
         <div className="bg-purple-600/10 p-5 rounded-2xl border border-purple-500/20 mb-4 text-white text-2xl font-black italic uppercase leading-none">
           {config.dressCode || "Elegante"}

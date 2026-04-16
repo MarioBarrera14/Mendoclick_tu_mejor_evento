@@ -44,7 +44,6 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
       onClick={onOpen}
       className="relative flex flex-col items-center group cursor-pointer"
     >
-      {/* Reducido mb-6 a mb-4 para acercar la imagen al texto */}
       <div className="relative bg-[#fcfaf2] p-2 md:p-3 rounded-full shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/5 transition-all duration-500 group-hover:scale-[1.05] group-hover:shadow-[0_35px_65px_-12px_rgba(0,0,0,0.9)] mb-4 aspect-square flex items-center justify-center z-10">
         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.1)] z-10 rounded-full pointer-events-none" />
         <div className="absolute inset-4 md:inset-5 border border-black/80 rounded-full z-10 pointer-events-none" />
@@ -60,7 +59,6 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
       </div>
 
       <div className="text-center px-2 relative z-10">
-        {/* Reducido mb-2 a mb-1 */}
         <div className="mb-1 text-[#b5a47a] flex justify-center drop-shadow-md transition-transform duration-500 group-hover:scale-110">
           {location.icon}
         </div>
@@ -79,14 +77,19 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
 export function LocationsSection({ config }: LocationsSectionProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
 
-  // EFECTO PARA QUITAR EL SCROLL
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (selectedLocation) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = "unset"; };
+    return () => { 
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = ""; 
+    };
   }, [selectedLocation]);
 
   const locations: LocationData[] = [];
@@ -116,13 +119,11 @@ export function LocationsSection({ config }: LocationsSectionProps) {
   }
 
   return (
-    // Reducido py-20/28 a py-12/16 para acercar la sección a las de arriba/abajo
     <section className="relative py-12 md:py-16 bg-transparent overflow-hidden">
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-black via-black/40 to-black pointer-events-none" />
       <SpeedLinesBackground />
 
       <div className="container mx-auto px-6 relative z-10">
-        {/* Reducido gap-12 a gap-6 para acercar las dos tarjetas entre sí */}
         <div className={`grid grid-cols-1 ${locations.length > 1 ? 'md:grid-cols-2' : 'max-w-md'} gap-6 lg:gap-10 items-center justify-center mx-auto`}>
           {locations.map((loc, index) => (
             <LocationCard key={index} location={loc} onOpen={() => setSelectedLocation(loc)} />
@@ -133,17 +134,18 @@ export function LocationsSection({ config }: LocationsSectionProps) {
       <AnimatePresence>
         {selectedLocation && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* touch-none para evitar scroll por gestos en el overlay */}
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSelectedLocation(null)}
-              className="absolute inset-0 bg-black/95 backdrop-blur-md"
+              className="absolute inset-0 bg-black/95 backdrop-blur-md touch-none"
             />
 
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[2rem] overflow-hidden shadow-2xl"
+              className="relative w-full max-w-lg bg-white rounded-[2rem] overflow-hidden shadow-2xl touch-auto"
             >
               <button onClick={() => setSelectedLocation(null)} className="absolute top-6 right-6 z-50 p-2 text-gray-400 hover:text-black">
                 <X size={24} />

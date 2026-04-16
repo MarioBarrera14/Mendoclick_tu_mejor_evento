@@ -19,14 +19,19 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
   useEffect(() => { setMounted(true); }, []);
 
-  // BLOQUEO DE SCROLL AL ABRIR EL MODAL
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const bars = Array.from({ length: 30 });
@@ -63,7 +68,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           confirmButtonColor: "#b4a178" 
         });
       } else {
-        // Manejo de error cuando ya enviaron música o código inválido
         Swal.fire({ 
           title: result.error?.includes("recibimos") ? "AVISO" : "ERROR", 
           text: result.error || "Código inválido", 
@@ -138,14 +142,16 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay con touch-none para evitar scroll por gestos */}
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm touch-none"
               onClick={() => !isSending && setIsOpen(false)}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-white p-8 rounded-sm shadow-2xl text-center"
+              className="relative w-full max-w-sm bg-white p-8 rounded-sm shadow-2xl text-center touch-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setIsOpen(false)} 

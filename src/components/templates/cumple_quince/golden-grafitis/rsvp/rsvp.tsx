@@ -27,10 +27,19 @@ export function RSVP({ config }: RSVPProps) {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"CONFIRMED" | "CANCELLED">("CONFIRMED");
 
+  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "unset";
-    return () => { document.body.style.overflow = "unset"; };
+    if (isOpen) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const handleClose = () => {
@@ -79,8 +88,8 @@ export function RSVP({ config }: RSVPProps) {
           code: guestCode,
           status: status,
           confirmados: status === "CONFIRMED" ? confirmados : 0,
-          dietary: dietary, // Solo llega la comida
-          message: message, // Mensaje lindo
+          dietary: dietary,
+          message: message,
           name: guestData.nombre
         })
       });
@@ -126,8 +135,10 @@ export function RSVP({ config }: RSVPProps) {
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 40 }} className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 text-center">
+            {/* Overlay: touch-none evita scroll táctil de fondo */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm touch-none" />
+            
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 40 }} className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 text-center touch-auto" onClick={(e) => e.stopPropagation()}>
               <button onClick={handleClose} className="absolute top-4 right-4 text-zinc-400 hover:text-black transition-colors"><X size={24} /></button>
               
               {!isValidated ? (
@@ -148,7 +159,7 @@ export function RSVP({ config }: RSVPProps) {
                     </div>
 
                     {status === "CONFIRMED" && (
-                        <div className="space-y-4">
+                        <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                             <div>
                                 <label className="text-[9px] font-black text-black/60 uppercase tracking-widest ml-2 mb-1 flex items-center gap-2"><Users size={14} className="text-[#5ba394]"/> Invitados</label>
                                 <select value={confirmados} onChange={(e) => setConfirmados(Number(e.target.value))} className="w-full p-3 bg-zinc-50 rounded-xl border-2 border-zinc-200 font-bold text-sm text-black outline-none focus:border-[#5ba394]">
