@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Trash2, Plus, Loader2, Save, ListChecks, AlertTriangle } from "lucide-react";
-import { getItinerary, createItineraryItem, deleteItineraryItem } from "@/actions/intinery.action";
+import { getItinerary, createItineraryItem, deleteItineraryItem } from "@/actions/itinerary.actions";
 import Swal from "sweetalert2";
 
 export default function ItineraryPage() {
