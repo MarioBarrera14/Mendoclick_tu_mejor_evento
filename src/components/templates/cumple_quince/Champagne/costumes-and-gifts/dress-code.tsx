@@ -45,7 +45,7 @@ export function Details({ config }: DetailsProps) {
       <div 
         className="absolute inset-0 bg-[#d1d1d1] z-0"
         style={{ 
-          clipPath: "polygon(0 10%, 100% 0%, 100% 90%, 0% 100%)" 
+          clipPath: "polygon(0 10%, 100% 0%, 100% 120%, 0% 100%)" 
         }}
       />
 
