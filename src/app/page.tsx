@@ -102,7 +102,7 @@ export default function LandingPage() {
               className="text-4xl sm:text-6xl md:text-7xl font-black leading-[1.1] tracking-tighter uppercase italic mb-6"
             >
               Celebraciones <br />
-              <span className="text-transparent [-webkit-text-stroke:1px_#18181b]">Inolvidables.</span>
+              <span className="text-transparent [-webkit-text-stroke:1px_#18181b]">Inolvidables</span>
             </motion.h1>
             
             <div className="flex flex-col items-center md:items-start gap-6 w-full">
