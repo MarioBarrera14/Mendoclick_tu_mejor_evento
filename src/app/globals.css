@@ -1,184 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Mea+Culpa&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Pinyon+Script&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 30 40% 65%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 40%;
-    --radius: 0.5rem;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --border: 240 5.9% 90%;
+    --radius: 0.75rem;
   }
 
   html {
     scroll-behavior: smooth;
+    /* EVITA EL REBOTE LATERAL EN MÓVILES */
+    overflow-x: hidden; 
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: 'Montserrat', sans-serif;
+    /* REGLA MAESTRA ANTISCROLL */
     overflow-x: hidden;
+    width: 100%;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
   }
 
- .font-script {
-  /* Pinyon Script es la más parecida a la foto 2 */
-  font-family: 'Pinyon Script', cursive; 
-  text-transform: none !important; /* La cursiva nunca debe ir en mayúsculas */
-  line-height: 0.7;
-  letter-spacing: normal; /* No separes las letras o se cortará la conexión */
+  /* Asegura que ningún elemento interno rompa el layout */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
-  /* Fuente serif elegante */
+@layer components {
+  /* Fuente Cursiva Elegante (RSVP, Sobres, Títulos) */
+  .font-script {
+    font-family: 'Pinyon Script', cursive;
+    text-transform: none !important;
+    line-height: 0.8;
+    letter-spacing: normal;
+  }
+
+  /* Fuente Serif (Cuerpo de invitación) */
   .font-serif-elegant {
     font-family: 'Cormorant Garamond', serif;
   }
-
-  /* Scrollbar personalizada */
+  
+  /* Scrollbar Minimalista para el Admin */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 5px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #0a0a0a;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 4px;
+    background: #e4e4e7;
+    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #444;
+    background: #d4d4d8;
   }
 }
 
 @layer utilities {
-  /* Efecto de resplandor sutil */
-  .glow {
-    box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  /* Efectos de vidrio (Glassmorphism) */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
   }
 
-  /* Texto con gradiente */
-  .text-gradient {
-    background: linear-gradient(135deg, #fff 0%, #999 100%);
+  /* Texto con gradiente Champagne */
+  .text-champagne {
+    background: linear-gradient(135deg, #dcd0b9 0%, #b4a178 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 
-  /* Animación de brillo */
-  .shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .shimmer::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    transform: translateX(-100%);
-    animation: shimmer 3s infinite;
-  }
-
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  /* Línea decorativa animada */
-  .decorative-line {
-    position: relative;
-  }
-
-  .decorative-line::before,
-  .decorative-line::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 60px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  }
-
-  .decorative-line::before {
-    right: calc(100% + 20px);
-  }
-
-  .decorative-line::after {
-    left: calc(100% + 20px);
+  /* Sombra suave para las tarjetas del catálogo */
+  .shadow-soft {
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
   }
 }
 
-/* Animaciones suaves para elementos que aparecen en pantalla */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+/* Fix para Safari Mobile (Evita que el menú se esconda raro) */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Estilo para imágenes de fondo con overlay */
-.bg-overlay {
-  position: relative;
-}
-
-.bg-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.3) 0%,
-    rgba(0,0,0,0.6) 100%
-  );
-  pointer-events: none;
 }
