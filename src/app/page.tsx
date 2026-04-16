@@ -92,23 +92,21 @@ export default function LandingPage() {
         </AnimatePresence>
       </nav>
 
-      {/* --- HERO CENTRADO EN MOBILE --- */}
-      <header className="relative pt-20 md:pt-36 pb-10 px-2 overflow-hidden">
+      {/* --- HERO TOTALMENTE CENTRADO --- */}
+      <header className="relative pt-24 md:pt-36 pb-12 px-4 overflow-hidden text-center md:text-left">
         <div className="absolute top-10 right-[-5%] w-48 h-48 bg-rose-100/30 rounded-full blur-[60px] -z-10" />
-        <div className="container mx-auto">
-          {/* text-center para mobile, text-left para desktop */}
-          <div className="text-center md:text-left">
+        <div className="container mx-auto flex flex-col items-center md:items-start">
             <motion.h1 
               initial={{ opacity: 0, y: 15 }} 
               animate={{ opacity: 1, y: 0 }} 
               className="text-4xl sm:text-6xl md:text-7xl font-black leading-[1.1] tracking-tighter uppercase italic mb-6"
             >
               Celebraciones <br />
-              <span className="text-transparent [-webkit-text-stroke:1px_#18181b]">Inolvidables</span>
+              <span className="text-transparent [-webkit-text-stroke:1px_#18181b]">Inolvidables.</span>
             </motion.h1>
             
-            <div className="flex flex-col md:flex-row gap-6 items-center md:items-center">
-              <p className="text-zinc-500 font-medium text-xs md:text-sm leading-relaxed max-w-sm">
+            <div className="flex flex-col items-center md:items-start gap-6 w-full">
+              <p className="text-zinc-500 font-medium text-xs md:text-sm leading-relaxed max-w-sm mx-auto md:mx-0">
                 Invitaciones digitales de vanguardia para Mendoza. Experiencias interactivas que elevan el nivel de tu evento.
               </p>
               
@@ -119,15 +117,14 @@ export default function LandingPage() {
                 VER CATÁLOGO 2026 <FiArrowRight className="group-hover:translate-x-1 transition-transform" size={16} />
               </Link>
             </div>
-          </div>
         </div>
       </header>
 
-      {/* --- FEATURES --- */}
-      <section id="features" className="py-12 bg-zinc-50 border-y border-zinc-100 px-4 overflow-x-auto custom-scrollbar">
-        <div className="container mx-auto flex lg:grid lg:grid-cols-5 gap-3 min-w-max lg:min-w-full">
+      {/* --- FEATURES RESPONSIVE (SIN SCROLL) --- */}
+      <section id="features" className="py-12 bg-zinc-50 border-y border-zinc-100 px-4">
+        <div className="container mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {features.map((f, i) => (
-            <div key={i} className="bg-white p-4 rounded-[20px] border border-zinc-100 shadow-sm flex flex-col justify-between w-36 h-36 lg:w-auto lg:h-40">
+            <div key={i} className="bg-white p-4 rounded-[20px] border border-zinc-100 shadow-sm flex flex-col justify-between h-36 lg:h-40">
               <div className="bg-rose-50 w-8 h-8 rounded-lg flex items-center justify-center text-rose-500 shrink-0"><f.icon size={16} /></div>
               <div>
                 <p className="text-[6px] font-black uppercase text-zinc-400 mb-1">{f.desc}</p>
@@ -159,8 +156,8 @@ export default function LandingPage() {
                     <img src={item.img} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" alt={item.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80" />
                     <div className="absolute bottom-0 left-0 w-full p-3 md:p-6 z-20">
-                      <p className="text-rose-400 text-[6px] md:text-[8px] font-black tracking-widest mb-1 uppercase">MOD {item.id}</p>
-                      <h3 className="text-[10px] md:text-lg font-black text-white uppercase italic mb-3 leading-tight">{item.title}</h3>
+                      <p className="text-rose-400 text-[6px] md:text-[8px] font-black tracking-widest mb-1 uppercase text-center md:text-left">MOD {item.id}</p>
+                      <h3 className="text-[10px] md:text-lg font-black text-white uppercase italic mb-3 leading-tight text-center md:text-left">{item.title}</h3>
                       <Link href={item.link} className="bg-rose-500 text-white py-2 md:py-3 rounded-lg md:rounded-xl font-black text-[7px] md:text-[9px] text-center tracking-widest uppercase block shadow-lg">
                         PREVIEW
                       </Link>
