@@ -9,7 +9,7 @@ import {
   FiMenu, FiX, FiInstagram, FiTwitter, FiSend 
 } from 'react-icons/fi';
 
-// --- DEFINICIÓN DE VARIANTES CON TIPADO TSX ---
+// --- VARIANTES CON TIPADO TSX ---
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: (i: number = 1) => ({
@@ -27,17 +27,16 @@ const childVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
 };
 
+// Variantes de vibración: activas en hover (PC) y tap (Mobile)
 const phoneShakeVariants: Variants = {
-  hover: {
+  vibrate: {
     rotate: [0, -1, 1, -1, 1, 0],
-    transition: { duration: 0.4, repeat: Infinity }
+    transition: { duration: 0.4, repeat: Infinity, ease: "linear" }
   }
 };
 
-// --- COMPONENTE TELEPROMPTER ---
 const WordByWord = ({ text, className, isTransparent = false }: { text: string, className?: string, isTransparent?: boolean }) => {
   const words = text.split(" ");
-
   return (
     <motion.div
       variants={containerVariants}
@@ -95,7 +94,7 @@ export default function LuxuryLanding() {
           <div className="hidden md:flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400">
              <a href="#modelos" className="hover:text-white transition">Modelos</a>
              <a href="#experiencia" className="hover:text-white transition">Tecnología</a>
-             <Link href="https://wa.me/tu-numero" className="bg-white text-black px-6 py-2 rounded-full hover:bg-red-600 hover:text-white transition-all font-bold">CONTACTO</Link>
+             <Link href="https://wa.me/tu-numero" className="bg-white text-black px-6 py-2 rounded-full hover:bg-red-600 hover:text-white transition-all font-bold tracking-widest">CONTACTO</Link>
           </div>
         </div>
       </nav>
@@ -112,15 +111,15 @@ export default function LuxuryLanding() {
             No enviamos un link. Entregamos una <span className="text-white italic font-bold underline decoration-red-600 underline-offset-4">experiencia inmersiva</span>.
           </p>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
-            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-6 py-4 rounded-2xl w-full max-w-[280px] group hover:border-red-600/30 transition-all">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full max-w-lg mx-auto">
+            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-6 py-4 rounded-2xl w-full group hover:border-red-600/30 transition-all">
               <FiSmartphone className="text-red-600 text-2xl shrink-0" />
               <div className="text-left">
                 <p className="text-zinc-500 text-[8px] font-black uppercase leading-none mb-1">INTERFACE</p>
                 <p className="text-white text-[10px] font-black uppercase tracking-wider">MOBILE FIRST UX</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-6 py-4 rounded-2xl w-full max-w-[280px] group hover:border-red-600/30 transition-all">
+            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-6 py-4 rounded-2xl w-full group hover:border-red-600/30 transition-all">
               <FiPlayCircle className="text-red-600 text-2xl shrink-0" />
               <div className="text-left">
                 <p className="text-zinc-500 text-[8px] font-black uppercase leading-none mb-1">MEDIA</p>
@@ -159,8 +158,10 @@ export default function LuxuryLanding() {
                   exit={{ opacity: 0, scale: 0.95 }} 
                   className="flex justify-center w-full"
                 >
+                  {/* AQUÍ ESTÁ LA VIBRACIÓN PARA PC Y MÓVIL */}
                   <motion.div 
-                    whileHover="hover"
+                    whileHover="vibrate"
+                    whileTap="vibrate"
                     variants={phoneShakeVariants}
                     className="group relative w-full max-w-[280px] cursor-pointer"
                   >
@@ -219,11 +220,11 @@ export default function LuxuryLanding() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
+      {/* --- FOOTER CENTRADO --- */}
       <footer className="bg-[#020202] border-t border-white/5 pt-20 pb-10 text-center md:text-left">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-12 mb-16 items-center md:items-start">
-            <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start">
+            <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start text-center md:text-left">
               <div className="flex items-center gap-3 mb-6 justify-center md:justify-start">
                 <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center font-black italic text-xl shadow-[0_0_15px_rgba(220,38,38,0.4)] text-white">M</div>
                 <span className="text-2xl font-black uppercase italic tracking-tighter">MENDO<span className="text-red-600">CLICK</span></span>
@@ -245,21 +246,19 @@ export default function LuxuryLanding() {
             </div>
 
             <div className="flex flex-col items-center md:items-start">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white mb-8 underline md:no-underline decoration-red-600 underline-offset-8">Navegación</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white mb-8">Navegación</h4>
               <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                 <li><a href="#" className="hover:text-red-600 transition">Inicio</a></li>
                 <li><a href="#modelos" className="hover:text-red-600 transition">Colección</a></li>
                 <li><a href="#experiencia" className="hover:text-red-600 transition">Tecnología</a></li>
-                <li><Link href="/demo" className="hover:text-red-600 transition">Demos</Link></li>
               </ul>
             </div>
 
             <div className="flex flex-col items-center md:items-start">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white mb-8 underline md:no-underline decoration-red-600 underline-offset-8">Contacto</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white mb-8">Contacto</h4>
               <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                 <li className="italic text-white underline decoration-red-600 underline-offset-4">info@mendoclick.com.ar</li>
                 <li>WhatsApp Business</li>
-                <li>Soporte 24/7</li>
                 <li>Mendoza, Argentina</li>
               </ul>
             </div>
@@ -267,12 +266,8 @@ export default function LuxuryLanding() {
 
           <div className="border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center w-full">
             <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.5em] px-4">
-              © 2026 MendoClick Digital Couture. Todos los derechos reservados.
+              © 2026 MendoClick Studio. Todos los derechos reservados.
             </p>
-            <div className="flex gap-8 text-[9px] font-black uppercase tracking-widest text-zinc-600">
-              <a href="#" className="hover:text-white transition">Privacidad</a>
-              <a href="#" className="hover:text-white transition">Términos</a>
-            </div>
           </div>
         </div>
       </footer>
