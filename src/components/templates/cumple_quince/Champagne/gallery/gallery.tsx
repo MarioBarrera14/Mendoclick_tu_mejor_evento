@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image"; // Importante para Next.js
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -25,7 +26,6 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (selectedImg) {
       document.documentElement.style.overflow = "hidden";
@@ -101,8 +101,27 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </motion.p>
       </div>
 
-      {/* CARRUSEL */}
-      <div className="relative w-full max-w-5xl mx-auto">
+      {/* CARRUSEL CONTAINER */}
+      <div className="relative w-full max-w-6xl mx-auto px-4 md:px-12">
+        
+        {/* BOTONES DE NAVEGACIÓN LATERALES */}
+        <button 
+          onClick={prevStep}
+          className="absolute left-0 md:left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/80 shadow-lg flex items-center justify-center text-gray-800 hover:bg-[#b4a178] hover:text-white transition-all border border-[#b4a178]/20"
+          aria-label="Anterior"
+        >
+          <ChevronLeft size={24} />
+        </button>
+
+        <button 
+          onClick={nextStep}
+          className="absolute right-0 md:right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/80 shadow-lg flex items-center justify-center text-gray-800 hover:bg-[#b4a178] hover:text-white transition-all border border-[#b4a178]/20"
+          aria-label="Siguiente"
+        >
+          <ChevronRight size={24} />
+        </button>
+
+        {/* FOTOS */}
         <div 
           className="flex justify-center gap-1.5 md:gap-3"
           style={{ transform: "skewY(-2deg)" }} 
@@ -117,36 +136,23 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
                 exit={{ opacity: 0 }}
                 onClick={() => setSelectedImg(url)}
               >
-                <img 
+                <Image 
                   src={url} 
-                  className="w-full h-full object-cover transform skew-y-[2deg] scale-110 group-hover:scale-115 transition-transform duration-500" 
-                  alt="Galería"
+                  fill
+                  sizes="(max-width: 768px) 33vw, 30vw"
+                  className="object-cover transform skew-y-[2deg] scale-110 group-hover:scale-115 transition-transform duration-500" 
+                  alt={`Foto galería ${i}`}
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 z-10" />
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
-
-        <div className="absolute inset-0 flex items-center justify-between px-2 md:-mx-10 z-20 pointer-events-none">
-          <button 
-            onClick={prevStep}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center text-white pointer-events-auto hover:bg-[#b4a178] transition-all"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button 
-            onClick={nextStep}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center text-white pointer-events-auto hover:bg-[#b4a178] transition-all"
-          >
-            <ChevronRight size={18} />
-          </button>
         </div>
       </div>
 
       {/* VIDEO */}
       {videoUrl && (
-        <div className="mt-12 container mx-auto px-6 max-w-2xl">
+        <div className="mt-16 container mx-auto px-6 max-w-2xl">
           <div 
             className="relative w-full aspect-video rounded-sm overflow-hidden shadow-lg border-[3px] border-white group"
             style={{ transform: "skewY(-2deg)" }}
@@ -186,28 +192,32 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedImg(null)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-zoom-out touch-none"
+              className="absolute inset-0 bg-black/95 backdrop-blur-md cursor-zoom-out touch-none"
             />
             
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-4xl max-h-[90vh] z-[101] flex items-center justify-center touch-auto"
+              className="relative w-full max-w-4xl h-[80vh] z-[101] flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setSelectedImg(null)}
-                className="absolute -top-12 right-0 md:-right-12 text-white hover:text-[#b4a178] transition-colors p-2"
+                className="absolute -top-14 right-0 text-white hover:text-[#b4a178] transition-colors p-2 z-[102]"
               >
-                <X size={32} />
+                <X size={40} />
               </button>
               
-              <img 
-                src={selectedImg} 
-                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm border-2 border-white/10" 
-                alt="Imagen ampliada"
-              />
+              <div className="relative w-full h-full">
+                <Image 
+                  src={selectedImg} 
+                  fill
+                  className="object-contain" 
+                  alt="Imagen ampliada"
+                  priority
+                />
+              </div>
             </motion.div>
           </div>
         )}
