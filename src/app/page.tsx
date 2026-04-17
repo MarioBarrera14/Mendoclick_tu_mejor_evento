@@ -223,8 +223,8 @@ export default function LuxuryLanding() {
         </div>
       </section>
 
-      {/* --- FOOTER CENTRADO --- */}
-      <footer className="bg-[#020202] border-t border-white/5 pt-20 pb-10 text-center md:text-left">
+{/* --- FOOTER CENTRADO --- */}
+      <footer className="bg-[#020202] border-t border-white/5 pt-20 pb-16 text-center">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-12 mb-16 items-center md:items-start">
             <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start text-center md:text-left">
@@ -232,17 +232,17 @@ export default function LuxuryLanding() {
                 <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center font-black italic text-xl shadow-[0_0_15px_rgba(220,38,38,0.4)] text-white">M</div>
                 <span className="text-2xl font-black uppercase italic tracking-tighter">MENDO<span className="text-red-600">CLICK</span></span>
               </div>
-              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] leading-relaxed max-w-sm mb-8 px-4 md:px-0">
+              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] leading-relaxed max-w-sm mb-8 px-4 md:px-0 text-center md:text-left">
                 Redefiniendo el estándar de las celebraciones digitales en Mendoza. Tecnología, diseño y exclusividad en cada click.
               </p>
-              <div className="flex gap-4 justify-center">
-                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-zinc-400 hover:border-white">
+              <div className="flex gap-4 justify-center md:justify-start w-full">
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all text-zinc-400 hover:border-red-600">
                   <FiInstagram />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-zinc-400 hover:border-white">
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all text-zinc-400 hover:border-red-600">
                   <FiTwitter />
                 </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-zinc-400 hover:border-white">
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all text-zinc-400 hover:border-red-600">
                   <FiSend />
                 </a>
               </div>
@@ -267,24 +267,26 @@ export default function LuxuryLanding() {
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center w-full">
+          <div className="border-t border-white/5 pt-10 flex flex-col justify-center items-center gap-10 text-center w-full">
             <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.5em] px-4">
               © 2026 MendoClick Studio. Todos los derechos reservados.
             </p>
+
+            {/* BOTÓN VOLVER ARRIBA / SELLO CENTRADO Y ROJO */}
+            <motion.button 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              onClick={scrollToTop} 
+              className="group flex flex-col items-center gap-2 text-red-600 hover:scale-110 transition-transform z-30 appearance-none bg-transparent border-none outline-none cursor-pointer"
+            >
+              <ChevronUp className="w-6 h-6 animate-bounce" />
+              <span className="text-[10px] tracking-[0.6em] uppercase font-black italic">
+                Mendoclick
+              </span>
+              <div className="w-8 h-[2px] bg-red-600 mt-1 group-hover:w-12 transition-all duration-300" />
+            </motion.button>
           </div>
         </div>
-                  {/* BOTÓN VOLVER ARRIBA / SELLO MENDOCLICK */}
-          <motion.button 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            onClick={scrollToTop} 
-            className="group flex flex-col items-center gap-1 mt-12 text-gray-400 hover:text-[#b4a178] transition-colors z-30 appearance-none bg-transparent border-none outline-none"
-          >
-            <ChevronUp className="w-5 h-5 animate-bounce" />
-            <span className="text-[8px] tracking-[0.4em] uppercase font-black italic">
-              Mendoclick
-            </span>
-          </motion.button>
       </footer>
     </div>
   );
