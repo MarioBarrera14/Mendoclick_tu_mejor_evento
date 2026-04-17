@@ -8,7 +8,10 @@ import {
   FiArrowRight, FiSmartphone, FiClock, FiMapPin, FiCheckCircle, FiPlayCircle, 
   FiMenu, FiX, FiInstagram, FiTwitter, FiSend 
 } from 'react-icons/fi';
-
+import { ChevronUp } from 'lucide-react';
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 // --- VARIANTES CON TIPADO TSX ---
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -270,6 +273,18 @@ export default function LuxuryLanding() {
             </p>
           </div>
         </div>
+                  {/* BOTÓN VOLVER ARRIBA / SELLO MENDOCLICK */}
+          <motion.button 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            onClick={scrollToTop} 
+            className="group flex flex-col items-center gap-1 mt-12 text-gray-400 hover:text-[#b4a178] transition-colors z-30 appearance-none bg-transparent border-none outline-none"
+          >
+            <ChevronUp className="w-5 h-5 animate-bounce" />
+            <span className="text-[8px] tracking-[0.4em] uppercase font-black italic">
+              Mendoclick
+            </span>
+          </motion.button>
       </footer>
     </div>
   );
