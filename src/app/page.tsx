@@ -3,10 +3,61 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, Variants } from 'framer-motion';
 import { 
-  FiArrowRight, FiMenu, FiX, FiZap, FiAward, FiSmartphone, FiMousePointer 
+  FiArrowRight, FiSmartphone, FiClock, FiMapPin, FiCheckCircle, FiPlayCircle, 
+  FiMenu, FiX, FiInstagram, FiTwitter, FiSend 
 } from 'react-icons/fi';
+
+// --- DEFINICIÓN DE VARIANTES CON TIPADO TSX ---
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: (i: number = 1) => ({
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.04 * i },
+  }),
+};
+
+const childVariants: Variants = {
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: "spring", damping: 12, stiffness: 100 } 
+  },
+  hidden: { opacity: 0, y: 20 },
+};
+
+const phoneShakeVariants: Variants = {
+  hover: {
+    rotate: [0, -1, 1, -1, 1, 0],
+    transition: { duration: 0.4, repeat: Infinity }
+  }
+};
+
+// --- COMPONENTE TELEPROMPTER ---
+const WordByWord = ({ text, className, isTransparent = false }: { text: string, className?: string, isTransparent?: boolean }) => {
+  const words = text.split(" ");
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      className={`flex flex-wrap justify-center gap-x-2 md:gap-x-4 ${className}`}
+    >
+      {words.map((word, index) => (
+        <motion.span 
+          key={index} 
+          variants={childVariants} 
+          className={isTransparent ? "text-transparent [text-stroke:1px_#71717a] [-webkit-text-stroke:1px_#71717a] hover:[-webkit-text-stroke:1px_#dc2626] transition-all duration-500" : ""}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+};
 
 const allDesigns = [
   { id: '01', title: 'CHAMPAGNE LUX', img: '/img_demo/plantilla1_15.png', tag: 'LUXURY', category: '15_AÑOS', link: '/demo/cumple_quince/champagne' },
@@ -17,159 +68,115 @@ const allDesigns = [
   { id: '06', title: 'GRAFFITI LOVE', img: '/img_boda/plantilla6.jpg', tag: 'URBAN', category: 'BODAS', link: '/demo/bodas/bodas-grafitis' },
 ];
 
-export default function LandingPage() {
+export default function LuxuryLanding() {
   const [activeCategory, setActiveCategory] = useState<'BODAS' | '15_AÑOS'>('BODAS');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { scrollY } = useScroll();
+  const opacityHero = useTransform(scrollY, [0, 400], [1, 0]);
+  const yHero = useTransform(scrollY, [0, 400], [0, -50]);
 
   const filteredDesigns = allDesigns.filter(d => d.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
+    <div className="min-h-screen bg-[#020202] text-white selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
       <Head>
-        <title>MENDOCLICK | Industry Standard</title>
+        <title>MENDOCLICK | Invitaciones Digitales</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
 
       {/* --- NAV --- */}
-      <nav className="fixed top-0 left-0 w-full z-[100] bg-black/80 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 h-20 flex justify-between items-center">
-          <Link href="/" className="text-xl md:text-2xl font-black tracking-[-0.05em] uppercase group italic">
-            MENDO<span className="text-red-600 group-hover:text-white transition-colors">CLICK</span>
-            <span className="text-[9px] block font-light tracking-[0.5em] mt-[-6px] text-zinc-500">STUDIO.2026</span>
+      <nav className="fixed top-0 w-full z-[100] bg-black/60 backdrop-blur-xl border-b border-white/5">
+        <div className="container mx-auto px-6 h-16 flex justify-between items-center text-center">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center font-black italic shadow-[0_0_20px_rgba(220,38,38,0.3)] text-white">M</div>
+            <span className="text-lg font-black uppercase italic tracking-tighter">MENDO<span className="text-red-600">CLICK</span></span>
           </Link>
-          
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-10">
-            <div className="flex gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">
-              <a href="#selector" className="hover:text-red-500 transition">Catálogo</a>
-              <a href="#stats" className="hover:text-red-500 transition">Potencia</a>
-              <Link href="/login" className="hover:text-red-500 transition">Acceso</Link>
-            </div>
-            <a href="https://wa.me/tu-numero" className="bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all active:scale-95">
-              INICIAR PROYECTO
-            </a>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-2xl text-white"><FiMenu /></button>
+          <div className="hidden md:flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400">
+             <a href="#modelos" className="hover:text-white transition">Modelos</a>
+             <a href="#experiencia" className="hover:text-white transition">Tecnología</a>
+             <Link href="https://wa.me/tu-numero" className="bg-white text-black px-6 py-2 rounded-full hover:bg-red-600 hover:text-white transition-all font-bold">CONTACTO</Link>
           </div>
-
-          {/* Mobile Toggle */}
-          <button className="lg:hidden text-white p-2" onClick={() => setIsMobileMenuOpen(true)}>
-            <FiMenu size={28} />
-          </button>
         </div>
       </nav>
 
-      {/* --- MOBILE SIDEBAR --- */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[110] bg-zinc-950 p-10 flex flex-col lg:hidden"
-          >
-            <div className="flex justify-end">
-              <button onClick={() => setIsMobileMenuOpen(false)} className="text-red-600">
-                <FiX size={40} />
-              </button>
-            </div>
-            <div className="flex flex-col gap-8 mt-20 text-4xl font-black uppercase italic italic">
-              <a href="#selector" onClick={() => setIsMobileMenuOpen(false)}>Catálogo</a>
-              <a href="#stats" onClick={() => setIsMobileMenuOpen(false)}>Potencia</a>
-              <a href="https://wa.me/tu-numero" className="text-red-600">WhatsApp</a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* --- HERO --- */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6 overflow-hidden text-center">
+        <motion.div style={{ opacity: opacityHero, y: yHero }} className="container mx-auto z-10">
+          <span className="text-red-600 font-black tracking-[0.4em] text-[9px] uppercase mb-6 block text-center">Mendoza // Digital Architecture</span>
+          <div className="text-5xl md:text-8xl lg:text-[9rem] font-black leading-[0.85] uppercase italic tracking-tighter mb-8 text-center flex flex-col items-center">
+            <WordByWord text="ESTILO" />
+            <WordByWord text="SIN LÍMITES" isTransparent={true} />
+          </div>
+          <p className="max-w-2xl mx-auto text-zinc-500 text-[10px] md:text-xs uppercase tracking-[0.3em] leading-relaxed mb-12 text-center px-4">
+            No enviamos un link. Entregamos una <span className="text-white italic font-bold underline decoration-red-600 underline-offset-4">experiencia inmersiva</span>.
+          </p>
 
-      {/* --- HERO SECTION --- */}
-      <section className="relative pt-32 md:pt-44 pb-20 px-6 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-red-600/20 rounded-full blur-[120px] -z-10" />
-        
-        <div className="container mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            className="max-w-5xl"
-          >
-            <h1 className="text-[14vw] md:text-[10rem] font-black leading-[0.85] tracking-tighter uppercase italic mb-10">
-              Impacto <br />
-              <span className="text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.3)] hover:[-webkit-text-stroke:1px_#dc2626] transition-all duration-700">Digital</span>
-            </h1>
-            
-            <div className="flex flex-col md:flex-row items-start md:items-end gap-10">
-                <p className="text-zinc-400 text-sm md:text-xl max-w-xl font-light leading-relaxed uppercase tracking-wide">
-                  No enviamos links. Creamos <span className="text-white font-bold">experiencias de alto impacto</span> que redefinen tu evento.
-                </p>
-                <div className="flex gap-4 border-l border-zinc-800 pl-6 md:border-l-0 md:pl-0">
-                    <div className="h-20 w-[1px] bg-zinc-800 hidden md:block" />
-                    <div className="text-left">
-                        <span className="text-red-600 font-black text-2xl block">#01</span>
-                        <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">En Mendoza</span>
-                    </div>
-                </div>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
+            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-6 py-4 rounded-2xl w-full max-w-[280px] group hover:border-red-600/30 transition-all">
+              <FiSmartphone className="text-red-600 text-2xl shrink-0" />
+              <div className="text-left">
+                <p className="text-zinc-500 text-[8px] font-black uppercase leading-none mb-1">INTERFACE</p>
+                <p className="text-white text-[10px] font-black uppercase tracking-wider">MOBILE FIRST UX</p>
+              </div>
             </div>
-          </motion.div>
-        </div>
+            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-6 py-4 rounded-2xl w-full max-w-[280px] group hover:border-red-600/30 transition-all">
+              <FiPlayCircle className="text-red-600 text-2xl shrink-0" />
+              <div className="text-left">
+                <p className="text-zinc-500 text-[8px] font-black uppercase leading-none mb-1">MEDIA</p>
+                <p className="text-white text-[10px] font-black uppercase tracking-wider">DYNAMIC AUDIO</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* --- SELECTOR DE CATEGORÍA --- */}
-      <section id="selector" className="py-12 md:py-20 bg-zinc-950/50 border-y border-white/5">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-16">
-            <button 
-              onClick={() => setActiveCategory('BODAS')}
-              className={`group relative flex-1 overflow-hidden rounded-2xl p-8 md:p-10 transition-all duration-500 ${activeCategory === 'BODAS' ? 'bg-white text-black' : 'bg-zinc-900 text-white hover:bg-zinc-800'}`}
-            >
-              <div className="relative z-10 flex flex-col items-start h-full">
-                <span className="text-[10px] font-black tracking-[0.3em] mb-2 uppercase opacity-60">Categoría</span>
-                <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter">Bodas</h2>
-                <div className={`mt-6 md:mt-10 h-1 w-20 transition-all ${activeCategory === 'BODAS' ? 'bg-black' : 'bg-red-600'}`} />
-              </div>
-              <FiZap className={`absolute right-[-20px] bottom-[-20px] text-[120px] md:text-[150px] opacity-10 transition-transform duration-700 group-hover:rotate-12 ${activeCategory === 'BODAS' ? 'text-black' : 'text-white'}`} />
-            </button>
-
-            <button 
-              onClick={() => setActiveCategory('15_AÑOS')}
-              className={`group relative flex-1 overflow-hidden rounded-2xl p-8 md:p-10 transition-all duration-500 ${activeCategory === '15_AÑOS' ? 'bg-white text-black' : 'bg-zinc-900 text-white hover:bg-zinc-800'}`}
-            >
-              <div className="relative z-10 flex flex-col items-start h-full">
-                <span className="text-[10px] font-black tracking-[0.3em] mb-2 uppercase opacity-60">Categoría</span>
-                <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter">15 Años</h2>
-                <div className={`mt-6 md:mt-10 h-1 w-20 transition-all ${activeCategory === '15_AÑOS' ? 'bg-black' : 'bg-red-600'}`} />
-              </div>
-              <FiAward className={`absolute right-[-20px] bottom-[-20px] text-[120px] md:text-[150px] opacity-10 transition-transform duration-700 group-hover:rotate-12 ${activeCategory === '15_AÑOS' ? 'text-black' : 'text-white'}`} />
-            </button>
+      {/* --- CATÁLOGO --- */}
+      <section id="modelos" className="py-24 bg-[#040404]">
+        <div className="container mx-auto px-4 text-center">
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter mb-4 text-center">La <span className="text-red-600">Colección.</span></h2>
+            <div className="flex justify-center gap-2 mt-8">
+              {(['BODAS', '15_AÑOS'] as const).map((cat) => (
+                <button 
+                  key={cat} 
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-8 py-2.5 rounded-full text-[9px] font-black tracking-widest transition-all ${activeCategory === cat ? 'bg-red-600 text-white' : 'bg-zinc-900 text-zinc-500 hover:text-white'}`}
+                >
+                  {cat.replace('_', ' ')}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* --- GRILLA DE DISEÑOS --- */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 max-w-6xl mx-auto px-4 justify-items-center">
             <AnimatePresence mode="wait">
               {filteredDesigns.map((item) => (
                 <motion.div 
-                  key={item.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="group relative"
+                  key={item.id} 
+                  initial={{ opacity: 0, y: 30 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  exit={{ opacity: 0, scale: 0.95 }} 
+                  className="flex justify-center w-full"
                 >
-                  <div className="relative aspect-[9/16] rounded-3xl overflow-hidden border border-white/5 bg-zinc-900">
-                    <img src={item.img} className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110" alt={item.title} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                    
-                    <div className="absolute top-6 left-6">
-                        <span className="bg-red-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest italic shadow-xl shadow-red-600/40">
-                            {item.tag}
-                        </span>
+                  <motion.div 
+                    whileHover="hover"
+                    variants={phoneShakeVariants}
+                    className="group relative w-full max-w-[280px] cursor-pointer"
+                  >
+                    <div className="relative w-full aspect-[9/18.5] border-[6px] border-zinc-800 rounded-[3rem] bg-black overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:border-red-600/40">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-zinc-800 rounded-b-2xl z-20" />
+                      <img src={item.img} className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" alt={item.title} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+                      <div className="absolute bottom-0 left-0 w-full p-8 text-center">
+                        <span className="text-[8px] text-red-600 font-black tracking-[0.3em] uppercase mb-1 block">{item.tag}</span>
+                        <h3 className="text-xl font-black italic tracking-tighter uppercase text-white mb-6 leading-none">{item.title}</h3>
+                        <Link href={item.link} className="flex items-center justify-center gap-2 w-full py-4 bg-white text-black text-[9px] font-black tracking-widest rounded-2xl hover:bg-red-600 hover:text-white transition-all">
+                          VER DEMO <FiArrowRight />
+                        </Link>
+                      </div>
                     </div>
-
-                    <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 z-20">
-                      <p className="text-red-500 text-[10px] font-black tracking-widest uppercase mb-2">Model Selection // {item.id}</p>
-                      <h3 className="text-3xl md:text-4xl font-black text-white uppercase italic mb-6 md:mb-8 leading-none">{item.title}</h3>
-                      
-                      <Link href={item.link} className="inline-flex items-center justify-center w-full bg-white text-black py-4 md:py-5 rounded-2xl font-black text-[10px] tracking-[0.2em] uppercase hover:bg-red-600 hover:text-white transition-all">
-                        VER DEMO EN VIVO
-                      </Link>
-                    </div>
-                  </div>
+                  </motion.div>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -177,45 +184,95 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --- STATS --- */}
-      <section id="stats" className="py-20 md:py-32 bg-black overflow-hidden">
-        <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
-                <div className="lg:col-span-1">
-                    <h2 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter leading-none mb-6">
-                        No somos <br /><span className="text-red-600">iguales.</span>
-                    </h2>
-                    <p className="text-zinc-500 uppercase text-xs font-bold tracking-widest leading-relaxed">
-                        Desarrollamos tecnología propia para que tu invitación no solo se vea bien, sino que funcione como una App de élite.
-                    </p>
+      {/* --- TECH --- */}
+      <section id="experiencia" className="py-32 relative text-center md:text-left">
+        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-20 items-center justify-center">
+          <div className="order-2 md:order-1 flex flex-col items-center md:items-start">
+            <h2 className="text-5xl md:text-8xl font-black italic uppercase tracking-tighter leading-[0.85] mb-12 text-center md:text-left">Invisible <br/><span className="text-red-600">Power.</span></h2>
+            <div className="space-y-6 max-w-md w-full">
+              {[
+                { i: FiSmartphone, t: "SMART ARCHITECTURE", d: "Optimizada para una carga instantánea sin esperas." },
+                { i: FiClock, t: "LIVE SYNC", d: "Confirmaciones en tiempo real directo a tu panel." },
+                { i: FiMapPin, t: "DEEP LINKING", d: "Navegación nativa con Google Maps & Apple Maps." }
+              ].map((f, index) => (
+                <div key={index} className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-5 p-6 bg-zinc-900/30 rounded-3xl border border-white/5 group hover:border-red-600/20 transition-all">
+                  <f.i className="text-red-600 text-2xl shrink-0 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <h4 className="text-[10px] font-black tracking-widest uppercase italic text-white mb-2">{f.t}</h4>
+                    <p className="text-zinc-500 text-[11px] leading-relaxed">{f.d}</p>
+                  </div>
                 </div>
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-8 md:p-10 bg-zinc-900/50 rounded-3xl border border-white/5 hover:border-red-600/30 transition-colors">
-                        <FiSmartphone className="text-red-600 text-4xl mb-6" />
-                        <h4 className="text-white font-black text-xl uppercase mb-2">Mobile First</h4>
-                        <p className="text-zinc-500 text-xs font-medium uppercase tracking-tighter">Optimizado para el 100% de los smartphones actuales.</p>
-                    </div>
-                    <div className="p-8 md:p-10 bg-zinc-900/50 rounded-3xl border border-white/5 hover:border-red-600/30 transition-colors">
-                        <FiMousePointer className="text-red-600 text-4xl mb-6" />
-                        <h4 className="text-white font-black text-xl uppercase mb-2">Interactive UX</h4>
-                        <p className="text-zinc-500 text-xs font-medium uppercase tracking-tighter">Mapas, RSVPs, y filtros con respuesta táctil premium.</p>
-                    </div>
-                </div>
+              ))}
             </div>
+          </div>
+          <div className="flex justify-center relative order-1 md:order-2">
+            <div className="absolute inset-0 bg-red-600/10 blur-[120px] rounded-full" />
+            <motion.div 
+              animate={{ rotate: [2, -2, 2], y: [0, -20, 0] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              className="w-[240px] md:w-[280px] h-[500px] md:h-[580px] border-[10px] border-zinc-800 rounded-[3.5rem] bg-zinc-900 relative overflow-hidden shadow-2xl"
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-zinc-800 rounded-b-2xl z-20" />
+              <img src="/img_demo/plantilla1_15.png" className="w-full h-full object-cover opacity-60" alt="demo" />
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="py-12 md:py-20 bg-zinc-950 border-t border-white/5">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="text-center md:text-left">
-            <span className="text-2xl font-black tracking-tighter italic uppercase">MENDO<span className="text-red-600">CLICK</span></span>
-            <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.4em] mt-2">Superior Digital Invitations</p>
+      <footer className="bg-[#020202] border-t border-white/5 pt-20 pb-10 text-center md:text-left">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-12 mb-16 items-center md:items-start">
+            <div className="col-span-1 md:col-span-2 flex flex-col items-center md:items-start">
+              <div className="flex items-center gap-3 mb-6 justify-center md:justify-start">
+                <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center font-black italic text-xl shadow-[0_0_15px_rgba(220,38,38,0.4)] text-white">M</div>
+                <span className="text-2xl font-black uppercase italic tracking-tighter">MENDO<span className="text-red-600">CLICK</span></span>
+              </div>
+              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] leading-relaxed max-w-sm mb-8 px-4 md:px-0">
+                Redefiniendo el estándar de las celebraciones digitales en Mendoza. Tecnología, diseño y exclusividad en cada click.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-zinc-400 hover:border-white">
+                  <FiInstagram />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-zinc-400 hover:border-white">
+                  <FiTwitter />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all text-zinc-400 hover:border-white">
+                  <FiSend />
+                </a>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center md:items-start">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white mb-8 underline md:no-underline decoration-red-600 underline-offset-8">Navegación</h4>
+              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <li><a href="#" className="hover:text-red-600 transition">Inicio</a></li>
+                <li><a href="#modelos" className="hover:text-red-600 transition">Colección</a></li>
+                <li><a href="#experiencia" className="hover:text-red-600 transition">Tecnología</a></li>
+                <li><Link href="/demo" className="hover:text-red-600 transition">Demos</Link></li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col items-center md:items-start">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white mb-8 underline md:no-underline decoration-red-600 underline-offset-8">Contacto</h4>
+              <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <li className="italic text-white underline decoration-red-600 underline-offset-4">info@mendoclick.com.ar</li>
+                <li>WhatsApp Business</li>
+                <li>Soporte 24/7</li>
+                <li>Mendoza, Argentina</li>
+              </ul>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
-            <a href="https://wa.me/tu-numero" className="hover:text-red-500 transition">WhatsApp</a>
-            <a href="https://instagram.com/tu-ig" className="hover:text-red-500 transition">Instagram</a>
-            <p className="text-zinc-800 w-full md:w-auto text-center">© 2026 MC.STUDIO</p>
+
+          <div className="border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-center w-full">
+            <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.5em] px-4">
+              © 2026 MendoClick Digital Couture. Todos los derechos reservados.
+            </p>
+            <div className="flex gap-8 text-[9px] font-black uppercase tracking-widest text-zinc-600">
+              <a href="#" className="hover:text-white transition">Privacidad</a>
+              <a href="#" className="hover:text-white transition">Términos</a>
+            </div>
           </div>
         </div>
       </footer>
