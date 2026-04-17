@@ -97,29 +97,33 @@ export function Hero({ config }: HeroProps) {
       </div>
 
       {/* --- PARTE INFERIOR (CONTADOR ESTILO HERO 1) --- */}
-      <div className="flex-1 flex flex-col items-center justify-center py-10 bg-white">
-        <p className="text-[9px] tracking-[0.4em] uppercase text-gray-400 font-light mb-4">
-          Faltan solo
-        </p>
-        
-        <div className="flex gap-6 md:gap-10">
-          {[
-            { label: "Días", value: timeLeft.dias },
-            { label: "Hs", value: timeLeft.horas },
-            { label: "Min", value: timeLeft.min },
-            { label: "Seg", value: timeLeft.seg },
-          ].map((unit, index) => (
-            <div key={index} className="flex flex-col items-center">
-              <span className="text-3xl md:text-5xl font-light tracking-tighter text-gray-800">
-                {unit.value.toString().padStart(2, '0')}
-              </span>
-              <span className="text-[7px] md:text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-1">
-                {unit.label}
-              </span>
-            </div>
-          ))}
+{/* --- PARTE INFERIOR (CONTADOR CON CÍRCULOS DORADOS) --- */}
+<div className="flex-1 flex flex-col items-center justify-center py-12 bg-white">
+  <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 font-light mb-8">
+    Faltan solo
+  </p>
+  
+  <div className="flex gap-4 md:gap-8">
+    {[
+      { label: "Días", value: timeLeft.dias },
+      { label: "Horas", value: timeLeft.horas },
+      { label: "Min", value: timeLeft.min },
+      { label: "Seg", value: timeLeft.seg },
+    ].map((unit, index) => (
+      <div key={index} className="flex flex-col items-center">
+        {/* Círculo Dorado */}
+        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border border-[#b5a47a]/40 flex flex-col items-center justify-center mb-2 group hover:border-[#b5a47a] transition-colors duration-500">
+          <span className="text-xl md:text-2xl font-light text-gray-800 tracking-tighter">
+            {unit.value.toString().padStart(2, '0')}
+          </span>
+          <span className="text-[7px] md:text-[8px] uppercase tracking-[0.1em] text-[#b5a47a]">
+            {unit.label}
+          </span>
         </div>
       </div>
+    ))}
+  </div>
+</div>
     </section>
   );
 }
