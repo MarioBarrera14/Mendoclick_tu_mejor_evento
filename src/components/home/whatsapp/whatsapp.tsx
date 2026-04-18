@@ -26,14 +26,6 @@ export const WhatsAppButton: React.FC = () => {
         }}
         className="relative group flex flex-col items-end"
       >
-        {/* --- Texto con Sombreado --- */}
-        {/* Hidden en mobile, flex en md (desktop) para evitar desbordes */}
-        <div className="hidden md:block mb-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-          <p className="text-[18px] font-black text-white uppercase tracking-widest italic whitespace-nowrap drop-shadow-[0_2px_2px_rgba(0,0,1,0.8)]">
-            ¿Hablamos por WhatsApp?
-          </p>
-        </div>
-
         {/* Contenedor del Botón */}
         <div className="relative">
           {/* Badge de Notificación - Un poco más pequeño en mobile */}
