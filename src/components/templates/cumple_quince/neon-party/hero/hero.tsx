@@ -23,7 +23,7 @@ const NeonDivider = () => (
 
 export function Hero({ config }: HeroProps) {
   // 1. RESTAURACIÓN DEL VIDEO DE FONDO
-  const videoFondo = "/movie/Video_de_Esferas_de_Espejos.mp4"; 
+  const videoFondo = "/movie/Video_de_Esferas_de_Espejos.WebM"; 
   
   const currentImage = config.heroImage || "/Demo1.webp";
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
@@ -78,7 +78,7 @@ export function Hero({ config }: HeroProps) {
           playsInline 
           className="absolute inset-0 w-full h-full object-cover brightness-[0.40] contrast-[1.1]"
         >
-          <source src={videoFondo} type="video/mp4" />
+          <source src={videoFondo} type="video/WebM" />
         </video>
         
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-purple-900/10 via-[#0a0a0a]/40 to-[#0a0a0a]" />
