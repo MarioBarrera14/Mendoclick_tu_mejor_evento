@@ -30,7 +30,7 @@ export const Hero = () => {
         className="container mx-auto z-10 px-6 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-12"
       >
         {/* --- TEXTO IZQUIERDA --- */}
-        <div className="font-script flex-1 text-center lg:text-left mt-2 md:mt-0 order-2 lg:order-1">
+        <div className="flex-1 text-center lg:text-left mt-2 md:mt-0 order-2 lg:order-1">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
