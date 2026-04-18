@@ -1,6 +1,7 @@
 /* 1. Las fuentes DEBEN ir al principio de todo para evitar errores de sintaxis */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Pinyon+Script&display=swap');
-
+/* globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,900;1,400&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,6 +20,7 @@
     overflow-x: hidden;
   }
 
+  
   body {
     /* Cambiamos @apply por CSS estándar para evitar errores si el config no está listo */
     background-color: hsl(var(--background));

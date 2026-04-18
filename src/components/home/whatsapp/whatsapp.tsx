@@ -13,7 +13,8 @@ export const WhatsAppButton: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-[999]">
+    // Ajustado bottom y right para mobile (4) y desktop (8)
+    <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[999]">
       <motion.div
         initial={{ opacity: 0, scale: 0.5, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -25,42 +26,42 @@ export const WhatsAppButton: React.FC = () => {
         }}
         className="relative group flex flex-col items-end"
       >
-        {/* --- Texto con Sombreado (Sin Globo) --- */}
-        {/* Usamos drop-shadow-2xl para que las letras se despeguen del fondo */}
-        <div className="mb-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-0 group-hover:-translate-x-0 pointer-events-none">
-          <p className="text-[18px] font-black text-white uppercase tracking-widest italic whitespace-nowrap drop-shadow-[0_2px_2px_rgba(0,0,1)]">
+        {/* --- Texto con Sombreado --- */}
+        {/* Hidden en mobile, flex en md (desktop) para evitar desbordes */}
+        <div className="hidden md:block mb-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+          <p className="text-[18px] font-black text-white uppercase tracking-widest italic whitespace-nowrap drop-shadow-[0_2px_2px_rgba(0,0,1,0.8)]">
             ¿Hablamos por WhatsApp?
           </p>
         </div>
 
         {/* Contenedor del Botón */}
         <div className="relative">
-          {/* Badge de Notificación */}
+          {/* Badge de Notificación - Un poco más pequeño en mobile */}
           <motion.span 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 2, type: "spring" }}
-            className="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center z-20 shadow-lg border-2 border-white"
+            className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-red-600 text-white text-[9px] md:text-[10px] font-black rounded-full flex items-center justify-center z-20 shadow-lg border-2 border-white"
           >
             1
           </motion.span>
 
-          {/* Círculos de Pulsación (Tailwind nativo animate-pulse) */}
+          {/* Círculos de Pulsación */}
           <div className="absolute inset-0 bg-[#25D366] rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse z-0" />
 
-          {/* El Botón Principal */}
+          {/* El Botón Principal - Tamaño adaptativo */}
           <motion.button
             onClick={handleClick}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="relative w-16 h-16 bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white rounded-[22px] flex items-center justify-center shadow-[0_15px_40px_-10px_rgba(20,160,80,0.5)] transition-all duration-300 overflow-hidden z-10"
+            className="relative w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white rounded-[18px] md:rounded-[22px] flex items-center justify-center shadow-[0_15px_40px_-10px_rgba(20,160,80,0.5)] transition-all duration-300 overflow-hidden z-10"
           >
             {/* Brillo superior */}
-            <div className="absolute top-0 left-0 w-full h-[40%] bg-white/10 z-10 rounded-t-[22px]" />
+            <div className="absolute top-0 left-0 w-full h-[40%] bg-white/10 z-10 rounded-t-[18px] md:rounded-t-[22px]" />
             
-            <FaWhatsapp className="text-3xl relative z-20" />
+            <FaWhatsapp className="text-2xl md:text-3xl relative z-20" />
             
-            {/* Efecto Shimmer con Tailwind puro */}
+            {/* Efecto Shimmer */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] z-10" />
           </motion.button>
         </div>
