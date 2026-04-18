@@ -84,11 +84,11 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
   if (!mounted) return null;
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden bg-[url('/images/img-grafitis/radio.png')] bg-cover bg-center mb-[-1px]">
+    <section className="relative py-16 md:py-24 overflow-hidden bg-[url('/images/img-grafitis/radio.webp')] bg-cover bg-center mb-[-1px]">
       
       {/* SEPARADOR SUPERIOR */}
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none -translate-y-[1px]">
-        <div className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
 
       <div className="absolute inset-0 bg-black/60 z-0" />
@@ -102,7 +102,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         >
           <div className="flex justify-center mb-4">
             <div className="relative w-14 h-14 md:w-20 md:h-20">
-              <Image src="/images/img-grafitis/musica.png" alt="Música" fill className="object-contain" />
+              <Image src="/images/img-grafitis/musica.webp" alt="Música" fill className="object-contain" />
             </div>
           </div>
 
@@ -219,7 +219,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
 
       {/* SEPARADOR INFERIOR */}
       <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none -translate-y-[1px]">
-        <div className="w-full h-[60px] md:h-[160px] bg-white [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[60px] md:h-[160px] bg-white [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
     </section>
   );

@@ -96,7 +96,7 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
       <div className="absolute inset-0 z-0">
         <motion.div style={{ y: yPos }} className="relative w-full h-full">
           <Image
-            src={heroImage || "/img_boda/bode_casado.jpg"} // Fallback si no hay imagen en DB
+            src={heroImage || "/img_boda/bode_casado.webp"} // Fallback si no hay imagen en DB
             alt={eventName || "Boda"}
             fill
             priority

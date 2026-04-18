@@ -44,7 +44,7 @@ export default function Itinerary({ items }: { items: ItineraryItem[] }) {
         {/* Encabezado: Reducido en márgenes */}
         <div className="text-center mb-6">
           <div className="relative w-10 h-10 md:w-12 md:h-12 mx-auto mb-2">
-            <Image src="/img-rock/reloj.png" alt="Reloj Retro" fill className="object-contain" />
+            <Image src="/img-rock/reloj.webp" alt="Reloj Retro" fill className="object-contain" />
           </div>
           <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter text-[#b43c3c] [text-shadow:3px_3px_0px_#f4e9d8] uppercase leading-none">
             Cronograma

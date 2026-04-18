@@ -189,7 +189,7 @@ export function RSVP({ config }: RSVPProps) {
             <div className="absolute inset-4 border-2 border-dotted border-[#b02a30] pointer-events-none opacity-40"></div>
             <div className="mb-4">
               <div className="relative w-16 h-16 mx-auto">
-                 <Image src="/img-rock/invitacion.png" alt="icon" fill className="object-contain rotate-12" />
+                 <Image src="/img-rock/invitacion.webp" alt="icon" fill className="object-contain rotate-12" />
               </div>
             </div>
             <p className="text-black font-black text-lg md:text-xl leading-tight mb-3 max-w-xs uppercase tracking-tighter italic">

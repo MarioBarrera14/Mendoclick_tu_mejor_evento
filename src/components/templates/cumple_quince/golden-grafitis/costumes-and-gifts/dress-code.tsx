@@ -101,12 +101,12 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
   if (!mounted) return null;
 
   return (
-    <section className="relative py-12 w-full flex items-center justify-center bg-[url('/images/img-grafitis/mural.jpg')] bg-cover bg-center px-4 overflow-hidden">
+    <section className="relative py-12 w-full flex items-center justify-center bg-[url('/images/img-grafitis/mural.webp')] bg-cover bg-center px-4 overflow-hidden">
       
       {/* SEPARADOR GRAFITERO SUPERIOR */}
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
         <div 
-          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" 
         />
       </div>
       <div className="absolute inset-0 bg-black/40 z-0" />
@@ -119,7 +119,7 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
           className="flex-1 bg-white/30 backdrop-blur-xl rounded-2xl p-8 shadow-2xl text-center flex flex-col items-center border border-white/30"
         >
           <div className="mb-4 w-14 h-14 relative">
-            <Image src="/images/img-grafitis/percha.png" alt="Icon Dress" fill className="object-contain" />
+            <Image src="/images/img-grafitis/percha.webp" alt="Icon Dress" fill className="object-contain" />
           </div>
           <h2 className="text-3xl md:text-4xl text-black mb-3 uppercase tracking-tighter">
             Dress Code
@@ -138,7 +138,7 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
           className="flex-1 bg-white/30 backdrop-blur-xl rounded-2xl p-8 shadow-2xl text-center flex flex-col items-center border border-white/30"
         >
           <div className="mb-4 w-14 h-14 relative">
-            <Image src="/images/img-grafitis/regalos.png" alt="Icon Gift" fill className="object-contain" />
+            <Image src="/images/img-grafitis/regalos.webp" alt="Icon Gift" fill className="object-contain" />
           </div>
           <h2 className="text-3xl md:text-4xl text-black mb-3 uppercase tracking-tighter">
             Regalos
@@ -180,7 +180,7 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
       {/* SEPARADOR GRAFITERO INFERIOR */}
       <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
         <div 
-          className="w-full h-[60px] md:h-[160px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          className="w-full h-[60px] md:h-[160px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" 
         />
       </div>
     </section>

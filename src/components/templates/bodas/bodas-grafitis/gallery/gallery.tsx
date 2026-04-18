@@ -43,8 +43,8 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
 
   const fotos = useMemo(() => {
     const defaultPhotos = [
-      "/img_boda/gallery-1.jpg", "/img_boda/gallery-2.jpg", "/img_boda/gallery-4.jpg",
-      "/img_boda/gallery-5.jpg", "/img_boda/gallery-6.jpg", "/img_boda/gallery-3.jpg"
+      "/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-4.webp",
+      "/img_boda/gallery-5.webp", "/img_boda/gallery-6.webp", "/img_boda/gallery-3.webp"
     ];
     try {
       if (images) {
@@ -109,7 +109,7 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="max-w-3xl mx-auto">
           <div className="relative aspect-video overflow-hidden rounded-[1.5rem] bg-white shadow-xl group border border-[#94A994]/20">
             <div 
-              className="absolute top-0 left-0 w-full h-16 z-20 opacity-80 pointer-events-none [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]"
+              className="absolute top-0 left-0 w-full h-16 z-20 opacity-80 pointer-events-none [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]"
               style={{ backgroundColor: graffitiColor }}
             />
             {videoUrl ? (
@@ -128,7 +128,7 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
               </div>
             )}
             <div 
-              className="absolute bottom-0 left-0 w-full h-14 z-20 opacity-80 pointer-events-none [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]"
+              className="absolute bottom-0 left-0 w-full h-14 z-20 opacity-80 pointer-events-none [mask-image:url(/images/img-grafitis/graffiti-separador-1a.webp)] [mask-size:100%_100%] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.webp)] [-webkit-mask-size:100%_100%]"
               style={{ backgroundColor: graffitiColor }}
             />
           </div>

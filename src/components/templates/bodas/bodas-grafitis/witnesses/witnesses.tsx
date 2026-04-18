@@ -41,7 +41,7 @@ export function Witnesses({ items }: WitnessesProps) {
               className="relative w-16 h-16"
             >
               <Image 
-                src="/images/img-grafitis/testigos.png" 
+                src="/images/img-grafitis/testigos.webp" 
                 alt="Decoración" 
                 fill
                 className="object-contain" 
@@ -69,7 +69,7 @@ export function Witnesses({ items }: WitnessesProps) {
                 <div className="relative w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white bg-gray-100">
                   <Image 
                     // Usamos imageUrl del Schema, con un fallback por si está vacío
-                    src={witness.imageUrl || "/img_boda/placeholder-user.jpg"} 
+                    src={witness.imageUrl || "/img_boda/placeholder-user.webp"} 
                     alt={witness.nombre} 
                     fill 
                     className="object-cover transition-transform duration-700 group-hover:scale-110" 

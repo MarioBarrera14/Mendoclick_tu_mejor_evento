@@ -25,7 +25,7 @@ export function PhotoGallerySection({ config }: PhotoGalleryProps) {
     if (config.carruselImages) {
       try {
         const parsed = JSON.parse(config.carruselImages);
-        setFotos(parsed.length > 0 ? parsed : ["/img_boda/gallery-1.jpg", "/img_boda/gallery-2.jpg"]);
+        setFotos(parsed.length > 0 ? parsed : ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp"]);
       } catch (e) {
         setFotos([]);
       }
@@ -59,7 +59,7 @@ export function PhotoGallerySection({ config }: PhotoGalleryProps) {
   return (
     <section className="relative py-12 md:py-16 overflow-hidden text-white font-sans">
       
-      <div className="absolute inset-0 z-0 bg-fixed bg-cover bg-center bg-[url('/img_boda/galeria.jpg')]" />
+      <div className="absolute inset-0 z-0 bg-fixed bg-cover bg-center bg-[url('/img_boda/galeria.webp')]" />
       <div className="absolute inset-0 z-0 bg-black/75 backdrop-blur-sm" />
 
       <div className="container mx-auto px-6 mb-8 text-center relative z-10">

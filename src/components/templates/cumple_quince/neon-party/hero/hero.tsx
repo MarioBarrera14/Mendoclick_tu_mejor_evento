@@ -25,7 +25,7 @@ export function Hero({ config }: HeroProps) {
   // 1. RESTAURACIÓN DEL VIDEO DE FONDO
   const videoFondo = "/movie/Video_de_Esferas_de_Espejos.mp4"; 
   
-  const currentImage = config.heroImage || "/Demo1.png";
+  const currentImage = config.heroImage || "/Demo1.webp";
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
 
   const calculateTimeLeft = useCallback(() => {
@@ -85,10 +85,10 @@ export function Hero({ config }: HeroProps) {
         
         <div className="absolute inset-0 z-20 pointer-events-none">
           <motion.div variants={ballVariants} custom={0} animate="animate" className="absolute -left-10 top-[15%] w-48 md:w-80 opacity-40 blur-[1px]">
-            <Image src="/boll.png" alt="disco ball" width={400} height={400} />
+            <Image src="/boll.webp" alt="disco ball" width={400} height={400} />
           </motion.div>
           <motion.div variants={ballVariants} custom={1} animate="animate" className="absolute -right-10 top-[25%] w-40 md:w-72 opacity-30 blur-[2px]">
-            <Image src="/boll.png" alt="disco ball" width={400} height={400} className="scale-x-[-1]" />
+            <Image src="/boll.webp" alt="disco ball" width={400} height={400} className="scale-x-[-1]" />
           </motion.div>
         </div>
 

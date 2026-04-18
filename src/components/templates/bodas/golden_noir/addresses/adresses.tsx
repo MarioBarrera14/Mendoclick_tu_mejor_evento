@@ -97,7 +97,7 @@ export function LocationsSection({ config }: LocationsSectionProps) {
   locations.push({
     icon: <Wine size={24} strokeWidth={1} />,
     title: "Celebración",
-    image: "/img_boda/lugar.jpg", 
+    image: "/img_boda/lugar.webp", 
     date: config.eventDate,
     time: config.eventTime,
     placeName: config.venueName,
@@ -109,7 +109,7 @@ export function LocationsSection({ config }: LocationsSectionProps) {
     locations.unshift({
       icon: <Church size={24} strokeWidth={1} />,
       title: "Ceremonia",
-      image: "/img_boda/iglesia.jpg", 
+      image: "/img_boda/iglesia.webp", 
       date: config.eventDate,
       time: config.eventTime,
       placeName: config.churchName,

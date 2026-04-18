@@ -27,8 +27,8 @@ export function EventDetails({ config }: EventDetailsProps) {
   if (config.churchName && config.churchName.trim() !== "") {
     sectionData.push({
       title: "Ceremonia",
-      icon: "/img-rock/anillos-rock.png",
-      image: "/img-rock/iglesia.png", // Imagen temática retro
+      icon: "/img-rock/anillos-rock.webp",
+      image: "/img-rock/iglesia.webp", // Imagen temática retro
       time: `${config.eventDate} a las ${config.eventTime}`,
       location: `"${config.churchName}", ${config.churchAddress}`,
       mapUrl: config.churchMapLink
@@ -38,8 +38,8 @@ export function EventDetails({ config }: EventDetailsProps) {
   // Siempre se agrega la Celebración
   sectionData.push({
     title: "Celebración",
-    icon: "/img-rock/copas-rock.png",
-    image: "/img-rock/event.png", // Imagen temática retro
+    icon: "/img-rock/copas-rock.webp",
+    image: "/img-rock/event.webp", // Imagen temática retro
     time: `${config.eventDate} a las ${config.eventTime}`, // Podrías ajustar si la fiesta es más tarde
     location: `"${config.venueName}", ${config.venueAddress}`,
     mapUrl: config.mapLink
@@ -60,7 +60,7 @@ export function EventDetails({ config }: EventDetailsProps) {
 
       {/* --- ADORNOS --- */}
       <div className="absolute top-8 left-4 w-20 md:w-32 z-0 opacity-50 pointer-events-none">
-        <Image src="/img-rock/adorno1.png" alt="adorno" width={128} height={128} className="object-contain" />
+        <Image src="/img-rock/adorno1.webp" alt="adorno" width={128} height={128} className="object-contain" />
       </div>
 
       {/* Contenedor Principal dinámico según cantidad de locaciones */}
@@ -129,7 +129,7 @@ export function EventDetails({ config }: EventDetailsProps) {
         className="mt-12 z-10 relative w-56 md:w-[380px] h-32 md:h-48"
       >
         <Image 
-          src="/img-rock/auto-rock.png" 
+          src="/img-rock/auto-rock.webp" 
           alt="Auto Retro" 
           fill
           className="object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)]"

@@ -32,7 +32,7 @@ export function Location({ config }: LocationProps) {
       {/* --- FONDO CON IMAGEN DEL SALÓN Y OVERLAY --- */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/salon.png" 
+          src="/salon.webp" 
           alt="Salón del evento" 
           className="w-full h-full object-cover opacity-40 grayscale-[0.3]" 
         />

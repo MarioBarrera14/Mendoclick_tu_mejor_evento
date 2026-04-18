@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Check, X, Shirt, Gift, Zap, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-
+import Image from "next/image";
 interface DetailsProps {
   config: {
     dressCode?: string | null;
@@ -91,8 +91,8 @@ export function Details({ config }: DetailsProps) {
     <section className="relative min-h-[60vh] flex flex-col items-center justify-center py-16 bg-[#0c001a] overflow-hidden">
       
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/regalosyropa.png" 
+        <Image 
+          src="/regalosyropa.webp" 
           alt="Fondo Detalles" 
           className="w-full h-full object-cover opacity-30 grayscale-[0.2]" 
         />

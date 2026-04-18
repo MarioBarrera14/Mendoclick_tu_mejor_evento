@@ -146,7 +146,7 @@ export function RSVP({ config }: RSVPProps) {
         {/* FONDO NEONBAR */}
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/neonbar.png" 
+            src="/neonbar.webp" 
             alt="Neon Background" 
             fill 
             className="object-cover opacity-50"

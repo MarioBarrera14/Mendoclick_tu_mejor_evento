@@ -20,7 +20,7 @@ export function Hero({ config }: HeroProps) {
   
   const currentImage = (config.heroImage && config.heroImage !== "") 
     ? config.heroImage 
-    : "/images/img-grafitis/hero-placeholder.jpg"; 
+    : "/images/img-grafitis/hero-placeholder.webp"; 
 
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
 
@@ -72,7 +72,7 @@ export function Hero({ config }: HeroProps) {
       </div>
 
       <div className="absolute top-0 left-0 w-full z-40 pointer-events-none">
-        <div className="w-full h-[100px] md:h-[180px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[100px] md:h-[180px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
 
       <div className="relative z-30 flex flex-col items-center text-center px-4 w-full pb-24 md:pb-32">
@@ -82,7 +82,7 @@ export function Hero({ config }: HeroProps) {
           className="relative w-12 h-12 md:w-16 md:h-16 mb-2"
         >
           <Image 
-            src="/images/img-grafitis/graffiti-corazon.png" 
+            src="/images/img-grafitis/graffiti-corazon.webp" 
             alt="Corazón"
             fill
             className="object-contain drop-shadow-xl"
@@ -125,7 +125,7 @@ export function Hero({ config }: HeroProps) {
       </div>
 
       <div className="absolute bottom-0 left-0 w-full z-40 pointer-events-none">
-        <div className="w-full h-[120px] md:h-[200px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[120px] md:h-[200px] bg-[#649a8d] opacity-90 [mask-image:url(/images/img-grafitis/graffiti-separador-1a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-1a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
     </section>
   );

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Te invito a celebrar conmigo mis XV años",
   // AGREGAMOS ESTA SECCIÓN:
   icons: {
-    icon: "/logo.webp", // Esto apunta a public/logo.png
+    icon: "/logo.webp",
     shortcut: "/logo.webp",
     apple: "/logo.webp",
   },

@@ -16,12 +16,12 @@ export function Footer() {
 
   return (
     <footer 
-      className="relative py-10 overflow-hidden bg-[url('/images/img-grafitis/pared.jpg')] bg-cover bg-center mt-[-1px] font-['Permanent_Marker',_cursive]"
+      className="relative py-10 overflow-hidden bg-[url('/images/img-grafitis/pared.webp')] bg-cover bg-center mt-[-1px] font-['Permanent_Marker',_cursive]"
     >
       {/* SEPARADOR GRAFITERO (Elimina el corte en seco con la sección de arriba) */}
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none translate-y-[-1px]">
         <div 
-          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" 
+          className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" 
           /* Nota: El bg-[#e0f2f1] debe ser el color de la sección de ARRIBA del footer para que "chorree" hacia abajo */
         />
       </div>

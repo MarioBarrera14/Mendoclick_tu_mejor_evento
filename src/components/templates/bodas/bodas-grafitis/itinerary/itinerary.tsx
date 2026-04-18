@@ -26,7 +26,7 @@ export function Itinerary({ items }: ItineraryProps) {
     <section className="relative py-8 md:py-12 bg-[#F2E8D9] overflow-hidden font-sans">
       {/* SEPARADOR SUPERIOR */}
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none">
-        <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
 
       {/* TÍTULO */}
@@ -34,7 +34,7 @@ export function Itinerary({ items }: ItineraryProps) {
         <div className="relative w-10 h-10 mb-1">
           <div className="absolute inset-0 bg-[#d29b7b] rounded-full blur-md opacity-40 scale-125" />
           <Image 
-            src="/images/img-grafitis/reloj.png" 
+            src="/images/img-grafitis/reloj.webp" 
             alt="Reloj" 
             fill 
             className="object-contain relative z-10" 
@@ -103,7 +103,7 @@ export function Itinerary({ items }: ItineraryProps) {
 
       {/* SEPARADOR INFERIOR */}
       <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none">
-        <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
     </section>
   );

@@ -74,7 +74,7 @@ export function Witnesses({ items }: WitnessesProps) {
                 
                 <div className="relative w-32 h-32 md:w-40 md:h-40 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] z-20 transition-all duration-700 aspect-square">
                   <Image 
-                    src={witness.imageUrl || "/img_boda/placeholder-user.jpg"} // Imagen por defecto si no hay en DB
+                    src={witness.imageUrl || "/img_boda/placeholder-user.webp"} // Imagen por defecto si no hay en DB
                     alt={witness.nombre} 
                     fill
                     sizes="(max-width: 768px) 128px, 160px"

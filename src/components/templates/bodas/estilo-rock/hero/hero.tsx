@@ -65,7 +65,7 @@ export function Hero({ config }: HeroProps) {
 
   const finalDate = config.eventDate;
   const finalTime = config.eventTime;
-  const currentImage = config.heroImage || "/img_boda/vintage.png";
+  const currentImage = config.heroImage || "/img_boda/vintage.webp";
 
   const namesArray = config.eventName.split("&");
   const firstName = namesArray[0]?.trim() || "Juli";
@@ -128,7 +128,7 @@ export function Hero({ config }: HeroProps) {
           className="relative w-[320px] sm:w-[480px] md:w-[800px] aspect-square flex items-center justify-center"
         >
           <Image 
-            src="/img-rock/vinil_regresivo-removebg-preview.png"
+            src="/img-rock/vinil_regresivo-removebg-preview.webp"
             alt="Vinilo"
             fill
             className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"

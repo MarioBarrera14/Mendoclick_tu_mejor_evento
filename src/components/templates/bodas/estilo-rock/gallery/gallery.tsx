@@ -39,7 +39,7 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
   };
 
   const duplicatedPhotos = useMemo(() => {
-    const defaultPhotos = ["/img_boda/gallery-1.jpg", "/img_boda/gallery-2.jpg", "/img_boda/gallery-4.jpg"];
+    const defaultPhotos = ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-4.webp"];
     let base = defaultPhotos;
     
     try {

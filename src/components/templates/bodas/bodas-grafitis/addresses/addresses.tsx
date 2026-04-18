@@ -21,8 +21,8 @@ export function EventDetails({ config }: EventDetailsProps) {
     {
       show: !!config.churchName,
       title: "CEREMONIA",
-      icon: "/images/img-grafitis/anillos.png",
-      image: "/img_boda/iglesia.jpg", 
+      icon: "/images/img-grafitis/anillos.webp",
+      image: "/img_boda/iglesia.webp", 
       time: `${config.eventDate} a las ${config.eventTime}hs`,
       location: `"${config.churchName}", ${config.churchAddress}`,
       mapsLink: config.churchMapLink || "#",
@@ -30,8 +30,8 @@ export function EventDetails({ config }: EventDetailsProps) {
     {
       show: true,
       title: "FIESTA",
-      icon: "/images/img-grafitis/fiesta.png",
-      image: "/img_boda/lugar.jpg",
+      icon: "/images/img-grafitis/fiesta.webp",
+      image: "/img_boda/lugar.webp",
       time: `${config.eventDate} a las ${config.eventTime}hs`,
       location: `"${config.venueName}", ${config.venueAddress}`,
       mapsLink: config.mapLink,

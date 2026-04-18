@@ -28,7 +28,7 @@ export function FotoCarouselRetro({ images, videoUrl }: { images?: string | null
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const fotos = (() => {
-    const defaultPhotos = ["/img_boda/gallery-1.jpg", "/img_boda/gallery-2.jpg", "/img_boda/gallery-4.jpg"];
+    const defaultPhotos = ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-4.webp"];
     try {
       if (images) {
         const urls = JSON.parse(images);
@@ -50,8 +50,8 @@ export function FotoCarouselRetro({ images, videoUrl }: { images?: string | null
   return (
     <section className="relative pb-24 bg-white font-serif z-10 -mt-[2px] ring-1 ring-white overflow-hidden">
       {/* Adornos de fondo */}
-      <img src="/img-rock/adorno2.png" alt="adorno" className="absolute top-4 left-4 w-24 md:w-40 z-0 opacity-50" />
-      <img src="/img-rock/adorno2.png" alt="adorno" className="absolute bottom-4 right-4 w-24 md:w-40 z-0 opacity-50" />
+      <img src="/img-rock/adorno2.webp" alt="adorno" className="absolute top-4 left-4 w-24 md:w-40 z-0 opacity-50" />
+      <img src="/img-rock/adorno2.webp" alt="adorno" className="absolute bottom-4 right-4 w-24 md:w-40 z-0 opacity-50" />
 
       {/* Cabecera */}
       <div className="container mx-auto px-6 mb-12 text-center flex flex-col items-center relative pt-24 md:pt-40 z-20">
@@ -93,7 +93,7 @@ export function FotoCarouselRetro({ images, videoUrl }: { images?: string | null
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto relative">
               <motion.div className="absolute -bottom-6 -left-4 w-[120px] md:w-[240px] z-[25] pointer-events-none rotate-[-10deg]">
-                <img src="/img-rock/guitarra-rockabilly.png" alt="Guitar" className="w-full h-auto" />
+                <img src="/img-rock/guitarra-rockabilly.webp" alt="Guitar" className="w-full h-auto" />
               </motion.div>
     <RetroFrame className="aspect-video">
                 {videoUrl ? (

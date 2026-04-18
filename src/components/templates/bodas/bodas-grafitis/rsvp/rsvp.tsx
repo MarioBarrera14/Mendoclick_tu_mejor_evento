@@ -108,9 +108,9 @@ export function RSVP({ config }: RSVPProps) {
   if (!mounted) return null;
 
   return (
-    <section className="relative py-16 md:py-28 overflow-hidden font-sans bg-[url('/images/img-grafitis/pared.jpg')] bg-cover bg-center">
+    <section className="relative py-16 md:py-28 overflow-hidden font-sans bg-[url('/images/img-grafitis/pared.webp')] bg-cover bg-center">
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none -translate-y-[1px]">
-        <div className="w-full h-[60px] md:h-[180px] bg-[#f7e6c4] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.png)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[60px] md:h-[180px] bg-[#f7e6c4] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
       <div className="absolute inset-0 bg-black/60 z-0" />
 
@@ -121,7 +121,7 @@ export function RSVP({ config }: RSVPProps) {
           </div>
           <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col items-center justify-center text-center relative">
             <div className="mb-4 w-12 h-12 relative">
-              <Image src="/images/img-grafitis/sobre.png" alt="Confirmar" fill className="object-contain" />
+              <Image src="/images/img-grafitis/sobre.webp" alt="Confirmar" fill className="object-contain" />
             </div>
             <h2 className="font-['Permanent_Marker',_cursive] text-2xl md:text-4xl text-black mb-4 uppercase tracking-tighter">Confirmación</h2>
             <p className="text-black font-bold text-sm mb-8 uppercase tracking-widest">Antes del {formattedDate}</p>

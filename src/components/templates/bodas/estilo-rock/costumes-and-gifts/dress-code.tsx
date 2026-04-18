@@ -153,7 +153,7 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
             </h2>
             <div className="flex-grow flex flex-col items-center justify-center">
               <div className="relative w-24 h-24 mb-6">
-                <Image src="/img-rock/gift-rockabilly.png" alt="Regalo" fill className="object-contain" />
+                <Image src="/img-rock/gift-rockabilly.webp" alt="Regalo" fill className="object-contain" />
               </div>
               <p className="text-center text-gray-800 font-bold text-lg leading-tight mb-4 uppercase tracking-tighter">
                 Nuestro mejor regalo es tu presencia, pero si deseás colaborar...
@@ -183,7 +183,7 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
             </h2>
             <div className="flex-grow flex flex-col items-center justify-center">
               <div className="relative w-full h-48 mb-4">
-                <Image src="/img-rock/dress-rockabilly.png" alt="Dress Code" fill className="object-contain" />
+                <Image src="/img-rock/dress-rockabilly.webp" alt="Dress Code" fill className="object-contain" />
               </div>
               <p className="text-center text-gray-800 font-bold text-lg uppercase tracking-tighter italic">
                 Estilo <span className="text-[#4fb0a2]">Rockabilly & Pin-up</span>

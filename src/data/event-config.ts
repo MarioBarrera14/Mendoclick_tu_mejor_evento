@@ -42,7 +42,7 @@ export const eventConfig: EventConfig = {
   },
 
   imagenes: {
-    hero: "/cumple.jpg",
+    hero: "/cumple.webp",
   },
 
   ubicacion: {

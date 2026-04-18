@@ -107,7 +107,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
         {/* FONDO */}
         <div className="absolute inset-0 z-0 opacity-60">
           <Image 
-            src="/img-rock/baile.png" 
+            src="/img-rock/baile.webp" 
             alt="Fondo Vinilos"
             fill
             className="object-cover grayscale brightness-50"
@@ -129,7 +129,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
                 className="relative w-20 h-20 md:w-24 md:h-24"
               >
                 <Image 
-                  src="/img-rock/tocadiscos.png" 
+                  src="/img-rock/tocadiscos.webp" 
                   alt="Tocadiscos"
                   fill
                   className="object-contain drop-shadow-md"

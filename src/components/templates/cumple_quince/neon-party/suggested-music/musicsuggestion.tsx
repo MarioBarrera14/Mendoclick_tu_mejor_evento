@@ -83,7 +83,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
     <section className="relative py-16 bg-[#0c001a] overflow-hidden font-sans">
       <div className="absolute inset-0 z-0">
         <img 
-          src="/controladordj.png" 
+          src="/controladordj.webp" 
           alt="DJ Background" 
           className="w-full h-full object-cover opacity-30 grayscale-[0.5]"
         />

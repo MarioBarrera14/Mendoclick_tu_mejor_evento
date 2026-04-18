@@ -34,7 +34,7 @@ export default function SeccionTestigos({ items }: SeccionTestigosProps) {
           <div className="flex justify-center mb-1">
              <div className="relative w-16 h-8">
                <Image 
-                 src="/img-rock/anteojos.png" 
+                 src="/img-rock/anteojos.webp" 
                  alt="Anteojos retro" 
                  fill
                  className="object-contain"
@@ -84,7 +84,7 @@ export default function SeccionTestigos({ items }: SeccionTestigosProps) {
                   <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-[3px] border-dashed border-[#b43c3c] p-1.5 shadow-inner relative overflow-hidden">
                     <div className="relative w-full h-full rounded-full overflow-hidden">
                       <Image 
-                        src={testigo.imageUrl || "/img_boda/placeholder-user.jpg"} 
+                        src={testigo.imageUrl || "/img_boda/placeholder-user.webp"} 
                         alt={testigo.nombre} 
                         fill
                         className="object-cover filter grayscale-[15%]"

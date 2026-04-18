@@ -10,7 +10,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     legacyId: "DEMO1",
     name: "Night Lights",
     description: "Diseño elegante y sofisticado con tonos oscuros e iluminación ambiental",
-    previewImage: "/Demo1.png",
+    previewImage: "/Demo1.webp",
     category: "xv",
     colors: {
       primary: "#1a1a1a",
@@ -25,7 +25,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     legacyId: "DEMO2",
     name: "Neon Party",
     description: "Estilo vibrante y moderno con colores neón y efectos brillantes",
-    previewImage: "/Demos2.png",
+    previewImage: "/Demos2.webp",
     category: "cumpleanos",
     colors: {
       primary: "#ff00ff",
@@ -40,7 +40,7 @@ export const TEMPLATES: TemplateDefinition[] = [
     legacyId: "DEMO3",
     name: "Golden B-Day",
     description: "Elegancia dorada con detalles premium para ocasiones especiales",
-    previewImage: "/Demo3.png",
+    previewImage: "/Demo3.webp",
     category: "cumpleanos",
     colors: {
       primary: "#d4af37",

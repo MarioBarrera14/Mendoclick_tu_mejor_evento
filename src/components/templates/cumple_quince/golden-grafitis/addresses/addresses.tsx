@@ -27,8 +27,8 @@ export function EventDetails({ config }: EventDetailsProps) {
   if (config.churchName && config.churchName.trim() !== "") {
     events.push({
       title: "CEREMONIA",
-      icon: "/images/img-grafitis/anillos.png",
-      image: "/img_boda/iglesia.jpg", // Placeholder temático
+      icon: "/images/img-grafitis/anillos.webp",
+      image: "/img_boda/iglesia.webp", // Placeholder temático
       time: `${config.eventDate.split("-").reverse().join("/")} a las ${config.eventTime}hs`,
       location: `"${config.churchName}", ${config.churchAddress}`,
       mapsLink: config.churchMapLink || "#",
@@ -38,8 +38,8 @@ export function EventDetails({ config }: EventDetailsProps) {
   // 2. Siempre se agrega la Fiesta
   events.push({
     title: "FIESTA",
-    icon: "/images/img-grafitis/fiesta.png",
-    image: "/img_boda/lugar.jpg", // Placeholder temático
+    icon: "/images/img-grafitis/fiesta.webp",
+    image: "/img_boda/lugar.webp", // Placeholder temático
     time: `${config.eventDate.split("-").reverse().join("/")} a las ${config.eventTime}hs`,
     location: `"${config.venueName}", ${config.venueAddress}`,
     mapsLink: config.mapLink || "#",
