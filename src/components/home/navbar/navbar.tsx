@@ -10,6 +10,17 @@ export const Navbar = () => {
 
   // Sombras para resaltar el texto sobre fondos complejos
   const textShadow = "drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]";
+  // --- FUNCIÓN DE SCROLL PROFESIONAL ---
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault(); // Evita que el # aparezca en la URL
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-lg border-b border-black/5 transition-all duration-300">
@@ -27,8 +38,11 @@ export const Navbar = () => {
 
         {/* NAVEGACIÓN DESKTOP */}
         <div className={`hidden lg:flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-800 ${textShadow}`}>
-          <a href="#modelos" className="hover:text-[#33aba1] transition-colors">Modelos</a>
-          <a href="#experiencia" className="hover:text-[#33aba1] transition-colors">Tecnología</a>
+          <a href="#modelos" 
+           onClick={(e) => scrollToSection(e, 'modelos')}
+          className="hover:text-[#33aba1] transition-colors">Modelos</a>
+          <a href="#experiencia"
+           onClick={(e) => scrollToSection(e, 'experiencia')} className="hover:text-[#33aba1] transition-colors">Tecnología</a>
           
           <div className="flex items-center gap-3 border-l border-zinc-200 pl-6">
             {status === "authenticated" ? (
