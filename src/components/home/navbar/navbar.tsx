@@ -80,7 +80,7 @@ export const Navbar = () => {
            <hr className="border-zinc-100" />
            {status === "authenticated" ? (
              <>
-               <Link href="/admin" onClick={() => setIsMenuOpen(false)} className="text-zinc-900">Mi Panel</Link>
+               <Link href="/manager/clientes/" onClick={() => setIsMenuOpen(false)} className="text-zinc-900">Mi Panel</Link>
                <button onClick={() => signOut()} className="text-red-600 text-left">Cerrar Sesión</button>
              </>
            ) : (
