@@ -1,56 +1,57 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FiMenu, FiUser, FiLogOut, FiLayout } from 'react-icons/fi';
+import { FiMenu, FiUser, FiLogOut, FiLayout, FiX } from 'react-icons/fi';
 import { useSession, signOut } from "next-auth/react";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { status } = useSession();
+
+  // Sombras para resaltar el texto sobre fondos complejos
+  const textShadow = "drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]";
 
   return (
-    <nav className="fixed top-0 w-full z-[100] bg-white/20 backdrop-blur-md border-b border-black/5">
-      <div className="container mx-auto px-6 h-16 flex justify-between items-center">
+    <nav className="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-lg border-b border-black/5 transition-all duration-300">
+      <div className="container mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
         
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center font-black italic shadow-lg text-white">M</div>
-          <span className="text-lg font-black uppercase italic tracking-tighter text-zinc-900">
-            MENDO<span className="text-red-600">CLICK</span>
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 bg-[#33aba1] rounded-lg flex items-center justify-center font-black italic shadow-md text-white group-hover:rotate-3 transition-transform">
+            M
+          </div>
+          <span className={`text-base md:text-lg font-black uppercase italic tracking-tighter text-zinc-900 ${textShadow}`}>
+            MENDO<span className="text-[#33aba1]">CLICK</span>
           </span>
         </Link>
 
-        {/* BOTONES DE NAVEGACIÓN (DESKTOP) */}
-        <div className="hidden md:flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600">
-          <a href="#modelos" className="hover:text-red-600 transition">Modelos</a>
-          <a href="#experiencia" className="hover:text-red-600 transition">Tecnología</a>
+        {/* NAVEGACIÓN DESKTOP */}
+        <div className={`hidden lg:flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.15em] text-zinc-800 ${textShadow}`}>
+          <a href="#modelos" className="hover:text-[#33aba1] transition-colors">Modelos</a>
+          <a href="#experiencia" className="hover:text-[#33aba1] transition-colors">Tecnología</a>
           
-          <div className="flex items-center gap-4 border-l border-zinc-200 pl-8">
+          <div className="flex items-center gap-3 border-l border-zinc-200 pl-6">
             {status === "authenticated" ? (
               <>
-                {/* BOTÓN PANEL SI ESTÁ LOGUEADO */}
                 <Link 
                   href="/manager/clientes/" 
-                  className="flex items-center gap-2 bg-zinc-900 text-white px-5 py-2 rounded-xl hover:bg-rose-500 transition-all font-black tracking-widest text-[10px] shadow-md"
+                  className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-[#33aba1] transition-all shadow-md active:scale-95"
                 >
                   <FiLayout size={14} />
                   PANEL
                 </Link>
-
-                {/* BOTÓN SALIDA (LOGOUT) */}
                 <button 
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="flex items-center gap-2 text-zinc-500 hover:text-red-600 transition-all font-black tracking-widest text-[10px]"
+                  className="flex items-center gap-2 text-zinc-600 hover:text-red-600 transition-all"
                 >
                   <FiLogOut size={14} />
                   SALIR
                 </button>
               </>
             ) : (
-              /* BOTÓN LOGIN SI NO ESTÁ LOGUEADO */
               <Link 
                 href="/login" 
-                className="flex items-center gap-2 bg-zinc-100 text-zinc-900 px-5 py-2 rounded-xl hover:bg-zinc-200 transition-all font-black tracking-widest text-[10px]"
+                className="flex items-center gap-2 bg-zinc-100 text-zinc-900 px-4 py-2 rounded-lg hover:bg-zinc-200 transition-all border border-zinc-200"
               >
                 <FiUser size={14} />
                 LOGIN
@@ -59,35 +60,72 @@ export const Navbar = () => {
             
             <Link 
               href="https://wa.me/tu-numero" 
-              className="bg-red-600 text-white px-6 py-2 rounded-full hover:bg-zinc-900 transition-all font-bold tracking-widest text-[10px]"
+              className="bg-[#33aba1] text-white px-5 py-2 rounded-full hover:bg-zinc-900 transition-all shadow-lg shadow-[#33aba1]/20 active:scale-95 text-center min-w-[110px]"
             >
               CONTACTO
             </Link>
           </div>
         </div>
 
-        {/* MENÚ MOBILE */}
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-2xl text-zinc-900">
-          <FiMenu />
+        {/* BOTÓN HAMBURGUESA MOBILE */}
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          className="lg:hidden text-2xl text-zinc-900 p-2 hover:bg-black/5 rounded-full transition-colors"
+          aria-label="Abrir menú"
+        >
+          {isMenuOpen ? <FiX /> : <FiMenu />}
         </button>
       </div>
 
-      {/* DESPLEGABLE MOBILE */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-b border-zinc-100 p-6 flex flex-col gap-4 text-[10px] font-black uppercase tracking-widest shadow-xl">
-           <a href="#modelos" onClick={() => setIsMenuOpen(false)}>Modelos</a>
-           <a href="#experiencia" onClick={() => setIsMenuOpen(false)}>Tecnología</a>
-           <hr className="border-zinc-100" />
-           {status === "authenticated" ? (
-             <>
-               <Link href="/manager/clientes/" onClick={() => setIsMenuOpen(false)} className="text-zinc-900">Mi Panel</Link>
-               <button onClick={() => signOut()} className="text-red-600 text-left">Cerrar Sesión</button>
-             </>
-           ) : (
-             <Link href="/login" onClick={() => setIsMenuOpen(false)}>Acceso Clientes</Link>
-           )}
+      {/* MENÚ DESPLEGABLE MOBILE */}
+      <div className={`
+        lg:hidden absolute top-16 left-0 w-full bg-white border-b border-zinc-100 shadow-2xl transition-all duration-300 ease-in-out
+        ${isMenuOpen ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible'}
+      `}>
+        <div className="flex flex-col p-6 gap-5 text-[11px] font-black uppercase tracking-widest text-zinc-800">
+          <a href="#modelos" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between py-2 border-b border-zinc-50">
+            Modelos <span className="text-[#33aba1] opacity-50">→</span>
+          </a>
+          <a href="#experiencia" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-between py-2 border-b border-zinc-50">
+            Tecnología <span className="text-[#33aba1] opacity-50">→</span>
+          </a>
+          
+          <div className="flex flex-col gap-3 mt-2">
+            {status === "authenticated" ? (
+              <>
+                <Link 
+                  href="/manager/clientes/" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 bg-zinc-900 text-white py-3 rounded-xl shadow-lg"
+                >
+                  <FiLayout /> MI PANEL
+                </Link>
+                <button 
+                  onClick={() => signOut()}
+                  className="flex items-center justify-center gap-2 text-red-600 py-2 font-black"
+                >
+                  <FiLogOut /> CERRAR SESIÓN
+                </button>
+              </>
+            ) : (
+              <Link 
+                href="/login" 
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center justify-center gap-2 bg-zinc-100 py-3 rounded-xl border border-zinc-200"
+              >
+                <FiUser /> ACCESO CLIENTES
+              </Link>
+            )}
+            
+            <Link 
+              href="https://wa.me/tu-numero" 
+              className="bg-[#33aba1] text-white py-4 rounded-xl text-center shadow-lg shadow-[#33aba1]/20 mt-2"
+            >
+              CONTACTAR POR WHATSAPP
+            </Link>
+          </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 };
