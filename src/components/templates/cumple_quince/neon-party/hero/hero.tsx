@@ -69,8 +69,7 @@ export function Hero({ config }: HeroProps) {
       {/* CAPA DE VIDEO OPTIMIZADA */}
       <div className="absolute inset-0 z-0">
         <video 
-          autoPlay loop muted playsInline 
-          poster="/img/video-poster.webp" // Imagen de carga inicial
+          autoPlay loop muted playsInline
           className="absolute inset-0 w-full h-full object-cover brightness-[0.35] contrast-[1.15]"
         >
           <source src="/movie/Video_de_Esferas_de_Espejos.WebM" type="video/webm" />
