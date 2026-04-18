@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, Variants } from "framer-motion";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 
 interface HeroProps {
@@ -22,16 +22,12 @@ const NeonDivider = () => (
 );
 
 export function Hero({ config }: HeroProps) {
-  // 1. RESTAURACIÓN DEL VIDEO DE FONDO
-  const videoFondo = "/movie/Video_de_Esferas_de_Espejos.WebM"; 
-  
   const currentImage = config.heroImage || "/Demo1.webp";
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, min: 0, seg: 0 });
 
   const calculateTimeLeft = useCallback(() => {
-    // Configuración dinámica del contador basado en las props
     const targetDate = new Date(`${config.eventDate}T${config.eventTime}:00`).getTime();
-    const now = new Date().getTime();
+    const now = Date.now();
     const distance = targetDate - now;
 
     if (distance > 0) {
@@ -50,45 +46,45 @@ export function Hero({ config }: HeroProps) {
     return () => clearInterval(interval);
   }, [calculateTimeLeft]);
 
-  const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).toUpperCase();
+  // Formateo de fecha memoizado para evitar recalcular en cada segundo del contador
+  const formattedDate = useMemo(() => {
+    return new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    }).toUpperCase();
+  }, [config.eventDate]);
 
   const ballVariants: Variants = {
     animate: (delay: number) => ({
-      y: [0, 15, 0],
-      rotate: [-2, 2, -2],
-      transition: { duration: 6, repeat: Infinity, ease: "easeInOut", delay },
+      y: [0, 12, 0],
+      rotate: [-1, 1, -1],
+      transition: { duration: 5, repeat: Infinity, ease: "easeInOut", delay },
     }),
   };
 
   const starClipPath = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col items-center justify-between overflow-hidden bg-[#0a0a0a] py-12">
+    <section className="relative w-full min-h-screen flex flex-col items-center justify-between overflow-hidden bg-[#050505] py-12">
       
-      {/* CAPA DE VIDEO */}
+      {/* CAPA DE VIDEO OPTIMIZADA */}
       <div className="absolute inset-0 z-0">
         <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          className="absolute inset-0 w-full h-full object-cover brightness-[0.40] contrast-[1.1]"
+          autoPlay loop muted playsInline 
+          poster="/img/video-poster.webp" // Imagen de carga inicial
+          className="absolute inset-0 w-full h-full object-cover brightness-[0.35] contrast-[1.15]"
         >
-          <source src={videoFondo} type="video/WebM" />
+          <source src="/movie/Video_de_Esferas_de_Espejos.WebM" type="video/webm" />
         </video>
         
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-purple-900/10 via-[#0a0a0a]/40 to-[#0a0a0a]" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-purple-900/20 via-transparent to-[#050505]" />
         
+        {/* DISCO BALLS CON OPTIMIZACIÓN DE IMAGEN */}
         <div className="absolute inset-0 z-20 pointer-events-none">
-          <motion.div variants={ballVariants} custom={0} animate="animate" className="absolute -left-10 top-[15%] w-48 md:w-80 opacity-40 blur-[1px]">
-            <Image src="/boll.webp" alt="disco ball" width={400} height={400} />
+          <motion.div variants={ballVariants} custom={0} animate="animate" className="absolute -left-12 top-[10%] w-40 md:w-80 opacity-40 blur-[0.5px]">
+            <Image src="/boll.webp" alt="disco ball" width={320} height={320} priority />
           </motion.div>
-          <motion.div variants={ballVariants} custom={1} animate="animate" className="absolute -right-10 top-[25%] w-40 md:w-72 opacity-30 blur-[2px]">
-            <Image src="/boll.webp" alt="disco ball" width={400} height={400} className="scale-x-[-1]" />
+          <motion.div variants={ballVariants} custom={1.5} animate="animate" className="absolute -right-12 top-[20%] w-32 md:w-72 opacity-30 blur-[1px]">
+            <Image src="/boll.webp" alt="disco ball flip" width={320} height={320} className="scale-x-[-1]" />
           </motion.div>
         </div>
 
@@ -96,61 +92,71 @@ export function Hero({ config }: HeroProps) {
       </div>
 
       {/* CONTENIDO CENTRAL */}
-      <div className="relative z-50 flex flex-col items-center text-center px-4 w-full flex-grow justify-center mt-[-2vh]">
+      <div className="relative z-50 flex flex-col items-center text-center px-4 w-full flex-grow justify-center -mt-10">
         
-        {/* Estrella - TAMAÑO AGRANDADO AQUÍ */}
-        <div className="relative w-[220px] md:w-[320px] aspect-square mb-8">
-          <div className="absolute inset-0 bg-purple-500 blur-[40px] opacity-60 scale-110" style={{ clipPath: starClipPath }} />
+        {/* Contenedor de Estrella con Aspect Ratio para evitar CLS */}
+        <div className="relative w-[240px] md:w-[340px] aspect-square mb-8">
+          <div className="absolute inset-0 bg-purple-600/40 blur-[50px] scale-110" style={{ clipPath: starClipPath }} />
           <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }} 
+            initial={{ scale: 0.85, opacity: 0 }} 
             animate={{ scale: 1, opacity: 1 }}
-            className="relative w-full h-full p-[3px] bg-gradient-to-b from-purple-200 to-purple-500" 
+            className="relative w-full h-full p-[2px] bg-gradient-to-tr from-purple-300 via-purple-100 to-purple-400" 
             style={{ clipPath: starClipPath }}
           >
-            <div className="w-full h-full overflow-hidden bg-[#1a1a1a]" style={{ clipPath: starClipPath }}>
-              <Image src={currentImage} fill className="object-cover" alt="Hero" priority />
+            <div className="w-full h-full overflow-hidden bg-zinc-900" style={{ clipPath: starClipPath }}>
+              <Image 
+                src={currentImage} 
+                fill 
+                sizes="(max-width: 768px) 240px, 340px"
+                className="object-cover hover:scale-105 transition-transform duration-700" 
+                alt="Retrato principal" 
+                priority 
+              />
             </div>
           </motion.div>
         </div>
 
-        {/* Cintillo de Fecha */}
-        <div className="mb-4 px-4 py-1 border border-white/20 backdrop-blur-md -rotate-1 bg-white/5">
-          <span className="text-white text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase">
+        {/* Fecha */}
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="mb-4 px-5 py-1.5 border border-white/10 backdrop-blur-xl -rotate-1 bg-white/5 rounded-sm"
+        >
+          <span className="text-white text-[10px] md:text-xs font-black tracking-[0.5em] uppercase">
             {formattedDate}
           </span>
-        </div>
+        </motion.div>
 
-        <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
           <h1 
-            className="text-6xl sm:text-8xl md:text-9xl font-black italic uppercase leading-none tracking-tighter text-white"
+            className="text-7xl sm:text-8xl md:text-[10rem] font-black italic uppercase leading-[0.8] tracking-tighter text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]"
             style={{
-              textShadow: "0 0 5px #fff, 2px 2px 0px #a855f7, 0 0 20px rgba(168, 85, 247, 0.4)",
+              textShadow: "0 0 10px rgba(255,255,255,0.3), 3px 3px 0px #7c3aed",
             }}
           >
             {config.eventName}
           </h1>
-          <div className="mt-4 transform -rotate-2">
-            <span className="font-script text-4xl sm:text-6xl md:text-7xl text-purple-200 drop-shadow-[0_0_15px_rgba(168, 85, 247, 0.9)]">
+          <div className="mt-4 -rotate-3">
+            <span className="font-script text-5xl sm:text-6xl md:text-8xl text-purple-100 drop-shadow-[0_0_20px_rgba(168,85,247,0.8)]">
               Mis 15 Años
             </span>
           </div>
         </motion.div>
       </div>
 
-      {/* CONTADOR CONFIGURADO */}
-      <div className="relative z-50 w-full flex flex-col items-center pb-8">
-        <div className="flex gap-4 md:gap-10 text-white border-t border-white/10 pt-8 px-6 md:px-12">
+      {/* CONTADOR OPTIMIZADO */}
+      <div className="relative z-50 w-full flex flex-col items-center pb-12">
+        <div className="grid grid-cols-4 gap-4 md:gap-12 text-white border-t border-white/5 pt-10 px-4">
           {[
             { label: "Días", value: timeLeft.dias },
             { label: "Horas", value: timeLeft.horas },
-            { label: "Minutos", value: timeLeft.min },
-            { label: "Segundos", value: timeLeft.seg },
+            { label: "Mins", value: timeLeft.min },
+            { label: "Segs", value: timeLeft.seg },
           ].map((item, i) => (
-            <div key={i} className="flex flex-col items-center min-w-[60px] md:min-w-[100px]">
-              <span className="text-3xl md:text-6xl font-bold italic tabular-nums leading-none">
+            <div key={i} className="flex flex-col items-center">
+              <span className="text-4xl md:text-7xl font-black italic tabular-nums leading-none tracking-tighter">
                 {String(item.value).padStart(2, '0')}
               </span>
-              <span className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold mt-2">
+              <span className="text-[9px] md:text-[11px] uppercase tracking-[0.3em] text-purple-400 font-black mt-3">
                 {item.label}
               </span>
             </div>
