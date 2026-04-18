@@ -74,7 +74,7 @@ export function Hero({ config }: HeroProps) {
             className="flex flex-col items-center text-center text-white"
           >
             <span className="text-white/60 tracking-[0.6em] text-[10px] uppercase mb-4 font-light">
-              Nuestra Boda
+            ¡Mis 15!
             </span>
 
             <h1 className="font-script text-6xl md:text-8xl lg:text-[8rem] text-white leading-tight drop-shadow-2xl">

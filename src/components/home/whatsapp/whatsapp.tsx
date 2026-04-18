@@ -1,0 +1,70 @@
+"use client";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { FaWhatsapp } from 'react-icons/fa';
+
+export const WhatsAppButton: React.FC = () => {
+  const whatsappNumber: string = "549261000000"; 
+  const message: string = "Hola MendoClick! Quería consultar por una invitación digital...";
+
+  const handleClick = (): void => {
+    const url: string = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
+  return (
+    <div className="fixed bottom-8 right-8 z-[999]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5, y: 50 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 260, 
+          damping: 20, 
+          delay: 1 
+        }}
+        className="relative group flex flex-col items-end"
+      >
+        {/* --- Texto con Sombreado (Sin Globo) --- */}
+        {/* Usamos drop-shadow-2xl para que las letras se despeguen del fondo */}
+        <div className="mb-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-0 group-hover:-translate-x-0 pointer-events-none">
+          <p className="text-[18px] font-black text-white uppercase tracking-widest italic whitespace-nowrap drop-shadow-[0_2px_2px_rgba(0,0,1)]">
+            ¿Hablamos por WhatsApp?
+          </p>
+        </div>
+
+        {/* Contenedor del Botón */}
+        <div className="relative">
+          {/* Badge de Notificación */}
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 2, type: "spring" }}
+            className="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center z-20 shadow-lg border-2 border-white"
+          >
+            1
+          </motion.span>
+
+          {/* Círculos de Pulsación (Tailwind nativo animate-pulse) */}
+          <div className="absolute inset-0 bg-[#25D366] rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse z-0" />
+
+          {/* El Botón Principal */}
+          <motion.button
+            onClick={handleClick}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative w-16 h-16 bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white rounded-[22px] flex items-center justify-center shadow-[0_15px_40px_-10px_rgba(20,160,80,0.5)] transition-all duration-300 overflow-hidden z-10"
+          >
+            {/* Brillo superior */}
+            <div className="absolute top-0 left-0 w-full h-[40%] bg-white/10 z-10 rounded-t-[22px]" />
+            
+            <FaWhatsapp className="text-3xl relative z-20" />
+            
+            {/* Efecto Shimmer con Tailwind puro */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] z-10" />
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
