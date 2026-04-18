@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   description: "Te invito a celebrar conmigo mis XV años",
   // AGREGAMOS ESTA SECCIÓN:
   icons: {
-    icon: "/logo.png", // Esto apunta a public/logo.png
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo.webp", // Esto apunta a public/logo.png
+    shortcut: "/logo.webp",
+    apple: "/logo.webp",
   },
 };
 

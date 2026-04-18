@@ -63,13 +63,13 @@ export const globalBodaConfig: BodaConfig = {
   fecha: { dia: 12, mes: 12, año: 2026, hora: "18:00", mensaje: "12 . 09 . 2026" },
   imagenes: {
     hero: {
-      rock: "/img_boda/vintage.png",
+      rock: "/img_boda/vintage.webp",
       graffiti: "/img_boda/grafiteros.webp",
-      noir: "/img_boda/bode_casado.jpg",
+      noir: "/img_boda/bode_casado.webp",
     },
-    videoUrl: { rock: "/movie/quince.mp4", graffiti: "/movie/quince.mp4", noir: "/movie/quince.mp4" },
+    videoUrl: { rock: "/movie/quince.WebM", graffiti: "/movie/quince.WebM", noir: "/movie/quince.WebM" },
     musicaUrl: { rock: "/audio/queenrock.mp3", graffiti: "/audio/edsheran.mp3", noir: "/audio/samsmith.mp3" },
-    carrusel: ["/img_boda/gallery-1.jpg", "/img_boda/gallery-2.jpg", "/img_boda/gallery-3.jpg", "/img_boda/gallery-4.jpg", "/img_boda/gallery-5.jpg", "/img_boda/gallery-6.jpg"]
+    carrusel: ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-3.webp", "/img_boda/gallery-4.webp", "/img_boda/gallery-5.webp", "/img_boda/gallery-6.webp"]
   },
   ubicacion: {
     nombreLugar: "Salón de Eventos",
@@ -92,10 +92,10 @@ export const globalBodaConfig: BodaConfig = {
     { id: "8", time: "05:00hs", title: "Souvenirs", icon: "Gift", order: 8 },
   ],
   testigos: [
-    { id: "t1", nombre: "Mateo", rol: "Testigo Novio", imageUrl: "/img_boda/testigo1.jpg" },
-    { id: "t2", nombre: "Lucía", rol: "Testigo Novio", imageUrl: "/img_boda/testigo2.jpg" },
-    { id: "t3", nombre: "Elena", rol: "Testigo Novia", imageUrl: "/img_boda/testigo3.jpg" },
-    { id: "t4", nombre: "Marcos", rol: "Testigo Novia", imageUrl: "/img_boda/testigo4.jpg" },
+    { id: "t1", nombre: "Mateo", rol: "Testigo Novio", imageUrl: "/img_boda/testigo1.webp" },
+    { id: "t2", nombre: "Lucía", rol: "Testigo Novio", imageUrl: "/img_boda/testigo2.webp" },
+    { id: "t3", nombre: "Elena", rol: "Testigo Novia", imageUrl: "/img_boda/testigo3.webp" },
+    { id: "t4", nombre: "Marcos", rol: "Testigo Novia", imageUrl: "/img_boda/testigo4.webp" },
   ],
   dressCode: { titulo: "DRESS CODE", descripcion: "La vestimenta es **Elegante**." },
   regalo: {
@@ -127,9 +127,9 @@ export const globalQuinceConfig: QuinceConfig = {
    
     },
     videoUrl: {
-      champagne: "/movie/quince.mp4",
-      neon: "/movie/quince.mp4",
-      graffiti: "/movie/quince.mp4",
+      champagne: "/movie/quince.WebM",
+      neon: "/movie/quince.WebM",
+      graffiti: "/movie/quince.WebM",
     },
     musicaUrl: {
       champagne: "/audio/taylor.mp3",

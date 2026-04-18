@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export const Hero = () => {
@@ -11,14 +12,13 @@ export const Hero = () => {
     <section className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center overflow-hidden bg-white">
       {/* --- CONTENEDOR DE IMAGEN CON CORTE DIAGONAL --- */}
       <div 
-        className="absolute inset-0 z-0 bg-zinc-200"
-        style={{
-          clipPath: "polygon(0 0, 100% 0, 100% 85%, 0% 100%)",
-        }}
+        className="absolute inset-0 z-0 bg-zinc-200 [clip-path:polygon(0_0,100%_0,100%_85%,0%_100%)]"
       >
-        <img 
-          src="/img_boda/bode_casado.jpg" 
-          className="w-full h-full object-cover" 
+        <Image 
+          src="/img_boda/bode_casado.webp" 
+          fill
+          priority
+          className="object-cover" 
           alt="Background Aesthetic" 
         />
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]" />
@@ -72,16 +72,20 @@ export const Hero = () => {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-zinc-900 rounded-b-2xl z-40" />
             
             {/* --- CONTENEDOR SCROLLABLE --- */}
-            {/* 'overflow-y-auto' permite el scroll y 'scrollbar-hide' lo mantiene estético */}
             <div className="absolute inset-0 overflow-y-auto scrollbar-hide">
-              <img 
-                src="/img_demo/demo1.webp" 
-                className="w-full h-auto" // 'h-auto' es clave para que la imagen mantenga su largo y permita el scroll
-                alt="Preview Invitación" 
-              />
+              <div className="relative w-full h-auto">
+                <Image 
+                  src="/img_demo/Samsun.webp" 
+                  width={300}
+                  height={1000}
+                  className="w-full h-auto"
+                  alt="Preview Invitación" 
+                  priority
+                />
+              </div>
             </div>
             
-            {/* Botón flotante (z-30 para estar sobre el scroll) */}
+            {/* Botón flotante interno */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] bg-white/90 backdrop-blur-sm py-3 rounded-xl shadow-lg border border-black/5 text-center z-30 pointer-events-none">
                 <p className="text-[8px] font-black text-red-600 tracking-[0.2em] uppercase italic">Ver Detalles</p>
             </div>
