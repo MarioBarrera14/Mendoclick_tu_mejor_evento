@@ -15,7 +15,7 @@ interface NavbarProps {
 export const Navbar = ({ eventName, isDemo = false }: NavbarProps) => {
   const router = useRouter();
   const { status } = useSession();
-  const displayName = eventName || localConfig.personal.nombre || "Nuestra Boda";
+const displayName = eventName || localConfig.personal.nombres || "Nuestra Boda";
 
   const handleRefresh = () => window.location.reload();
 

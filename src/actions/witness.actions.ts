@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+/**
+ * Obtiene los testigos asociados a la configuración de evento del usuario actual
+ */
 export async function getWitnesses() {
   try {
     const session = await getServerSession(authOptions);
@@ -14,35 +17,47 @@ export async function getWitnesses() {
       where: { user: { email: session.user.email } },
       include: { witnesses: true }
     });
+
     return config?.witnesses || [];
   } catch (error) {
+    console.error("Error en getWitnesses:", error);
     return [];
   }
 }
 
-// Acción para sincronizar/guardar
+/**
+ * Sincroniza la lista de testigos (Borra los anteriores y crea los nuevos)
+ */
 export async function updateWitnesses(witnesses: any[]) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return { success: false };
+    if (!session?.user?.email) return { success: false, error: "No hay sesión activa" };
 
     const usuario = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: { eventConfig: true }
     });
 
-    if (!usuario?.eventConfig) return { success: false };
+    // Validación de seguridad para evitar errores de null
+    const configId = usuario?.eventConfig?.id;
+    if (!configId) {
+      return { success: false, error: "No se encontró configuración de evento" };
+    }
 
-    const cleanWitnesses = witnesses.filter(w => w.nombre.trim() !== "");
+    // Filtramos testigos vacíos
+    const cleanWitnesses = witnesses.filter(w => w.nombre && w.nombre.trim() !== "");
 
+    // Transacción para asegurar que no perdamos datos si algo falla
     await prisma.$transaction([
-      prisma.witness.deleteMany({ where: { eventConfigId: usuario.eventConfig.id } }),
+      prisma.witness.deleteMany({ 
+        where: { eventConfigId: configId } 
+      }),
       prisma.witness.createMany({
         data: cleanWitnesses.map(w => ({
           nombre: w.nombre,
           rol: w.rol,
           imageUrl: w.imageUrl || "",
-          eventConfigId: usuario.eventConfig.id
+          eventConfigId: configId
         }))
       })
     ]);
@@ -50,17 +65,27 @@ export async function updateWitnesses(witnesses: any[]) {
     revalidatePath("/admin/testigos");
     return { success: true };
   } catch (error) {
-    return { success: false };
+    console.error("Error en updateWitnesses:", error);
+    return { success: false, error: "Error al guardar los testigos" };
   }
 }
 
-// ACCIÓN DE ELIMINACIÓN REAL (Igual a Itinerario/Galería)
+/**
+ * Elimina un testigo individual por su ID
+ */
 export async function deleteWitnessAction(id: string) {
   try {
-    await prisma.witness.delete({ where: { id } });
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) return { success: false, error: "No autorizado" };
+
+    await prisma.witness.delete({
+      where: { id }
+    });
+
     revalidatePath("/admin/testigos");
     return { success: true };
   } catch (error) {
-    return { success: false };
+    console.error("Error en deleteWitnessAction:", error);
+    return { success: false, error: "No se pudo eliminar el testigo" };
   }
 }

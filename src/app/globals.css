@@ -1,3 +1,4 @@
+/* 1. Las fuentes DEBEN ir al principio de todo para evitar errores de sintaxis */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Pinyon+Script&display=swap');
 
 @tailwind base;
@@ -6,6 +7,7 @@
 
 @layer base {
   :root {
+    /* Formato HSL para que funcione con Shadcn/Tailwind estándar */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --border: 240 5.9% 90%;
@@ -14,14 +16,14 @@
 
   html {
     scroll-behavior: smooth;
-    /* EVITA EL REBOTE LATERAL EN MÓVILES */
-    overflow-x: hidden; 
+    overflow-x: hidden;
   }
 
   body {
-    @apply bg-background text-foreground;
+    /* Cambiamos @apply por CSS estándar para evitar errores si el config no está listo */
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: 'Montserrat', sans-serif;
-    /* REGLA MAESTRA ANTISCROLL */
     overflow-x: hidden;
     width: 100%;
     position: relative;
@@ -38,7 +40,7 @@
 }
 
 @layer components {
-  /* Fuente Cursiva Elegante (RSVP, Sobres, Títulos) */
+  /* Fuente Cursiva Elegante (Pinyon Script) */
   .font-script {
     font-family: 'Pinyon Script', cursive;
     text-transform: none !important;
@@ -46,12 +48,12 @@
     letter-spacing: normal;
   }
 
-  /* Fuente Serif (Cuerpo de invitación) */
+  /* Fuente Serif (Cormorant Garamond) */
   .font-serif-elegant {
     font-family: 'Cormorant Garamond', serif;
   }
   
-  /* Scrollbar Minimalista para el Admin */
+  /* Scrollbar Minimalista */
   ::-webkit-scrollbar {
     width: 5px;
   }
@@ -73,7 +75,10 @@
 @layer utilities {
   /* Efectos de vidrio (Glassmorphism) */
   .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   /* Texto con gradiente Champagne */
@@ -83,13 +88,22 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Sombra suave para las tarjetas del catálogo */
+  /* Sombra suave */
   .shadow-soft {
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
   }
+
+  /* Helper para ocultar scrollbar pero mantener funcionalidad */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* Fix para Safari Mobile (Evita que el menú se esconda raro) */
+/* Fix para Safari Mobile */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;
