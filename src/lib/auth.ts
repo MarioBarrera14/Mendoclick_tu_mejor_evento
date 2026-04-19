@@ -23,25 +23,41 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
-        // --- 1. AGREGAMOS templateId AQUÍ ---
+        // Retornamos el objeto con toda la data necesaria para los callbacks
         return {
           id: user.id,
           email: user.email,
           nombre: user.nombre,
           role: user.role,
           slug: user.slug,
-          templateId: user.templateId, // <--- Clave para el Dashboard
+          templateId: user.templateId, 
         };
       }
     })
   ],
+
+  // =====================================================
+  // CONFIGURACIÓN DE COOKIES (Estilo SaaS / Sitrack)
+  // =====================================================
+  cookies: {
+    sessionToken: {
+      // Si en el futuro separas por subdominios, aquí puedes cambiar el nombre
+      name: process.env.NODE_ENV === "production" ? `__Secure-mendoclick.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/', // Alcance global para que funcione en / y en /invit
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
+
   callbacks: {
     async jwt({ token, user }: any) {
       if (user) {
         token.role = user.role;
         token.slug = user.slug;
         token.id = user.id;
-        // --- 2. PASAMOS templateId AL TOKEN ---
         token.templateId = user.templateId;
       }
       return token;
@@ -51,13 +67,22 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.slug = token.slug;
         session.user.id = token.id;
-        // --- 3. PASAMOS templateId A LA SESIÓN ---
         session.user.templateId = token.templateId;
       }
       return session;
     }
   },
-  pages: { signIn: "/login" },
-  session: { strategy: "jwt" },
+
+  // =====================================================
+  // PÁGINAS Y ESTRATEGIA
+  // =====================================================
+  pages: { 
+    signIn: "/login",
+    error: "/auth/error", // Es bueno tener una página de error
+  },
+  session: { 
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 días de sesión activa
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };
