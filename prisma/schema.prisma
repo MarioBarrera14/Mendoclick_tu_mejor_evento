@@ -17,7 +17,7 @@ model User {
   
   // Datos para la URL y Diseño
   slug            String   @unique // Ej: "boda-mario-y-clara"
-  templateId      String   @default("DEMO1")
+  templateId      String   @default("")
 
   // Relaciones
   eventConfig     EventConfig? 
@@ -44,14 +44,14 @@ model EventConfig {
   carruselImages   Json?           @default("[]") 
 
   // --- Datos Principales ---
-  eventName        String          @default("Mi Evento")
-  eventDate        String          @default("2026-12-19")
-  eventTime        String          @default("21:00")
+  eventName        String          @default("")
+  eventDate        String          @default("")
+  eventTime        String          @default("")
   
   // --- Ubicaciones ---
   // Salón / Fiesta
-  venueName        String          @default("Nombre del Salón")
-  venueAddress     String          @default("Calle Falsa 123")
+  venueName        String          @default("")
+  venueAddress     String          @default("")
   mapLink          String          @default("")
   
   // Iglesia / Ceremonia (Opcionales para Bodas)
@@ -62,8 +62,8 @@ model EventConfig {
   churchTime       String?         @default("") 
 
   // --- Detalles ---
-  dressCode        String?         @default("Elegante Sport")
-  dressDescription String?         @default("¡Tu presencia es lo más importante!")
+  dressCode        String?         @default("")
+  dressDescription String?         @default("")
 
   // --- Regalos / Datos Bancarios ---
   cbu              String?         @default("")

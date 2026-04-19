@@ -12,9 +12,9 @@ interface HeroProps {
 
 export function Hero({ eventName, heroImage, eventDate }: HeroProps) {
   // Lógica para separar nombres (Mantiene tu diseño de firstName & lastName)
-  const rawNames = eventName || "Ariadna & Mario";
+  const rawNames = eventName || "Juli & Mario";
   const namesArray = rawNames.split(/[&,]/);
-  const firstName = namesArray[0]?.trim() || "Ariadna";
+  const firstName = namesArray[0]?.trim() || "Juli";
   const lastName = namesArray[1]?.trim() || "Mario";
 
   // Imagen desde DB o fallback

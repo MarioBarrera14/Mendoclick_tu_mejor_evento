@@ -19,8 +19,8 @@ interface EventDetailsProps {
 export function EventDetails({ config }: EventDetailsProps) {
   const eventItems = [
     {
-      show: !!config.churchName,
-      title: "CEREMONIA",
+      show: true,
+      title: "Ceremonia",
       icon: "/images/img-grafitis/anillos.webp",
       image: "/img_boda/iglesia.webp", 
       time: `${config.eventDate} a las ${config.eventTime}hs`,

@@ -4,7 +4,7 @@
 
 // Configuración por defecto para nuevos eventos
 export const DEFAULT_EVENT_CONFIG = {
-  eventName: "Mi Gran Evento",
+  eventName: "",
   eventDate: "2026-12-19",
   eventTime: "21:00",
   venueName: "Nombre del Salón",

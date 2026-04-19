@@ -49,17 +49,19 @@ export async function registerUser(data: any) {
 // ==========================================
 
 export async function getClients() {
+  console.log("Intentando obtener clientes desde la DB...");
   try {
-    return await prisma.user.findMany({
+    const clients = await prisma.user.findMany({
       where: { role: "USER" },
       orderBy: { createdAt: "desc" }
     });
+    console.log("CLIENTES ENCONTRADOS EN DB:", clients.length); // Mirá tu terminal de VS Code
+    return clients;
   } catch (error) {
-    console.error("Error al obtener clientes:", error);
+    console.error("ERROR AL OBTENER CLIENTES:", error);
     return [];
   }
 }
-
 export async function registerClient(formData: any) {
   const { email, password, slug, templateId, masterCode } = formData;
   if (masterCode !== "MENDO_2026_PRO") return { error: "Código Maestro inválido." };
@@ -82,7 +84,7 @@ export async function registerClient(formData: any) {
         role: "USER",
         eventConfig: { 
           create: { 
-            eventName: "Mi Gran Evento", 
+            eventName: "", 
             eventDate: "2026-12-19" 
           } 
         }

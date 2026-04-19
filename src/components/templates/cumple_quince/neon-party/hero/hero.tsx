@@ -68,12 +68,21 @@ export function Hero({ config }: HeroProps) {
       
       {/* CAPA DE VIDEO OPTIMIZADA */}
       <div className="absolute inset-0 z-0">
-        <video 
-          autoPlay loop muted playsInline
-          className="absolute inset-0 w-full h-full object-cover brightness-[0.35] contrast-[1.15]"
-        >
-          <source src="/movie/Video_de_Esferas_de_Espejos.WebM" type="video/webm" />
-        </video>
+      <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      // En TSX usamos camelCase para las propiedades de estilo si fuera style={{...}}
+      // Pero className se mantiene igual que en JS
+      className="absolute inset-0 w-full h-full object-cover brightness-[0.35] contrast-[1.15]"
+    >
+      <source 
+        src="https://res.cloudinary.com/diqipcpuu/video/upload/v1/Video_de_Esferas_de_Espejos_puhojq.mp4" 
+        type="video/mp4" 
+      />
+      Tu navegador no soporta videos.
+    </video>
         
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-purple-900/20 via-transparent to-[#050505]" />
         

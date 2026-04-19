@@ -162,7 +162,7 @@ export default function DetailsConfigPage() {
               <label className="text-[10px] font-black text-zinc-600 uppercase mb-1 block">Código</label>
               <input 
                 type="text" 
-                placeholder="EJ: ELEGANTE SPORT..." 
+                placeholder="EJ: ELEGANTE SPORT, GALA, CASUAL..." 
                 value={dressCode} 
                 onChange={(e) => setDressCode(e.target.value)} 
                 className="w-full bg-zinc-50 border border-zinc-300 rounded-lg p-3 font-bold outline-none focus:border-red-500 transition-all uppercase" 
@@ -171,7 +171,7 @@ export default function DetailsConfigPage() {
             <div>
               <label className="text-[10px] font-black text-zinc-600 uppercase mb-1 block">Sugerencia (Texto corto)</label>
               <textarea 
-                placeholder="EJ: EVITAR EL COLOR BLANCO..." 
+                placeholder="EJ: POR FAVOR, EVITAR EL COLOR BLANCO Y TRAER ROPA CÓMODA PARA EL FINAL..." 
                 value={dressDescription} 
                 onChange={(e) => setDressDescription(e.target.value)} 
                 className="w-full bg-zinc-50 border border-zinc-300 rounded-lg p-3 font-bold outline-none focus:border-red-500 h-24 resize-none text-sm" 
@@ -191,7 +191,7 @@ export default function DetailsConfigPage() {
               <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">Titular de Cuenta</label>
               <input 
                 type="text" 
-                placeholder="NOMBRE COMPLETO"
+                placeholder="EJ: MARIO JAVIER ARIEL"
                 value={holderName} 
                 onChange={(e) => setHolderName(e.target.value)} 
                 className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 uppercase" 
@@ -199,10 +199,10 @@ export default function DetailsConfigPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">Alias MP</label>
+                <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">Alias MP / Banco</label>
                 <input 
                     type="text" 
-                    placeholder="EJ: MI.EVENTO.BANC"
+                    placeholder="EJ: MENDOCLICK.MP"
                     value={alias} 
                     onChange={(e) => setAlias(e.target.value)} 
                     className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500" 
@@ -212,7 +212,7 @@ export default function DetailsConfigPage() {
                 <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">Banco</label>
                 <input 
                     type="text" 
-                    placeholder="EJ: GALICIA..."
+                    placeholder="EJ: MERCADO PAGO, GALICIA, NACIÓN..."
                     value={bankName} 
                     onChange={(e) => setBankName(e.target.value)} 
                     className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-sm font-bold text-white outline-none focus:border-red-500 uppercase" 
@@ -223,7 +223,7 @@ export default function DetailsConfigPage() {
               <label className="text-[10px] font-black text-zinc-500 uppercase mb-1 block">CBU / CVU (22 dígitos)</label>
               <input 
                 type="text" 
-                placeholder="00000031000..."
+                placeholder="EJ: 0000003100012345678901"
                 value={cbu} 
                 onChange={(e) => setCbu(e.target.value)} 
                 className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-xs font-mono text-red-400 font-bold outline-none focus:border-red-500" 
@@ -236,9 +236,9 @@ export default function DetailsConfigPage() {
       {/* SECCIÓN VISTA PREVIA COMPACTA */}
       <div className="mt-12 bg-zinc-50 rounded-[3rem] p-10 border border-zinc-200 text-center shadow-inner">
         <div className="flex items-center justify-center gap-2 mb-8">
-           <span className="h-[1px] w-12 bg-zinc-300"></span>
-           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><Eye size={14}/> Test Live View</span>
-           <span className="h-[1px] w-12 bg-zinc-300"></span>
+            <span className="h-[1px] w-12 bg-zinc-300"></span>
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2"><Eye size={14}/> Test Live View</span>
+            <span className="h-[1px] w-12 bg-zinc-300"></span>
         </div>
         
         <div className="flex justify-center gap-8">
