@@ -45,7 +45,7 @@ export const Hero = () => {
         className="container mx-auto z-10 px-6 pt-10 md:pt-0 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-2 md:gap-12"
       >
         {/* --- SMARTPHONE --- */}
-        <div className="flex-1 flex justify-center relative order-1 lg:order-2 scale-[0.55] xs:scale-[0.65] sm:scale-75 lg:scale-90 -mt-20 lg:mt-0">
+        <div className="flex-1 flex justify-center relative order-1 lg:order-2 scale-[0.55] xs:scale-[0.65] sm:scale-75 lg:scale-90 -mt-10 lg:mt-0">
           <div className="absolute -top-5 -right-5 w-32 h-32 bg-[#33aba1]/30 blur-3xl rounded-full" />
           
           <motion.div 
@@ -75,7 +75,7 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
           >
-            <h1 className={`text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] uppercase italic tracking-tighter mb-3 text-white ${textShadowClass}`}>
+            <h1 className={`text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] uppercase italic tracking-tighter mb-2 text-white ${textShadowClass}`}>
               INVITACIONES<br/>
               <span className="text-[#33aba1] drop-shadow-[0_2px_8px_rgba(51,171,161,0.5)]">DIGITALES</span>
             </h1>

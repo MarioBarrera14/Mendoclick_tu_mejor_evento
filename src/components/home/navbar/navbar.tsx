@@ -25,15 +25,24 @@ export const Navbar = () => {
   return (
     <nav className="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-lg border-b border-black/5 transition-all duration-300">
       <div className="container mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
-        
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-[#33aba1] rounded-lg flex items-center justify-center font-black italic shadow-md text-white group-hover:rotate-3 transition-transform">
+          {/* Isotipo (La M) */}
+          <div className="w-8 h-8 bg-[#33aba1] rounded-lg flex items-center justify-center font-black italic shadow-md text-white group-hover:rotate-3 transition-transform shrink-0">
             M
           </div>
-          <span className={`text-base md:text-lg font-black uppercase italic tracking-tighter text-zinc-900 ${textShadow}`}>
-            MENDO<span className="text-[#33aba1]">CLICK</span>
-          </span>
+          
+          {/* Contenedor de Textos */}
+          <div className="flex flex-col justify-center leading-none">
+            <span className={`text-base md:text-lg font-black uppercase italic tracking-tighter text-zinc-900 ${textShadow}`}>
+              MENDO<span className="text-[#33aba1]">CLICK</span>
+            </span>
+            
+            {/* Eslogan Compacto */}
+            <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-[0.25em] text-zinc-400 -mt-0.5">
+              Invitaciones digitales
+            </span>
+          </div>
         </Link>
 
         {/* NAVEGACIÓN DESKTOP */}

@@ -148,7 +148,7 @@ export default function ManagerDashboard() {
                   <input type="text" value={formData.slug} placeholder="nombre-del-evento" className="w-full bg-zinc-100 border-2 border-transparent focus:border-zinc-900 focus:bg-white rounded-2xl p-4 transition-all outline-none font-bold text-sm shadow-inner" onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} required />
                   <div className="flex items-center gap-3 mt-2 p-3 bg-zinc-900 rounded-2xl">
                     <FiGlobe size={14} className="text-rose-500" />
-                    <p className="text-[9px] font-mono text-zinc-300">URL: mendoclick.com/inv/<span className="text-white font-black">{formData.slug || "..."}</span></p>
+                    <p className="text-[9px] font-mono text-zinc-300">URL: mendoclick.com/invit/<span className="text-white font-black">{formData.slug || "..."}</span></p>
                   </div>
                 </div>
 
