@@ -44,7 +44,7 @@ export interface BodaConfig extends BaseConfig {
 export interface QuinceConfig extends BaseConfig {
   personal: { nombre: string; titulo: string; subtitulo: string; };
   imagenes: {
-    hero: { champagne: string;  neon: string; graffiti: string; };
+    hero: { champagne: string; neon: string; graffiti: string; };
     videoUrl: { champagne: string; neon: string; graffiti: string; };
     musicaUrl: { champagne: string; neon: string; graffiti: string; };
     carrusel: string[];
@@ -67,7 +67,12 @@ export const globalBodaConfig: BodaConfig = {
       graffiti: "/img_boda/grafiteros.webp",
       noir: "/img_boda/bode_casado.webp",
     },
-    videoUrl: { rock: "/movie/quince.WebM", graffiti: "/movie/quince.WebM", noir: "/movie/quince.WebM" },
+    // URLs de Cloudinary para evitar el error 404 local
+    videoUrl: { 
+      rock: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
+      graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
+      noir: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4" 
+    },
     musicaUrl: { rock: "/audio/queenrock.mp3", graffiti: "/audio/edsheran.mp3", noir: "/audio/samsmith.mp3" },
     carrusel: ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-3.webp", "/img_boda/gallery-4.webp", "/img_boda/gallery-5.webp", "/img_boda/gallery-6.webp"]
   },
@@ -124,9 +129,9 @@ export const globalQuinceConfig: QuinceConfig = {
       champagne: "/img_demo/8.webp",
       neon: "/img_demo/16.webp",
       graffiti: "/img_demo/14.webp",
-   
     },
-videoUrl: {
+    // URLs de Cloudinary
+    videoUrl: {
       champagne: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
       neon: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4",
       graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4",
