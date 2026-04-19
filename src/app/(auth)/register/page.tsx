@@ -30,7 +30,7 @@ export default function RegisterPage() {
       setLoading(false);
     } else {
       alert("¡Usuario creado con éxito! Ahora puedes loguearte.");
-      router.push("/users/loginManager");
+      router.push("/manager/dashboard");
     }
   };
 
