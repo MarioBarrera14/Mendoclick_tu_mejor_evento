@@ -126,10 +126,10 @@ export const globalQuinceConfig: QuinceConfig = {
       graffiti: "/img_demo/14.webp",
    
     },
-    videoUrl: {
-      champagne: "/movie/quince.WebM",
-      neon: "/movie/quince.WebM",
-      graffiti: "/movie/quince.WebM",
+videoUrl: {
+      champagne: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
+      neon: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4",
+      graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4",
     },
     musicaUrl: {
       champagne: "/audio/taylor.mp3",
