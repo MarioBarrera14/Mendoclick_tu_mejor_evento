@@ -6,13 +6,14 @@ export default withAuth(
     const token = req.nextauth.token;
     const isManagerPath = req.nextUrl.pathname.startsWith("/manager");
 
-    // Si intenta entrar a /manager (tu panel) pero NO es ADMIN, lo mandamos al inicio
+    // Solo protegemos el panel si no es ADMIN
     if (isManagerPath && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/users/loginManager", req.url));
     }
   },
   {
     callbacks: {
+      // Solo pedimos sesión para las rutas del MATCHER
       authorized: ({ token }) => !!token,
     },
     pages: {
@@ -21,7 +22,7 @@ export default withAuth(
   }
 );
 
-// Protegemos tanto tu panel de Manager como el Admin del Cliente
+// IMPORTANTE: Aquí NO debe estar "/invit/:path*" para que sea pública
 export const config = {
   matcher: ["/manager/:path*", "/admin/:path*"], 
 };
