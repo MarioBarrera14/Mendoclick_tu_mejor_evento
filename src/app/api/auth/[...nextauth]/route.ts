@@ -1,5 +1,6 @@
+// /app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth"; // <--- Importamos desde la nueva ubicación
+import { authOptions } from "@/lib/auth"; // Importás la lógica desde afuera
 
 const handler = NextAuth(authOptions);
 
