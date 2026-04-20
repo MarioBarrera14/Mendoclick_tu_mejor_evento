@@ -120,11 +120,7 @@ export default async function InvitacionDinamica({ params }: PageProps) {
       {renderTemplate()}
     </>
   );
-} // <--- Aquí faltaba cerrar la función principal
-
-/**
- * COMPONENTES DE APOYO
- */
+} 
 function ConfigIncompleta({ lowerSlug }: { lowerSlug: string }) {
   return (
     <main className="min-h-screen bg-black flex items-center justify-center text-white p-10 text-center">

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageSquare, CheckCheck, Loader2, User, Utensils, MessageSquareHeart } from "lucide-react"; 
-import { motion } from "framer-motion";
+import { MessageSquare, CheckCheck, Loader2, User, Utensils, MessageSquareHeart, Eraser } from "lucide-react"; 
+import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 
 interface Message {
@@ -11,6 +11,8 @@ interface Message {
   dietary: string;
   message: string;
   status: string;
+  codigo: string;
+  confirmados: number; // <--- AGREGADO: Fundamental para no resetear el cupo
   updatedAt: string;
 }
 
@@ -18,28 +20,63 @@ export default function AdminDashboard() {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [clearingId, setClearingId] = useState<string | null>(null);
+
+  const fetchMessages = async () => {
+    if (!session?.user?.slug) return;
+    try {
+      const response = await fetch(`/api/guests?slug=${session.user.slug}`);
+      const invitados = await response.json();
+      
+      // Traemos todos los confirmados (tengan o no mensaje para tener la data lista)
+      const confirmados = invitados
+        .filter((inv: any) => inv.status === "CONFIRMED")
+        .sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()); 
+
+      setMessages(confirmados);
+    } catch (error) { 
+      console.error("Error cargando mensajes:", error); 
+    } finally { 
+      setLoading(false); 
+    }
+  };
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!session?.user?.slug) return;
-      try {
-        const response = await fetch(`/api/guests?slug=${session.user.slug}`);
-        const invitados = await response.json();
-        
-        // Filtramos por confirmados y ordenamos para que el último llegue arriba
-        const confirmados = invitados
-          .filter((inv: any) => inv.status === "CONFIRMED")
-          .sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()); 
-
-        setMessages(confirmados);
-      } catch (error) { 
-        console.error("Error cargando mensajes:", error); 
-      } finally { 
-        setLoading(false); 
-      }
-    };
     fetchMessages();
   }, [session]);
+
+  const handleClearMessage = async (msg: Message) => {
+    if (!confirm(`¿Querés borrar el texto del mensaje de ${msg.nombre}?`)) return;
+    
+    setClearingId(msg.id);
+    try {
+      // REPARACIÓN CLAVE: Mandamos el status y los confirmados actuales 
+      // para que la API no aplique el valor por defecto (0).
+      const response = await fetch(`/api/guests`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          codigo: msg.codigo, 
+          message: "",               // Solo vaciamos el texto
+          status: msg.status,        // Mantenemos "CONFIRMED"
+          confirmados: msg.confirmados // Mantenemos el cupo original (ej: 1, 2, 5)
+        }),
+      });
+
+      if (response.ok) {
+        // Actualizamos localmente: el mensaje desaparece de la vista pero el objeto sigue vivo
+        setMessages((prev) => 
+          prev.map((m) => (m.id === msg.id ? { ...m, message: "" } : m))
+        );
+      } else {
+        alert("Error al limpiar en el servidor.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setClearingId(null);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-4 lg:p-6 font-sans text-black">
@@ -62,59 +99,61 @@ export default function AdminDashboard() {
           <div className="flex flex-col justify-center items-center h-[400px] gap-3">
             <Loader2 className="animate-spin text-red-600" size={32} />
           </div>
-        ) : messages.length === 0 ? (
-          <div className="text-center py-20 text-zinc-400 font-black uppercase text-[10px] tracking-[0.2em]">
-            Esperando confirmaciones...
-          </div>
         ) : (
           <div className="relative z-10 space-y-5">
-            {messages.map((msg, index) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex flex-col items-start"
-              >
-                <div className="relative max-w-[95%] bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-zinc-300">
-                  <div className="absolute top-0 -left-2 w-0 h-0 border-t-[10px] border-t-white border-l-[10px] border-l-transparent" />
-                  
-                  <div className="flex items-center gap-2 mb-2">
-                    <User size={12} className="text-red-600" />
-                    <p className="text-xs font-black text-black uppercase italic tracking-tight leading-none">
-                      {msg.nombre}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {/* Burbuja Menú */}
-                    <div className="flex items-start gap-2 bg-zinc-50 p-2 rounded-xl border border-zinc-100">
-                      <Utensils size={14} className="text-[#5ba394]" />
-                      <p className="text-black text-xs font-bold uppercase leading-tight">
-                        {msg.dietary || "MENÚ STANDARD"}
-                      </p>
-                    </div>
+            <AnimatePresence>
+              {messages.map((msg, index) => (
+                // Solo mostramos la tarjeta si tiene un mensaje escrito
+                msg.message && msg.message.trim() !== "" && (
+                  <motion.div
+                    key={msg.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex flex-col items-start group"
+                  >
+                    <div className="relative max-w-[95%] bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-zinc-300">
+                      <div className="absolute top-0 -left-2 w-0 h-0 border-t-[10px] border-t-white border-l-[10px] border-l-transparent" />
+                      
+                      <div className="flex justify-between items-start gap-10 mb-2">
+                        <div className="flex items-center gap-2">
+                          <User size={12} className="text-red-600" />
+                          <p className="text-xs font-black text-black uppercase italic tracking-tight leading-none">
+                            {msg.nombre} 
+                            <span className="ml-2 text-[9px] text-zinc-400">({msg.confirmados} pers.)</span>
+                          </p>
+                        </div>
 
-                    {/* Burbuja Mensaje Lindo */}
-                    {msg.message && (
-                      <div className="flex items-start gap-2 bg-red-50 p-2 rounded-xl border border-red-100">
-                        <MessageSquareHeart size={14} className="text-red-600 mt-0.5" />
-                        <p className="text-black text-[11px] font-bold italic uppercase leading-tight">
-                          "{msg.message}"
-                        </p>
+                        <button 
+                          onClick={() => handleClearMessage(msg)}
+                          disabled={clearingId === msg.id}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-zinc-100 rounded-lg text-zinc-400 hover:text-zinc-900"
+                        >
+                          {clearingId === msg.id ? <Loader2 size={14} className="animate-spin" /> : <Eraser size={14} />}
+                        </button>
                       </div>
-                    )}
-                  </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2 bg-red-50 p-2 rounded-xl border border-red-100">
+                          <MessageSquareHeart size={14} className="text-red-600 mt-0.5" />
+                          <p className="text-black text-[11px] font-bold italic uppercase leading-tight">
+                            "{msg.message}"
+                          </p>
+                        </div>
+                      </div>
 
-                  <div className="flex items-center justify-end gap-1 mt-3 pt-2 border-t border-zinc-50">
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-tighter">
-                      Invitación Confirmada
-                    </span>
-                    <CheckCheck size={14} className="text-red-600" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                      <div className="flex items-center justify-end gap-1 mt-3 pt-2 border-t border-zinc-50">
+                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-tighter">
+                          Mensaje del invitado
+                        </span>
+                        <CheckCheck size={14} className="text-red-600" />
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>

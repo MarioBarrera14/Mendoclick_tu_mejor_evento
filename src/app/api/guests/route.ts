@@ -91,16 +91,19 @@ export async function PATCH(req: Request) {
     const invitado = await prisma.guest.findUnique({ where: { codigo: code.toUpperCase().trim() } });
     if (!invitado) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
-    const dietaryString = Array.isArray(dietary) ? dietary.join(", ") : (dietary || "");
-    const finalStatus = confirmados === 0 ? "CANCELLED" : (status || invitado.status);
+    // LÓGICA REPARADA: Si confirmados es undefined, mantenemos lo que ya tiene el invitado
+    const finalConfirmados = confirmados !== undefined ? Number(confirmados) : invitado.confirmados;
+    
+    // Si mandamos 0 confirmados explícitamente, cancelamos. Si no, mantenemos status o lo cambiamos.
+    const finalStatus = finalConfirmados === 0 ? "CANCELLED" : (status || invitado.status);
 
     const actualizado = await prisma.guest.update({
       where: { id: invitado.id },
       data: {
         status: finalStatus,
-        dietary: dietaryString,
-        message: message || invitado.message || "",
-        confirmados: Number(confirmados) || 0
+        dietary: dietary !== undefined ? dietary : invitado.dietary,
+        message: message !== undefined ? message : invitado.message, // Permite mandar "" (vacío)
+        confirmados: finalConfirmados
       }
     });
 
