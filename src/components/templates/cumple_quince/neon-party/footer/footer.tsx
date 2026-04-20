@@ -59,7 +59,7 @@ export function Footer() {
             </motion.a>
 
             <motion.a
-              href="https://www.yendoinvitaciones.com.ar"
+              href="https://www.mendoclick.com.ar"
               target="_blank"
               whileHover={{ y: -3, backgroundColor: "rgba(147,51,234,0.1)" }}
               className="flex items-center justify-center gap-3 px-8 py-4 border border-purple-500/30 text-white rounded-xl transition-all backdrop-blur-md"
