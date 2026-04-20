@@ -1,14 +1,9 @@
-/* 1. Las fuentes DEBEN ir al principio de todo para evitar errores de sintaxis */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Pinyon+Script&display=swap');
-/* globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,900;1,400&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Formato HSL para que funcione con Shadcn/Tailwind estándar */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --border: 240 5.9% 90%;
@@ -20,12 +15,11 @@
     overflow-x: hidden;
   }
 
-  
   body {
-    /* Cambiamos @apply por CSS estándar para evitar errores si el config no está listo */
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Montserrat', sans-serif;
+    /* Usamos la variable de Montserrat cargada en el layout */
+    font-family: var(--font-montserrat), sans-serif;
     overflow-x: hidden;
     width: 100%;
     position: relative;
@@ -34,7 +28,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Asegura que ningún elemento interno rompa el layout */
   * {
     max-width: 100%;
     box-sizing: border-box;
@@ -42,20 +35,19 @@
 }
 
 @layer components {
-  /* Fuente Cursiva Elegante (Pinyon Script) */
+  /* FUENTES: Definición directa para evitar errores de @apply circular */
   .font-script {
-    font-family: 'Pinyon Script', cursive;
+    font-family: var(--font-pinyon), cursive !important;
     text-transform: none !important;
     line-height: 0.8;
     letter-spacing: normal;
   }
 
-  /* Fuente Serif (Cormorant Garamond) */
   .font-serif-elegant {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-cormorant), serif !important;
   }
   
-  /* Scrollbar Minimalista */
+  /* SCROLLBARS: Personalización minimalista */
   ::-webkit-scrollbar {
     width: 5px;
   }
@@ -75,6 +67,16 @@
 }
 
 @layer utilities {
+  /* OCULTAR SCROLLBAR: La clave para tus diseños de Champagne y Noir */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari and Opera */
+  }
+
   /* Efectos de vidrio (Glassmorphism) */
   .glass {
     background-color: rgba(255, 255, 255, 0.7);
@@ -90,22 +92,13 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Sombra suave */
+  /* Sombra suave para las cards */
   .shadow-soft {
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
   }
-
-  /* Helper para ocultar scrollbar pero mantener funcionalidad */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
 }
 
-/* Fix para Safari Mobile */
+/* Fix para Safari Mobile (evita que el 100vh se corte por la barra del navegador) */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;

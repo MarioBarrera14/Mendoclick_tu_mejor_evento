@@ -8,36 +8,12 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    container: {
-      center: true,
-      padding: {
-        DEFAULT: "1rem",
-        sm: "2rem",
-        lg: "4rem",
-      },
-      screens: {
-        sm: "640px",
-        md: "768px",
-        lg: "1024px",
-        xl: "1280px",
-        "2xl": "1400px",
-      },
-    },
     extend: {
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
-        script: ['Pinyon Script', 'cursive'],
-        serif: ['Cormorant Garamond', 'serif'],
-      },
-      animation: {
-        'marquee-infinite': 'marquee-infinite 35s linear infinite',
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-      },
-      keyframes: {
-        'marquee-infinite': {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-50%)' },
-        },
+        // Mapeo de variables CSS a clases de Tailwind
+        sans: ["var(--font-montserrat)", "sans-serif"],
+        script: ["var(--font-pinyon)", "cursive"],
+        serif: ["var(--font-cormorant)", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
