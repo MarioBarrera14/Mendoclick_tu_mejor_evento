@@ -18,7 +18,7 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    /* Usamos la variable de Montserrat cargada en el layout */
+    /* Fuente principal (Montserrat) desde variable de Next Font */
     font-family: var(--font-montserrat), sans-serif;
     overflow-x: hidden;
     width: 100%;
@@ -26,6 +26,7 @@
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   * {
@@ -35,21 +36,29 @@
 }
 
 @layer components {
-  /* FUENTES: Definición directa para evitar errores de @apply circular */
+  /**
+   * FUENTE CURSIVA ELEGANTE (Pinyon Script)
+   * Usamos font-family directo para evitar errores de @apply circular.
+   * Ajustamos line-height para que no se corten las letras largas.
+   */
   .font-script {
     font-family: var(--font-pinyon), cursive !important;
+    font-weight: 400;
     text-transform: none !important;
-    line-height: 0.8;
-    letter-spacing: normal;
+    line-height: 0.9;
+    letter-spacing: 0px;
+    display: inline-block;
   }
 
+  /* FUENTE SERIF (Cormorant Garamond) */
   .font-serif-elegant {
     font-family: var(--font-cormorant), serif !important;
+    @apply italic;
   }
   
-  /* SCROLLBARS: Personalización minimalista */
+  /* SCROLLBARS MINIMALISTAS (Para el resto de la web) */
   ::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -57,17 +66,20 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #e4e4e7;
+    background: #d4d4d8;
     border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #d4d4d8;
+    background: #a1a1aa;
   }
 }
 
 @layer utilities {
-  /* OCULTAR SCROLLBAR: La clave para tus diseños de Champagne y Noir */
+  /**
+   * OCULTAR SCROLLBAR
+   * Aplicar esta clase a los contenedores que no deben mostrar la barra.
+   */
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;     /* Firefox */
@@ -77,7 +89,7 @@
     display: none;             /* Chrome, Safari and Opera */
   }
 
-  /* Efectos de vidrio (Glassmorphism) */
+  /* Efecto Vidrio Esmerilado */
   .glass {
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
@@ -85,20 +97,20 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
-  /* Texto con gradiente Champagne */
+  /* Texto Gradiente Dorado/Champagne */
   .text-champagne {
     background: linear-gradient(135deg, #dcd0b9 0%, #b4a178 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  /* Sombra suave para las cards */
+  /* Sombra suave para elevación de tarjetas */
   .shadow-soft {
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
   }
 }
 
-/* Fix para Safari Mobile (evita que el 100vh se corte por la barra del navegador) */
+/* Ajuste para Safari en iOS para manejar el 100vh correctamente */
 @supports (-webkit-touch-callout: none) {
   .min-h-screen {
     min-height: -webkit-fill-available;

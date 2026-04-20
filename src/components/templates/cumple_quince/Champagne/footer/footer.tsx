@@ -58,7 +58,7 @@ export function Footer() {
             </motion.a>
 
             <motion.a
-              href="https://www.yendoinvitaciones.com.ar"
+              href="https://www.mendoclick.com.ar"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
