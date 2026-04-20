@@ -99,19 +99,23 @@ export class GuestService {
   /**
    * Actualiza el estado de un invitado por código (Confirmación del Invitado)
    */
-  static async updateGuestStatus(
+static async updateGuestStatus(
     codigo: string,
     status: GuestStatus,
-    confirmados: number, // AGREGADO: Nuevo campo para asistencia real
+    confirmados: number,
     dietary?: string
   ): Promise<{ success: boolean }> {
     try {
+      // Lógica extra: Si manda 0 confirmados, forzamos el estado a CANCELLED
+      const finalStatus = confirmados === 0 ? "CANCELLED" : status;
+
       await prisma.guest.update({
         where: { codigo },
         data: { 
-          status, 
+          status: finalStatus, // Usamos el estado final
           dietary,
-          confirmados: Number(confirmados) || 0 // Actualizamos los que realmente van
+          confirmados: Number(confirmados) || 0,
+          checkIn: true // Marcamos que ya entró
         },
       });
       return { success: true };
