@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // <--- Corregido: Importamos desde donde me mostraste
+import { authOptions } from "@/lib/auth";
 
 // IMPORTANTE: Importamos las vistas desde sus carpetas demo
 import ChampagneView from "../../demo/cumple_quince/champagne/page";
@@ -50,7 +50,7 @@ export default async function InvitacionDinamica({ params }: PageProps) {
   const { slug } = await params;
   const lowerSlug = slug.toLowerCase(); 
 
-  // Obtenemos la sesión actual usando los authOptions de @/lib/auth
+  // Obtenemos la sesión actual
   const session = await getServerSession(authOptions);
 
   const user = await prisma.user.findUnique({
@@ -71,8 +71,7 @@ export default async function InvitacionDinamica({ params }: PageProps) {
 
   const dbConfig = user.eventConfig;
 
-  // Lógica de Identidad para Banners
-  // Usamos el ID de la sesión (que ahora sí debería venir gracias a tu callback en lib/auth)
+  // Lógica de Identidad
   const esAdmin = session?.user?.role === "ADMIN";
   const esDuenio = session?.user?.id === user.id;
 
@@ -110,16 +109,10 @@ export default async function InvitacionDinamica({ params }: PageProps) {
 
   return (
     <>
-      {/* Banners de estado de sesión */}
+      {/* Solo mostramos el banner si es el ADMINISTRADOR principal y no el dueño */}
       {esAdmin && !esDuenio && (
         <div className="bg-blue-600 text-white text-[10px] py-1 px-4 text-center fixed top-0 w-full z-[9999] uppercase font-bold tracking-tighter shadow-md">
           Modo Administrador — Visualizando invitación de {user.nombre}
-        </div>
-      )}
-      
-      {esDuenio && (
-        <div className="bg-emerald-600 text-white text-[10px] py-1 px-4 text-center fixed top-0 w-full z-[9999] uppercase font-bold tracking-tighter shadow-md">
-          Vista de Cliente — Estás viendo tu invitación
         </div>
       )}
 
@@ -127,7 +120,7 @@ export default async function InvitacionDinamica({ params }: PageProps) {
       {renderTemplate()}
     </>
   );
-}
+} // <--- Aquí faltaba cerrar la función principal
 
 /**
  * COMPONENTES DE APOYO
