@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+/**
+ * 1. OBTENER (GET) - Ya lo tenías bien
+ */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -32,27 +35,72 @@ export async function GET(req: Request) {
   }
 }
 
+/**
+ * 2. CREAR (POST) - ¡AQUÍ ESTABA EL ERROR!
+ */
+export async function POST(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { nombre, cupos, codigo, dietary } = body;
+
+    if (!nombre || !codigo) {
+      return NextResponse.json({ error: "Nombre y código son requeridos" }, { status: 400 });
+    }
+
+    // Buscamos al usuario dueño de la sesión
+    const usuario = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!usuario) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
+
+    // Verificamos si el código ya existe (para evitar errores de duplicado)
+    const existente = await prisma.guest.findUnique({ where: { codigo: codigo.toUpperCase().trim() } });
+    if (existente) return NextResponse.json({ error: "El código ya está en uso" }, { status: 400 });
+
+    const nuevoInvitado = await prisma.guest.create({
+      data: {
+        nombre,
+        cupos: Number(cupos) || 1,
+        codigo: codigo.toUpperCase().trim(),
+        dietary: dietary || "",
+        userId: usuario.id
+      }
+    });
+
+    return NextResponse.json(nuevoInvitado);
+  } catch (error) {
+    console.error("Error en POST guests:", error);
+    return NextResponse.json({ error: "Error al crear invitado" }, { status: 500 });
+  }
+}
+
+/**
+ * 3. ACTUALIZAR (PATCH) - Ya lo tenías bien
+ */
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const code = body.code || body.codigo; // Acepta ambos para evitar error 400
-    const { status, dietary, name, confirmados, message } = body;
+    const code = body.code || body.codigo;
+    const { status, dietary, confirmados, message } = body;
 
     if (!code) return NextResponse.json({ error: "Código requerido" }, { status: 400 });
 
     const invitado = await prisma.guest.findUnique({ where: { codigo: code.toUpperCase().trim() } });
     if (!invitado) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
-    // Convertimos dietary a string si viene como array para que Prisma no explote
     const dietaryString = Array.isArray(dietary) ? dietary.join(", ") : (dietary || "");
+    const finalStatus = confirmados === 0 ? "CANCELLED" : (status || invitado.status);
 
     const actualizado = await prisma.guest.update({
       where: { id: invitado.id },
       data: {
-        status: status || invitado.status,
+        status: finalStatus,
         dietary: dietaryString,
         message: message || invitado.message || "",
-        confirmados: status === "CONFIRMED" ? (Number(confirmados) || 0) : 0
+        confirmados: Number(confirmados) || 0
       }
     });
 
@@ -62,10 +110,8 @@ export async function PATCH(req: Request) {
   }
 }
 
-// ... Mantener POST y DELETE igual ...
-
 /**
- * 4. ELIMINAR (DELETE)
+ * 4. ELIMINAR (DELETE) - Ya lo tenías bien
  */
 export async function DELETE(req: Request) {
   try {
@@ -78,7 +124,9 @@ export async function DELETE(req: Request) {
     const usuarioDb = await prisma.user.findUnique({ where: { email: session.user.email } });
     const invitadoABorrar = await prisma.guest.findUnique({ where: { id: id || "" } });
 
-    if (!invitadoABorrar || invitadoABorrar.userId !== usuarioDb?.id) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
+    if (!invitadoABorrar || invitadoABorrar.userId !== usuarioDb?.id) {
+      return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
+    }
 
     await prisma.guest.delete({ where: { id: id! } });
     return NextResponse.json({ message: "Eliminado" });
