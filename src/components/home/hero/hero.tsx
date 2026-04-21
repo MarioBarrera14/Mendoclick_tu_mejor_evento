@@ -11,9 +11,8 @@ export const Hero = () => {
   const textShadowClass = "drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]";
   const clipPathClass = "[clip-path:polygon(0_0,100%_0,100%_95%,0%_100%)]";
 
-  // --- FUNCIÓN DE SCROLL PROFESIONAL ---
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault(); // Evita que el # aparezca en la URL
+    e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({
@@ -26,20 +25,18 @@ export const Hero = () => {
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-[#f9f9f9]">
       
-      {/* --- FONDO --- */}
-      <div 
-        className={`absolute inset-0 z-0 bg-zinc-900 ${clipPathClass} scale-[1.01] origin-top`}
-      >
-<Image 
-  // f_auto: formato según navegador (WebP/AVIF)
-  // q_auto: compresión inteligente
-  // w_1200: limita el ancho para que no baje una foto gigante
-  src="https://res.cloudinary.com/diqipcpuu/image/upload/v1776742920/bode_casado_atoxsc.jpg" 
-  fill
-  priority
-  className="object-cover" 
-  alt="Background" 
-/>
+      {/* --- FONDO OPTIMIZADO --- */}
+      <div className={`absolute inset-0 z-0 bg-zinc-900 ${clipPathClass} scale-[1.01] origin-top`}>
+        <Image 
+          // Agregamos f_auto,q_auto y un ancho máximo (w_1200) para optimizar el peso desde Cloudinary
+          src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_1200/v1776742920/bode_casado_atoxsc.jpg" 
+          fill
+          priority // Carga inmediata
+          fetchPriority="high" // Prioridad máxima para el navegador (LCP Fix)
+          sizes="100vw" // Indica que ocupa todo el ancho de pantalla
+          className="object-cover" 
+          alt="Invitaciones Digitales MendoClick" 
+        />
         <div className="absolute inset-0 bg-black/40 md:bg-black/20 backdrop-blur-[0.5px]" />
       </div>
 
@@ -60,18 +57,20 @@ export const Hero = () => {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-zinc-900 rounded-b-2xl z-40" />
             <div className="absolute inset-0 overflow-y-auto scrollbar-hide">
               <Image 
-                src="https://res.cloudinary.com/diqipcpuu/image/upload/v1776742964/Samsun_s2eqfa.webp" 
+                // Optimizamos también la imagen interna del celular
+                src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_600/v1776742964/Samsun_s2eqfa.webp" 
                 width={280}
                 height={900}
                 className="w-full h-auto"
-                alt="Preview" 
+                alt="Preview Invitación Digital" 
                 priority
+                sizes="(max-width: 768px) 230px, 280px"
               />
             </div>
           </motion.div>
         </div>
 
-        {/* --- TEXTO COMPACTO --- */}
+        {/* --- TEXTO --- */}
         <div className="flex-1 text-center lg:text-left order-2 lg:order-1 w-full max-w-xl">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
