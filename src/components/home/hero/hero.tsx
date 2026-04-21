@@ -60,7 +60,7 @@ export const Hero = () => {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-zinc-900 rounded-b-2xl z-40" />
             <div className="absolute inset-0 overflow-y-auto scrollbar-hide">
               <Image 
-                src="/img_demo/Samsun.webp" 
+                src="https://res.cloudinary.com/diqipcpuu/image/upload/v1776742964/Samsun_s2eqfa.webp" 
                 width={280}
                 height={900}
                 className="w-full h-auto"
