@@ -22,6 +22,7 @@ import {
   Users,
   X,
   MessageSquare,
+  QrCode, // <--- 1. Importamos el ícono de QR
 } from 'lucide-react';
 
 export function AdminSidebar() {
@@ -31,7 +32,6 @@ export function AdminSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const userSlug = session?.user?.slug;
-  // Obtenemos el templateId para saber si es Boda o 15 Años
   const templateId = (session?.user as any)?.templateId;
 
   const homeHref = useMemo(() => {
@@ -40,17 +40,17 @@ export function AdminSidebar() {
 
   // FILTRADO DINÁMICO DEL MENÚ
   const menuItems = useMemo(() => {
-    // Definimos los IDs que pertenecen a 15 años
     const quinceTemplates = ["DEMO1", "DEMO2", "DEMO3"];
     const isQuince = quinceTemplates.includes(templateId);
 
     const baseItems = [
       { title: 'Live Chat', href: '/admin', icon: MessageSquare },
       { title: 'Invitados', href: '/admin/invitados', icon: TicketPlus },
+      // 2. Agregamos el botón de Check-in QR
+      { title: 'Check-in QR', href: '/admin/check-in', icon: QrCode }, 
       { title: 'Galería', href: '/admin/galeria', icon: ImageIcon },
       { title: 'Configuración', href: '/admin/count', icon: Settings }, 
       { title: 'Itinerario', href: '/admin/itinerario', icon: Clock },
-      // Solo incluimos Testigos si NO es una plantilla de 15 años
       ...(!isQuince ? [{ title: 'Testigos', href: '/admin/testigos', icon: Users }] : []),
       { title: 'Regalos & Dress', href: '/admin/details', icon: Pencil }, 
       { title: 'Playlist', href: '/admin/sugeridos', icon: Music },
@@ -59,6 +59,8 @@ export function AdminSidebar() {
     return baseItems;
   }, [templateId]);
 
+  // ... (El resto del componente se mantiene igual)
+  
   return (
     <>
       {/* Mobile Header Bar */}

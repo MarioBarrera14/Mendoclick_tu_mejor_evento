@@ -18,7 +18,7 @@ export async function getGuests() {
   }
 }
 
-export async function createGuest(data: Omit<CreateGuestInput, "userId">) {
+export async function createGuest(data: Omit<CreateGuestInput, "userId"> & { mesa?: string }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) return { success: false, error: "No autorizado" };
@@ -33,7 +33,8 @@ export async function createGuest(data: Omit<CreateGuestInput, "userId">) {
   }
 }
 
-export async function updateGuest(id: string, data: UpdateGuestInput) {
+// Esta función es la que usas para el SELECT de las mesas
+export async function updateGuest(id: string, data: UpdateGuestInput & { mesa?: string }) {
   try {
     const result = await GuestService.updateGuest(id, data);
     if (result.success) revalidatePath("/admin/invitados");
@@ -43,13 +44,8 @@ export async function updateGuest(id: string, data: UpdateGuestInput) {
   }
 }
 
-/**
- * CONFIRMACIÓN DEL INVITADO
- * Corregido: ahora envía 'confirmados' al Service
- */
 export async function confirmGuest(codigo: string, status: GuestStatus, confirmados: number, dietary?: string) {
   try {
-    // El orden debe ser exacto al Service: codigo, status, confirmados, dietary
     const result = await GuestService.updateGuestStatus(
       codigo, 
       status, 

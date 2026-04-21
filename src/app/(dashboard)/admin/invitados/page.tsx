@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   TicketPlus, Copy, Trash2, Loader2, 
-  CheckCircle2, XCircle, AlertCircle 
+  CheckCircle2, XCircle, AlertCircle, MapPin, LogIn 
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useSession } from "next-auth/react";
@@ -24,6 +24,21 @@ export default function GestionInvitados() {
     }
   }, [session]);
 
+  const cambiarMesa = async (id: string, mesa: string) => {
+    try {
+      const res = await fetch("/api/guests", {
+        method: "PATCH", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, mesa }),
+      });
+      if (res.ok) {
+        setListaInvitados(listaInvitados.map(inv => inv.id === id ? { ...inv, mesa } : inv));
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        Toast.fire({ icon: 'success', title: `Mesa ${mesa} asignada`, background: '#000', color: '#fff' });
+      }
+    } catch (error) { console.error(error); }
+  };
+
   const getEstadoInfo = (inv: any) => {
     if (inv.status === "CONFIRMED") {
       return { label: "CONFIRMADO", color: "bg-emerald-50 border-emerald-100 text-emerald-600", dot: "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" };
@@ -34,11 +49,18 @@ export default function GestionInvitados() {
     return { label: "PENDIENTE", color: "bg-zinc-50 border-zinc-200 text-zinc-400", dot: "bg-zinc-400" };
   };
 
+  // NUEVA LÓGICA PARA EL INGRESO AL SALÓN
+  const getAccesoInfo = (asistio: boolean) => {
+    if (asistio) return { label: "EN SALÓN", color: "bg-blue-50 border-blue-100 text-blue-600", dot: "bg-blue-500 animate-pulse" };
+    return { label: "NO INGRESÓ", color: "bg-zinc-50 border-transparent text-zinc-300", dot: "bg-zinc-200" };
+  };
+
   const stats = {
     totalTickets: listaInvitados.length,
     totalConfirmados: listaInvitados.reduce((acc, inv) => acc + (inv.confirmados || 0), 0),
     noAsistiran: listaInvitados.filter(inv => inv.status === "CANCELLED").length,
-    pendientes: listaInvitados.filter(inv => inv.status === "PENDING").length
+    pendientes: listaInvitados.filter(inv => inv.status === "PENDING").length,
+    yaIngresaron: listaInvitados.filter(inv => inv.asistio).length // NUEVO STAT
   };
 
   const handleGuardar = async (e: React.FormEvent) => {
@@ -50,7 +72,7 @@ export default function GestionInvitados() {
       const res = await fetch("/api/guests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre: nombre.trim(), cupos, codigo, status: "PENDING", confirmados: 0 }),
+        body: JSON.stringify({ nombre: nombre.trim(), cupos, codigo, status: "PENDING", confirmados: 0, mesa: "A Designar" }),
       });
       if (res.ok) {
         const nuevo = await res.json();
@@ -76,19 +98,20 @@ export default function GestionInvitados() {
 
   return (
     <div className="w-full max-w-6xl mx-auto p-2 md:p-6 font-sans text-zinc-900 bg-white min-h-screen">
-      <header className="mb-6 flex flex-col lg:flex-row justify-between items-center bg-zinc-950 p-6 rounded-[2rem] text-white gap-4 shadow-2xl">
+      <header className="mb-6 flex flex-col lg:flex-row justify-between items-center bg-zinc-950 p-6 rounded-[2rem] text-white gap-2 shadow-2xl">
         <div className="flex items-center gap-4">
           <div className="bg-red-600 w-2 h-10 rounded-full" />
-          <h1 className="text-2xl font-black italic uppercase tracking-tighter">MENDOCLICK <span className="text-red-600">PRO</span></h1>
+          <h1 className="text-2xl font-black italic uppercase tracking-tighter text-nowrap">MENDOCLICK <span className="text-red-600">PRO</span></h1>
         </div>
-        <div className="flex gap-2 w-full lg:w-auto overflow-x-auto no-scrollbar">
+        <div className="flex gap-2 w-full lg:w-auto overflow-x-auto no-scrollbar pb-2">
           <StatCompact label="TICKETS" value={stats.totalTickets} color="text-white" icon={<TicketPlus size={16}/>} />
-          <StatCompact label="ASISTENTES" value={stats.totalConfirmados} color="text-emerald-400" icon={<CheckCircle2 size={16}/>} />
+          <StatCompact label="WEB CONFIRM" value={stats.totalConfirmados} color="text-emerald-400" icon={<CheckCircle2 size={16}/>} />
+          <StatCompact label="EN SALÓN" value={stats.yaIngresaron} color="text-blue-400" icon={<LogIn size={16}/>} />
           <StatCompact label="BAJAS" value={stats.noAsistiran} color="text-red-500" icon={<XCircle size={16}/>} />
-          <StatCompact label="PENDIENTES" value={stats.pendientes} color="text-zinc-400" icon={<AlertCircle size={16}/>} />
         </div>
       </header>
 
+      {/* Formulario (Igual) */}
       <section className="bg-zinc-50 p-4 rounded-3xl mb-8 border border-zinc-200 shadow-sm">
         <form onSubmit={handleGuardar} className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="NOMBRE DEL INVITADO..." className="md:col-span-7 bg-white border-2 border-zinc-200 rounded-2xl px-5 py-4 text-sm font-bold uppercase outline-none focus:border-red-600 shadow-sm" />
@@ -98,7 +121,7 @@ export default function GestionInvitados() {
               {[...Array(50)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
             </select>
           </div>
-          <button type="submit" disabled={cargando} className="md:col-span-2 bg-red-600 text-white rounded-2xl font-black text-[11px] hover:bg-black transition-all shadow-lg">
+          <button type="submit" disabled={cargando} className="md:col-span-2 bg-red-600 text-white rounded-2xl font-black text-[11px] hover:bg-black transition-all shadow-lg uppercase tracking-widest">
             {cargando ? <Loader2 className="animate-spin mx-auto" /> : "GENERAR PASE"}
           </button>
         </form>
@@ -110,13 +133,16 @@ export default function GestionInvitados() {
             <tr className="bg-zinc-950 text-white">
               <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest italic">Invitado / Código</th>
               <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">Confirmados</th>
-              <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">Estado</th>
-              <th className="px-6 py-5 text-right"></th>
+              <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">Mesa</th>
+              <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">Estado Web</th>
+              <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-center">Acceso Salón</th>
+              <th className="px-6 py-5 text-right pr-8"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {listaInvitados.map((inv) => {
-              const info = getEstadoInfo(inv);
+              const infoWeb = getEstadoInfo(inv);
+              const infoAcceso = getAccesoInfo(inv.asistio);
               return (
                 <tr key={inv.id} className={`hover:bg-zinc-50/50 transition-colors ${inv.status === "CANCELLED" ? 'bg-red-50/40 grayscale opacity-70' : ''}`}>
                   <td className="px-6 py-4">
@@ -124,16 +150,35 @@ export default function GestionInvitados() {
                     <button onClick={() => copiarCodigo(inv.codigo)} className="mt-2 flex items-center gap-2 text-[11px] font-mono font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg w-fit shadow-sm"><Copy size={12} /> {inv.codigo}</button>
                   </td>
                   <td className="px-6 py-4 text-center font-black text-xs">
-                    <span className={inv.status === "CONFIRMED" ? 'text-emerald-600' : inv.status === "CANCELLED" ? 'text-red-600' : 'text-zinc-400'}>{inv.status === "PENDING" ? '-' : (inv.confirmados ?? 0)}</span>
-                    <span className="text-zinc-300 mx-1">/</span>
-                    <span className="text-zinc-500">{inv.cupos}</span>
+                    <span className={inv.status === "CONFIRMED" ? 'text-emerald-600' : 'text-zinc-400'}>{inv.status === "PENDING" ? '-' : (inv.confirmados ?? 0)}</span> / {inv.cupos}
                   </td>
+                  
                   <td className="px-6 py-4 text-center">
-                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border font-black text-[10px] uppercase ${info.color}`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${info.dot}`} />
-                      {info.label}
+                    <div className="flex items-center justify-center bg-zinc-50 border border-zinc-200 rounded-xl px-2 py-1 mx-auto w-fit">
+                      <MapPin size={10} className="text-red-600 mr-1" />
+                      <select value={inv.mesa || "A Designar"} onChange={(e) => cambiarMesa(inv.id, e.target.value)} className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer">
+                        <option value="A Designar">S/N</option>
+                        {[...Array(50)].map((_, i) => (<option key={i+1} value={(i+1).toString()}>MESA {i+1}</option>))}
+                      </select>
                     </div>
                   </td>
+
+                  {/* ESTADO DE LA INVITACIÓN WEB */}
+                  <td className="px-6 py-4 text-center">
+                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border font-black text-[10px] uppercase ${infoWeb.color}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${infoWeb.dot}`} />
+                      {infoWeb.label}
+                    </div>
+                  </td>
+
+                  {/* ESTADO DEL INGRESO REAL (QR) */}
+                  <td className="px-6 py-4 text-center">
+                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border font-black text-[10px] uppercase ${infoAcceso.color}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${infoAcceso.dot}`} />
+                      {infoAcceso.label}
+                    </div>
+                  </td>
+
                   <td className="px-6 py-4 text-right pr-8">
                     <button onClick={() => eliminarInvitado(inv.id)} className="text-zinc-300 hover:text-red-600 p-2"><Trash2 size={18}/></button>
                   </td>

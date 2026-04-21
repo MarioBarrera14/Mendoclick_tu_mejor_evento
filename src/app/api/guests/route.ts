@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 /**
- * 1. OBTENER (GET) - Ya lo tenías bien
+ * 1. OBTENER (GET)
  */
 export async function GET(req: Request) {
   try {
@@ -15,7 +15,11 @@ export async function GET(req: Request) {
     if (code) {
       const invitado = await prisma.guest.findUnique({
         where: { codigo: code.toUpperCase().trim() },
-        select: { id: true, nombre: true, cupos: true, status: true, dietary: true, message: true, confirmados: true, codigo: true }
+        select: { 
+          id: true, nombre: true, cupos: true, status: true, 
+          dietary: true, message: true, confirmados: true, 
+          codigo: true, mesa: true, asistio: true 
+        }
       });
       if (!invitado) return NextResponse.json({ error: "Código no válido" }, { status: 404 });
       return NextResponse.json(invitado);
@@ -36,7 +40,7 @@ export async function GET(req: Request) {
 }
 
 /**
- * 2. CREAR (POST) - ¡AQUÍ ESTABA EL ERROR!
+ * 2. CREAR (POST)
  */
 export async function POST(req: Request) {
   try {
@@ -46,17 +50,15 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { nombre, cupos, codigo, dietary } = body;
+    const { nombre, cupos, codigo, dietary, mesa } = body;
 
     if (!nombre || !codigo) {
       return NextResponse.json({ error: "Nombre y código son requeridos" }, { status: 400 });
     }
 
-    // Buscamos al usuario dueño de la sesión
     const usuario = await prisma.user.findUnique({ where: { email: session.user.email } });
     if (!usuario) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
 
-    // Verificamos si el código ya existe (para evitar errores de duplicado)
     const existente = await prisma.guest.findUnique({ where: { codigo: codigo.toUpperCase().trim() } });
     if (existente) return NextResponse.json({ error: "El código ya está en uso" }, { status: 400 });
 
@@ -66,55 +68,71 @@ export async function POST(req: Request) {
         cupos: Number(cupos) || 1,
         codigo: codigo.toUpperCase().trim(),
         dietary: dietary || "",
+        mesa: mesa || "A Designar",
+        asistio: false, 
         userId: usuario.id
       }
     });
 
     return NextResponse.json(nuevoInvitado);
   } catch (error) {
-    console.error("Error en POST guests:", error);
     return NextResponse.json({ error: "Error al crear invitado" }, { status: 500 });
   }
 }
 
 /**
- * 3. ACTUALIZAR (PATCH) - Ya lo tenías bien
+ * 3. ACTUALIZAR (PATCH) - SOPORTA ID Y CÓDIGO
  */
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
+    const { id, status, dietary, confirmados, message, mesa, asistio } = body;
     const code = body.code || body.codigo;
-    const { status, dietary, confirmados, message } = body;
 
-    if (!code) return NextResponse.json({ error: "Código requerido" }, { status: 400 });
+    let invitado;
+    if (id) {
+      invitado = await prisma.guest.findUnique({ where: { id } });
+    } else if (code) {
+      invitado = await prisma.guest.findUnique({ where: { codigo: code.toUpperCase().trim() } });
+    }
 
-    const invitado = await prisma.guest.findUnique({ where: { codigo: code.toUpperCase().trim() } });
     if (!invitado) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
-    // LÓGICA REPARADA: Si confirmados es undefined, mantenemos lo que ya tiene el invitado
-    const finalConfirmados = confirmados !== undefined ? Number(confirmados) : invitado.confirmados;
-    
-    // Si mandamos 0 confirmados explícitamente, cancelamos. Si no, mantenemos status o lo cambiamos.
-    const finalStatus = finalConfirmados === 0 ? "CANCELLED" : (status || invitado.status);
+    // --- LÓGICA BLINDADA ---
+    // Solo cambiamos los confirmados si el body trae el campo (evitamos el 0 accidental)
+    const tieneConfirmados = body.hasOwnProperty('confirmados');
+    const finalConfirmados = tieneConfirmados ? Number(confirmados) : invitado.confirmados;
+
+    // Solo pasamos a CANCELLED si el usuario mandó explícitamente 0 confirmados.
+    // Si no mandó nada (como el proceso de la mesa), mantenemos el status que ya tenía.
+    let finalStatus = invitado.status;
+    if (tieneConfirmados && Number(confirmados) === 0) {
+      finalStatus = "CANCELLED";
+    } else if (status) {
+      finalStatus = status;
+    }
 
     const actualizado = await prisma.guest.update({
       where: { id: invitado.id },
       data: {
         status: finalStatus,
+        confirmados: finalConfirmados,
         dietary: dietary !== undefined ? dietary : invitado.dietary,
-        message: message !== undefined ? message : invitado.message, // Permite mandar "" (vacío)
-        confirmados: finalConfirmados
+        message: message !== undefined ? message : invitado.message,
+        mesa: mesa !== undefined ? mesa : invitado.mesa,
+        asistio: asistio !== undefined ? asistio : invitado.asistio
       }
     });
 
     return NextResponse.json(actualizado);
   } catch (error) {
+    console.error("Error en PATCH:", error);
     return NextResponse.json({ error: "Error al actualizar" }, { status: 500 });
   }
 }
 
 /**
- * 4. ELIMINAR (DELETE) - Ya lo tenías bien
+ * 4. ELIMINAR (DELETE)
  */
 export async function DELETE(req: Request) {
   try {

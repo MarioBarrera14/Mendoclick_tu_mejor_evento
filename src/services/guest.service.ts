@@ -2,9 +2,6 @@ import { prisma } from "@/lib/prisma";
 import type { Guest, CreateGuestInput, UpdateGuestInput, GuestStatus } from "@/types";
 
 export class GuestService {
-  /**
-   * Obtiene todos los invitados de un usuario
-   */
   static async getGuestsByUserId(userId: string): Promise<Guest[]> {
     try {
       const guests = await prisma.guest.findMany({
@@ -18,9 +15,6 @@ export class GuestService {
     }
   }
 
-  /**
-   * Obtiene los invitados por slug del usuario
-   */
   static async getGuestsBySlug(slug: string): Promise<Guest[]> {
     try {
       const guests = await prisma.guest.findMany({
@@ -34,9 +28,6 @@ export class GuestService {
     }
   }
 
-  /**
-   * Obtiene un invitado por su código
-   */
   static async getGuestByCode(codigo: string): Promise<Guest | null> {
     try {
       const guest = await prisma.guest.findUnique({
@@ -49,12 +40,8 @@ export class GuestService {
     }
   }
 
-  /**
-   * Crea un nuevo invitado
-   */
-  static async createGuest(input: CreateGuestInput): Promise<{ success: boolean; guest?: Guest; error?: string }> {
+  static async createGuest(input: CreateGuestInput & { mesa?: string }): Promise<{ success: boolean; guest?: Guest; error?: string }> {
     try {
-      // Verificar si el código ya existe
       const existing = await prisma.guest.findUnique({
         where: { codigo: input.codigo },
       });
@@ -65,11 +52,12 @@ export class GuestService {
 
       const guest = await prisma.guest.create({
         data: {
-          nombre: input.nombre, // CAMBIADO: Antes era apellido
+          nombre: input.nombre,
           cupos: input.cupos || 1,
           codigo: input.codigo,
           dietary: input.dietary,
           userId: input.userId,
+          mesa: input.mesa || "A Designar", // AGREGADO
         },
       });
 
@@ -80,14 +68,11 @@ export class GuestService {
     }
   }
 
-  /**
-   * Actualiza un invitado
-   */
   static async updateGuest(id: string, input: UpdateGuestInput): Promise<{ success: boolean }> {
     try {
       await prisma.guest.update({
         where: { id },
-        data: input,
+        data: input, // El objeto input ya debería traer 'mesa' desde el front
       });
       return { success: true };
     } catch (error) {
@@ -96,26 +81,22 @@ export class GuestService {
     }
   }
 
-  /**
-   * Actualiza el estado de un invitado por código (Confirmación del Invitado)
-   */
-static async updateGuestStatus(
+  static async updateGuestStatus(
     codigo: string,
     status: GuestStatus,
     confirmados: number,
     dietary?: string
   ): Promise<{ success: boolean }> {
     try {
-      // Lógica extra: Si manda 0 confirmados, forzamos el estado a CANCELLED
       const finalStatus = confirmados === 0 ? "CANCELLED" : status;
 
       await prisma.guest.update({
         where: { codigo },
         data: { 
-          status: finalStatus, // Usamos el estado final
+          status: finalStatus,
           dietary,
           confirmados: Number(confirmados) || 0,
-          checkIn: true // Marcamos que ya entró
+          // Aquí podrías agregar checkIn: true si usas ese campo
         },
       });
       return { success: true };
@@ -125,9 +106,6 @@ static async updateGuestStatus(
     }
   }
 
-  /**
-   * Elimina un invitado
-   */
   static async deleteGuest(id: string): Promise<{ success: boolean }> {
     try {
       await prisma.guest.delete({ where: { id } });
@@ -138,9 +116,6 @@ static async updateGuestStatus(
     }
   }
 
-  /**
-   * Cuenta los invitados por estado
-   */
   static async countGuestsByStatus(userId: string): Promise<Record<GuestStatus, number>> {
     try {
       const counts = await prisma.guest.groupBy({
@@ -166,14 +141,11 @@ static async updateGuestStatus(
     }
   }
 
-  /**
-   * Cuenta el total de personas reales que confirmaron (Suma de campo confirmados)
-   */
   static async countConfirmedCupos(userId: string): Promise<number> {
     try {
       const result = await prisma.guest.aggregate({
         where: { userId, status: "CONFIRMED" },
-        _sum: { confirmados: true }, // CAMBIADO: Ahora sumamos la asistencia real
+        _sum: { confirmados: true },
       });
       return result._sum.confirmados || 0;
     } catch (error) {
