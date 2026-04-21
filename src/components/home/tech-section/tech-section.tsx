@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Image from 'next/image'; // Importamos el componente de Next.js
 import { motion } from 'framer-motion';
 import { 
   FiCalendar, FiMapPin, FiClock, FiGift, 
@@ -19,7 +20,7 @@ export const TechSection = () => (
   <section id="experiencia" className="py-16 md:py-24 bg-[#f8f9fa] overflow-hidden">
     <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
       
-      {/* --- SMARTPHONE (Ahora primero en Mobile para mejor flujo) --- */}
+      {/* --- SMARTPHONE --- */}
       <div className="order-1 lg:order-2 flex justify-center relative scale-90 md:scale-100">
         <div className="absolute -top-10 -right-10 w-64 h-64 bg-red-100/40 blur-3xl rounded-full z-0" />
         
@@ -32,12 +33,19 @@ export const TechSection = () => (
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-zinc-900 rounded-b-2xl z-40 shadow-inner" />
           
+          {/* Contenedor con scroll para la imagen */}
           <div className="absolute inset-0 overflow-y-auto bg-white scrollbar-hide">
-            <img 
-              src="/img_demo/Samsun.webp" 
-              className="w-full h-auto"
-              alt="Demo Invitación" 
-            />
+            <div className="relative w-full">
+              <Image 
+                src="https://res.cloudinary.com/diqipcpuu/image/upload/v1776742964/Samsun_s2eqfa.webp" 
+                alt="Demo Invitación"
+                width={300} // Ancho base del contenedor
+                height={616} // Proporción aproximada
+                layout="responsive"
+                priority // Para que cargue rápido al ser parte del diseño principal
+                className="w-full h-auto"
+              />
+            </div>
           </div>
         </motion.div>
       </div>
@@ -57,7 +65,6 @@ export const TechSection = () => (
           <div className="h-1 w-12 bg-zinc-900 mt-6 mx-auto lg:mx-0" />
         </div>
 
-        {/* Cuadrícula de Funciones */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           {funciones.map((f, index) => (
             <motion.div 
