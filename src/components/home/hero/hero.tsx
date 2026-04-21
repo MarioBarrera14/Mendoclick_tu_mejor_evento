@@ -30,13 +30,16 @@ export const Hero = () => {
       <div 
         className={`absolute inset-0 z-0 bg-zinc-900 ${clipPathClass} scale-[1.01] origin-top`}
       >
-        <Image 
-          src="/img_boda/bode_casado.webp" 
-          fill
-          priority
-          className="object-cover" 
-          alt="Background" 
-        />
+<Image 
+  // f_auto: formato según navegador (WebP/AVIF)
+  // q_auto: compresión inteligente
+  // w_1200: limita el ancho para que no baje una foto gigante
+  src="https://res.cloudinary.com/diqipcpuu/image/upload/v1776742920/bode_casado_atoxsc.jpg" 
+  fill
+  priority
+  className="object-cover" 
+  alt="Background" 
+/>
         <div className="absolute inset-0 bg-black/40 md:bg-black/20 backdrop-blur-[0.5px]" />
       </div>
 
