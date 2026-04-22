@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'; // Importamos para carga diferida
 import { Navbar } from '@/components/home/navbar/navbar';
 import { Hero } from '@/components/home/hero/hero';
 import { WhatsAppButton } from '@/components/home/whatsapp/whatsapp'; 
-import Maintenance from '@/components/Maintenance';
+import Maintenance from '@/components/maintenance';
 // 1. Cargamos dinámicamente lo que está "below the fold" (fuera de la vista inicial)
 // Esto reduce drásticamente el Total Blocking Time (TBT) y mejora el rendimiento.
 const Collection = dynamic(() => import('@/components/home/collection/collection').then(mod => mod.Collection));
