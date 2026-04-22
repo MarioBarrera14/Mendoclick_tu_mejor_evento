@@ -5,12 +5,18 @@ import dynamic from 'next/dynamic'; // Importamos para carga diferida
 import { Navbar } from '@/components/home/navbar/navbar';
 import { Hero } from '@/components/home/hero/hero';
 import { WhatsAppButton } from '@/components/home/whatsapp/whatsapp'; 
-
+import Maintenance from '@/components/Maintenance';
 // 1. Cargamos dinámicamente lo que está "below the fold" (fuera de la vista inicial)
 // Esto reduce drásticamente el Total Blocking Time (TBT) y mejora el rendimiento.
 const Collection = dynamic(() => import('@/components/home/collection/collection').then(mod => mod.Collection));
 const TechSection = dynamic(() => import('@/components/home/tech-section/tech-section').then(mod => mod.TechSection));
 const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
+
+const enMantenimiento = true; //cuando necesite habilitar mi sitio cambiar a false
+
+  if (enMantenimiento) {
+    return <Maintenance />;
+  }
 
 export default function LuxuryLanding() {
   return (
