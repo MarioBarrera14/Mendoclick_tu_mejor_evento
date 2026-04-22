@@ -1,34 +1,36 @@
 "use client";
 
 import React from 'react';
-import Head from 'next/head';
+import dynamic from 'next/dynamic'; // Importamos para carga diferida
 import { Navbar } from '@/components/home/navbar/navbar';
 import { Hero } from '@/components/home/hero/hero';
-import { Collection } from '@/components/home/collection/collection';
-import { TechSection } from '@/components/home/tech-section/tech-section';
-import { Footer } from '@/components/home/footer/footer';
-// 1. Importa el botón (ajusta la ruta según donde lo guardaste)
 import { WhatsAppButton } from '@/components/home/whatsapp/whatsapp'; 
+
+// 1. Cargamos dinámicamente lo que está "below the fold" (fuera de la vista inicial)
+// Esto reduce drásticamente el Total Blocking Time (TBT) y mejora el rendimiento.
+const Collection = dynamic(() => import('@/components/home/collection/collection').then(mod => mod.Collection));
+const TechSection = dynamic(() => import('@/components/home/tech-section/tech-section').then(mod => mod.TechSection));
+const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
 
 export default function LuxuryLanding() {
   return (
-    <div className="min-h-screen bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
-      <Head>
-        <title>MENDOCLICK | Invitaciones Digitales</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-      </Head>
-
+    // min-h-svh ayuda a evitar saltos de layout en móviles
+    <div className="min-h-svh bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
+      
       <Navbar />
       
       <main>
+        {/* El Hero se queda estático porque es nuestro LCP */}
         <Hero />
+        
+        {/* Estos componentes se cargarán solo cuando el navegador esté libre */}
         <Collection />
         <TechSection />
       </main>
 
       <Footer />
 
-      {/* 2. Ponlo aquí, al final de todo */}
+      {/* Botón de WhatsApp al final */}
       <WhatsAppButton />
     </div>
   );
