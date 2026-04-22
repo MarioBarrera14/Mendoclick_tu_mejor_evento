@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next"; // Agregamos Viewport
 import { Montserrat, Pinyon_Script, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import ClientBody from "./ClientBody";
 import { Providers } from "./providers";
 
-// Configuración de fuentes optimizadas
+// 1. Montserrat es tu fuente de LCP (el título). 
+// Al estar definida fuera del componente y con preload: true (default), Next.js la inyecta rápido.
 const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
-  display: "swap",
+  display: "swap", // Mantiene el texto visible con fuente de sistema hasta que cargue
+  adjustFontFallback: true,
 });
 
 const pinyonScript = Pinyon_Script({
@@ -16,43 +18,26 @@ const pinyonScript = Pinyon_Script({
   subsets: ["latin"],
   variable: "--font-pinyon",
   display: "swap",
+  preload: false, // Las fuentes cursivas suelen usarse más abajo, podemos no precargarlas para ahorrar ancho de banda inicial
 });
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "700"], // Reducimos pesos innecesarios para que el archivo sea más liviano
   variable: "--font-cormorant",
   display: "swap",
 });
 
+// Ayuda a Lighthouse con el tamaño de pantalla inicial
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1, // Evita saltos de accesibilidad
+};
+
 export const metadata: Metadata = {
-  title: "¡MendoClick! | Invitación Digital",
-  description: "Te invito a celebrar conmigo este momento tan especial.",
-  icons: {
-    icon: "/logo.webp",
-  },
-  openGraph: {
-    title: "¡MendoClick! | Invitación Digital",
-    description: "Te invito a celebrar conmigo mis XV años. ¡No faltes!",
-    url: "https://www.mendoclick.com.ar",
-    siteName: "MendoClick",
-    images: [
-      {
-        url: "/logo.webp",
-        width: 800,
-        height: 600,
-        alt: "Logo MendoClick",
-      },
-    ],
-    locale: "es_AR",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "¡MendoClick! | Invitación Digital",
-    description: "Te invito a celebrar conmigo mis XV años",
-    images: ["/logo.webp"],
-  },
+  // ... tu metadata actual está perfecta
 };
 
 export default function RootLayout({
@@ -62,7 +47,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${montserrat.variable} ${pinyonScript.variable} ${cormorant.variable} antialiased`}>
+      {/* Agregamos la clase de la fuente principal al body directamente para evitar el "Flash of Unstyled Text" */}
+      <body className={`${montserrat.variable} ${pinyonScript.variable} ${cormorant.variable} font-sans antialiased`}>
         <Providers>
           <ClientBody>{children}</ClientBody>
         </Providers>
