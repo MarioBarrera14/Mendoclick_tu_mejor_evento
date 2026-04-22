@@ -1,10 +1,11 @@
 "use client";
 import React from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 
 export const Hero: React.FC = () => {
   const textShadowClass: string = "drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]";
+  
+  // Mantenemos el clip-path al 92% para seguridad visual
   const clipPathClass: string = "[clip-path:polygon(0_0,100%_0,100%_92%,0%_100%)]"; 
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string): void => {
@@ -19,9 +20,10 @@ export const Hero: React.FC = () => {
   };
 
   return (
+    // min-h-[100svh] asegura que use el alto real del navegador móvil (restando barras de herramientas)
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-[#f9f9f9] z-10">
       
-      {/* --- FONDO OPTIMIZADO --- */}
+      {/* --- FONDO (Colores y resolución intactos, sin animaciones de scroll) --- */}
       <div className={`absolute inset-0 z-0 bg-zinc-900 ${clipPathClass} scale-[1.01] origin-top`}>
         <Image 
           src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_1200,c_limit/v1776742920/bode_casado_atoxsc.jpg" 
@@ -35,45 +37,32 @@ export const Hero: React.FC = () => {
         <div className="absolute inset-0 bg-black/40 md:bg-black/20 backdrop-blur-[0.5px]" />
       </div>
 
-      {/* --- CONTENIDO PRINCIPAL (Sin el atributo style) --- */}
-      <motion.div 
-        initial={{ opacity: 0, y: 0 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="container mx-auto z-20 px-6 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-1 md:gap-12 relative h-full"
-      >
-        {/* --- SMARTPHONE PREVIEW --- */}
+      {/* --- CONTENIDO (Sin Framer Motion para evitar tirones en mobile) --- */}
+      <div className="container mx-auto z-20 px-6 mt-0 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-1 md:gap-12 relative h-full">
+        
+        {/* --- SMARTPHONE --- */}
         <div className="flex-1 flex justify-center relative order-1 lg:order-2 scale-[0.50] xs:scale-[0.55] sm:scale-75 lg:scale-90 -mb-10 lg:mb-0">
           <div className="absolute -top-5 -right-5 w-32 h-32 bg-[#33aba1]/30 blur-3xl rounded-full" />
           
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="relative w-[230px] md:w-[280px] aspect-[9/18.5] border-[8px] border-zinc-900 rounded-[2.5rem] bg-zinc-100 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)] z-20 overflow-hidden"
-          >
+          <div className="relative w-[230px] md:w-[280px] aspect-[9/18.5] border-[8px] border-zinc-900 rounded-[2.5rem] bg-zinc-100 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)] z-20 overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-zinc-900 rounded-b-2xl z-40" />
-            <div className="absolute inset-0 overflow-y-auto scrollbar-hide">
+            <div className="absolute inset-0 overflow-y-auto scrollbar-hide touch-pan-y">
               <Image 
                 src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_500/v1776742964/Samsun_s2eqfa.webp" 
                 width={280}
                 height={900}
                 className="w-full h-auto"
-                alt="Preview de Invitación Digital MendoClick" 
+                alt="Preview Invitación Digital" 
                 priority
                 sizes="(max-width: 768px) 230px, 280px"
               />
             </div>
-          </motion.div>
+          </div>
         </div>
 
-        {/* --- BRANDING Y CTA --- */}
+        {/* --- TEXTO Y BOTONES --- */}
         <div className="flex-1 text-center lg:text-left order-2 lg:order-1 w-full max-w-xl relative z-30 -mt-8 md:mt-0">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
+          <div>
             <h1 className={`text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] uppercase italic tracking-tighter mb-2 text-white ${textShadowClass}`}>
               INVITACIONES<br/>
               <span className="text-[#33aba1] drop-shadow-[0_2px_8px_rgba(51,171,161,0.5)]">DIGITALES</span>
@@ -86,25 +75,26 @@ export const Hero: React.FC = () => {
               <span className="text-[#33aba1] italic">interactiva y original</span>
             </p>
 
+            {/* Gap reducido y botones optimizados para touch */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2.5 relative z-50">
               <a 
                 href="#modelos" 
                 onClick={(e) => scrollToSection(e, 'modelos')}
-                className="w-[65%] sm:w-auto px-6 py-3 bg-[#33aba1] text-white text-[9px] font-black tracking-[0.2em] rounded-full hover:bg-white hover:text-[#33aba1] transition-all uppercase shadow-lg active:scale-95 cursor-pointer flex justify-center items-center"
+                className="w-[65%] sm:w-auto px-6 py-3 bg-[#33aba1] text-white text-[9px] font-black tracking-[0.2em] rounded-full active:scale-95 transition-transform uppercase shadow-lg flex justify-center items-center"
               >
                 Ver Diseños
               </a>
               <a 
                 href="#experiencia" 
                 onClick={(e) => scrollToSection(e, 'experiencia')}
-                className="w-[65%] sm:w-auto px-6 py-3 border-2 border-white/40 bg-black/10 backdrop-blur-md text-white text-[9px] font-black tracking-[0.2em] rounded-full hover:bg-white/20 transition-all uppercase cursor-pointer flex justify-center items-center"
+                className="w-[65%] sm:w-auto px-6 py-3 border-2 border-white/40 bg-black/10 backdrop-blur-md text-white text-[9px] font-black tracking-[0.2em] rounded-full active:scale-95 transition-transform uppercase flex justify-center items-center"
               >
                 Cómo funciona
               </a>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };
