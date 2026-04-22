@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import Image from 'next/image';
-// Eliminamos useScroll y useTransform para bajar el TBT a cero
 import { motion } from 'framer-motion';
 
 export const Hero: React.FC = () => {
@@ -22,14 +21,15 @@ export const Hero: React.FC = () => {
       {/* --- FONDO --- */}
       <div className={`absolute inset-0 z-0 ${clipPathClass} scale-[1.01] origin-top`}>
         <Image 
-          // Bajamos un poco el ancho a 1000px para equilibrar calidad/velocidad
-          src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_1000/v1776742920/bode_casado_atoxsc.jpg" 
+          // Mantenemos w_1200 para que en PC se vea nítida
+          src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_1200/v1776742920/bode_casado_atoxsc.jpg" 
           fill
           priority
           fetchPriority="high"
-          sizes="100vw"
+          // 'sizes' es la clave: el navegador elige la mejor versión según el dispositivo
+          sizes="(max-width: 768px) 800px, 1200px"
           className="object-cover" 
-          alt="Invitaciones Digitales MendoClick" 
+          alt="Invitaciones Digitales MendoClick Mendoza" 
         />
         <div className="absolute inset-0 bg-black/40 md:bg-black/20 backdrop-blur-[0.5px]" />
       </div>
@@ -49,18 +49,18 @@ export const Hero: React.FC = () => {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-zinc-900 rounded-b-2xl z-40" />
             <div className="absolute inset-0 overflow-y-auto scrollbar-hide touch-pan-y">
               <Image 
-                src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742964/Samsun_s2eqfa.webp" 
+                src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_500/v1776742964/Samsun_s2eqfa.webp" 
                 width={280}
                 height={900}
                 className="w-full h-auto"
-                alt="Preview" 
+                alt="Demo Invitación Digital" 
                 priority
               />
             </div>
           </motion.div>
         </div>
 
-        {/* --- TEXTO (Sin animaciones de entrada para bajar el TBT) --- */}
+        {/* --- TEXTO Y BOTONES --- */}
         <div className="flex-1 text-center lg:text-left order-2 lg:order-1 w-full max-w-xl relative z-30 -mt-8 md:mt-0">
           <h1 className={`text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] uppercase italic tracking-tighter mb-2 text-white ${textShadowClass}`}>
             INVITACIONES<br/>
@@ -78,6 +78,7 @@ export const Hero: React.FC = () => {
             <a 
               href="#modelos" 
               onClick={(e) => scrollToSection(e, 'modelos')}
+              aria-label="Ver catálogo de diseños de invitaciones"
               className="w-[65%] sm:w-auto px-6 py-3 bg-[#33aba1] text-white text-[9px] font-black tracking-[0.2em] rounded-full active:scale-95 transition-transform uppercase shadow-lg flex justify-center items-center"
             >
               Ver Diseños
@@ -85,6 +86,7 @@ export const Hero: React.FC = () => {
             <a 
               href="#experiencia" 
               onClick={(e) => scrollToSection(e, 'experiencia')}
+              aria-label="Cómo funcionan nuestras invitaciones digitales"
               className="w-[65%] sm:w-auto px-6 py-3 border-2 border-white/40 bg-black/10 backdrop-blur-md text-white text-[9px] font-black tracking-[0.2em] rounded-full active:scale-95 transition-transform uppercase flex justify-center items-center"
             >
               Cómo funciona
