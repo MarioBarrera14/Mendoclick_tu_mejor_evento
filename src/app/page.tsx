@@ -12,12 +12,14 @@ const Collection = dynamic(() => import('@/components/home/collection/collection
 const TechSection = dynamic(() => import('@/components/home/tech-section/tech-section').then(mod => mod.TechSection));
 const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
 
-const enMantenimiento = true; //cuando necesite habilitar mi sitio cambiar a false
+export default function LuxuryLanding() {
+  
+  // poner en false cuando ya no este en construcción
+  const enMantenimiento = true; 
 
   if (enMantenimiento) {
     return <Maintenance />;
   }
-
 export default function LuxuryLanding() {
   return (
     // min-h-svh ayuda a evitar saltos de layout en móviles
