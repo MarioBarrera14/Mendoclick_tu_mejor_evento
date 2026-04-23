@@ -23,6 +23,7 @@ model User {
   eventConfig     EventConfig? 
   guests          Guest[]
   songSuggestions SongSuggestion[]
+  orders          Order[] // <-- RELACIÓN CON LAS ÓRDENES DE PAGO
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -30,7 +31,32 @@ model User {
   @@map("users")
 }
 
-// 2. CONFIGURACIÓN DEL EVENTO (Lo que el cliente edita en su panel)
+// 2. MODELO DE ÓRDENES Y PAGOS
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Order {
+  id                String        @id @default(cuid())
+  userId            String?       
+  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  planName          String        // CLASSIC, PREMIUM, DELUXE
+  amount            Float
+  status            PaymentStatus @default(PENDING)
+  
+  mpPreferenceId    String?       @unique 
+  mpPaymentId       String?       @unique 
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("orders")
+}
+
+// 3. CONFIGURACIÓN DEL EVENTO
 model EventConfig {
   id               String          @id @default(cuid())
   userId           String          @unique
@@ -40,7 +66,6 @@ model EventConfig {
   heroImage        String?         @default("")
   videoUrl         String?         @default("")
   musicUrl         String?         @default("")
-  // Usamos Json para manejar los arrays de Cloudinary nativamente
   carruselImages   Json?           @default("[]") 
 
   // --- Datos Principales ---
@@ -49,12 +74,10 @@ model EventConfig {
   eventTime        String          @default("")
   
   // --- Ubicaciones ---
-  // Salón / Fiesta
   venueName        String          @default("")
   venueAddress     String          @default("")
   mapLink          String          @default("")
   
-  // Iglesia / Ceremonia (Opcionales para Bodas)
   churchName       String?         @default("")
   churchAddress    String?         @default("")
   churchMapLink    String?         @default("")
@@ -79,14 +102,14 @@ model EventConfig {
   @@map("event_config")
 }
 
-// 3. ITINERARIO (Cronograma del evento)
+// 4. ITINERARIO
 model ItineraryItem {
   id            String      @id @default(cuid())
-  time          String      // Ej: "21:00hs"
-  title         String      // Ej: "Recepción"
+  time          String      
+  title         String      
   description   String?     
-  icon          String      @default("Heart") // Nombre del icono de Lucide/React Icons
-  order         Int         // Para ordenar manualmente 1, 2, 3...
+  icon          String      @default("Heart")
+  order         Int         
   
   eventConfigId String
   eventConfig   EventConfig @relation(fields: [eventConfigId], references: [id], onDelete: Cascade)
@@ -94,11 +117,11 @@ model ItineraryItem {
   @@map("itinerary_items")
 }
 
-// 4. TESTIGOS / PADRINOS
+// 5. TESTIGOS / PADRINOS
 model Witness {
   id            String      @id @default(cuid())
   nombre        String
-  rol           String      // Ej: "Testigo de la Novia"
+  rol           String      
   imageUrl      String?     
   
   eventConfigId String
@@ -107,33 +130,33 @@ model Witness {
   @@map("witnesses")
 }
 
-// 5. LOS INVITADOS (Gestión de lista y confirmaciones)
+// 6. LOS INVITADOS
 model Guest {
-  id               String   @id @default(cuid())
-  nombre           String   // Ej: "Familia Ariel" o "Mario Barrera"
-  cupos            Int      @default(1) // Cupos totales otorgados
-  confirmados      Int      @default(0) // Cupos que realmente confirmaron
-  codigo           String   @unique     // Código de acceso único
-  status           String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  dietary          String?  // Info sobre alergias, vegetariano, etc.
-  message     String?  // <--- AGREGAR ESTO SI NO ESTÁ
-  userId           String
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-mesa             String?  @default("A Designar")
-asistio         Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                String   @id @default(cuid())
+  nombre            String   
+  cupos             Int      @default(1)
+  confirmados       Int      @default(0)
+  codigo            String   @unique  
+  status            String   @default("PENDING") 
+  dietary           String?  
+  message           String?  
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mesa              String?  @default("A Designar")
+  asistio           Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("guests")
 }
 
-// 6. SUGERENCIAS DE MÚSICA (Interacción de invitados)
+// 7. SUGERENCIAS DE MÚSICA
 model SongSuggestion {
   id          String   @id @default(cuid())
   tema1       String?
   tema2       String?
   tema3       String?
-  guestName   String?  // Quién sugirió la canción
+  guestName   String?  
   
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)

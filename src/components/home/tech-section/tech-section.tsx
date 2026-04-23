@@ -93,3 +93,4 @@ export const TechSection = () => (
     </div>
   </section>
 );
+ 

@@ -46,7 +46,6 @@ export const Collection = () => {
             <button 
               key={cat}
               onClick={() => setActiveCategory(cat as any)}
-              aria-pressed={activeCategory === cat}
               className={`px-6 py-2 rounded-full text-[9px] font-black tracking-widest transition-all active:scale-95 ${
                 activeCategory === cat 
                 ? 'bg-[#33aba1] text-white shadow-lg' 
@@ -69,7 +68,7 @@ export const Collection = () => {
                 exit={{ opacity: 0 }} 
                 className="flex flex-col items-center group"
               >
-                {/* MOCKUP CON SCROLL RECUPERADO */}
+                {/* MOCKUP */}
                 <motion.div 
                   whileHover="vibrate"
                   variants={phoneShakeVariants}
@@ -81,8 +80,6 @@ export const Collection = () => {
 
                   <div className="relative aspect-[9/18.5] border-[6px] border-zinc-900 rounded-[2.2rem] bg-zinc-200 shadow-xl overflow-hidden">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-3.5 bg-zinc-900 rounded-b-xl z-40" />
-                    
-                    {/* AQUÍ EL FIX: overflow-y-auto + scrollbar-hide permite scrollear la invitación */}
                     <div className="absolute inset-0 bg-white z-10 overflow-y-auto scrollbar-hide touch-pan-y">
                       <Image 
                         src={item.img} 
@@ -111,17 +108,17 @@ export const Collection = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full px-4">
-                    <button 
-                      aria-label={`Ver opciones de compra para ${item.title}`}
-                      className="flex items-center justify-center gap-2 w-full py-2.5 border-2 border-zinc-900 text-zinc-900 text-[10px] font-black tracking-widest rounded-full hover:bg-zinc-900 hover:text-white transition-all uppercase"
+                    {/* --- BOTÓN DE OPCIONES CORREGIDO --- */}
+                    <Link 
+                      href="/demo/bodas/bodas-grafitis/productos/" 
+                      className="flex items-center justify-center gap-2 w-full py-2.5 border-2 border-zinc-900 text-zinc-900 text-[10px] font-black tracking-widest rounded-full hover:bg-zinc-900 hover:text-white transition-all uppercase text-center"
                     >
                       <FiShoppingCart /> Opciones
-                    </button>
+                    </Link>
                     
                     <Link 
                       href={item.link} 
-                      aria-label={`Ver vista previa en vivo de ${item.title}`}
-                      className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#33aba1] text-white text-[10px] font-black tracking-widest rounded-full hover:bg-zinc-900 transition-all uppercase shadow-md"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#33aba1] text-white text-[10px] font-black tracking-widest rounded-full hover:bg-zinc-900 transition-all uppercase shadow-md text-center"
                     >
                       <FiEye /> Live Demo
                     </Link>
