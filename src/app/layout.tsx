@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: "MendoClick Invitaciones",
     images: [
       {
-        url: "/logo.webp", // Asegurate de tener una foto de 1200x630px con este nombre en public
+        url: "/logo.webp",
         width: 1200,
         height: 630,
         alt: "MendoClick Invitaciones Digitales Mendoza",
@@ -51,6 +51,9 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  verification: {
+    google: "uRgIFXOvPYEe8vFL-5Wlm6vqEE7MkgbrBRzUGpHvC-Y",
   },
 };
 
