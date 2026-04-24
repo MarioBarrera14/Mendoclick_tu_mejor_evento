@@ -65,7 +65,7 @@ export const globalBodaConfig: BodaConfig = {
     hero: {
       rock: "/img_boda/vintage.webp",
       graffiti: "/img_boda/grafiteros.webp",
-      noir: "/img_boda/bode_casado.webp",
+      noir: "https://res.cloudinary.com/diqipcpuu/image/upload/v1776742920/bode_casado_atoxsc.jpg",
     },
     // URLs de Cloudinary para evitar el error 404 local
     videoUrl: { 

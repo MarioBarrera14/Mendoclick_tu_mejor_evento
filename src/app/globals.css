@@ -12,24 +12,20 @@
 
   html {
     scroll-behavior: smooth;
-    /* Forzamos el scroll vertical para evitar saltos de layout (CLS) */
     overflow-y: scroll;
     overflow-x: hidden;
   }
   
   body {
-    /* Color sólido inicial para evitar el rectángulo blanco antes del CSS */
-background-color: #1a1a1a !important; /* Un gris muy oscuro casi negro */
-    color: #18181b;
-    /* Fallback de fuentes nativas para renderizado instantáneo del texto */
-    font-family: var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #0a0a0a !important; /* Negro profundo para Golden Noir */
+    color: #ffffff;
+    /* Usamos la variable de Montserrat como base */
+    font-family: var(--font-montserrat), sans-serif;
     overflow-x: hidden;
     width: 100%;
-    position: relative;
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
@@ -37,33 +33,28 @@ background-color: #1a1a1a !important; /* Un gris muy oscuro casi negro */
     max-width: 100%;
     box-sizing: border-box;
   }
-
-  /* Optimización para que las imágenes no retrasen el renderizado del DOM */
-  img {
-    content-visibility: auto;
-  }
 }
 
 @layer components {
   /**
-   * FUENTE CURSIVA ELEGANTE (Pinyon Script)
+   * FUENTE CURSIVA (Script)
+   * Eliminamos el !important para que Tailwind pueda manejarlo
    */
   .font-script {
-    font-family: var(--font-pinyon), cursive !important;
-    font-weight: 400;
+    font-family: var(--font-script), cursive;
     text-transform: none !important;
-    line-height: 0.9;
+    line-height: 1.1;
     letter-spacing: 0px;
-    display: inline-block;
   }
 
-  /* FUENTE SERIF (Cormorant Garamond) */
-  .font-serif-elegant {
-    font-family: var(--font-cormorant), serif !important;
-    @apply italic;
+  /**
+   * FUENTE ELEGANTE (Serif)
+   */
+  .font-elegante {
+    font-family: var(--font-elegante), serif;
   }
 
-  /* FIX SELECTORES: Forzamos visibilidad de las opciones en móviles */
+  /* SELECTORES MÓVILES */
   select option {
     background-color: white !important;
     color: black !important;
@@ -71,9 +62,9 @@ background-color: #1a1a1a !important; /* Un gris muy oscuro casi negro */
     padding: 10px;
   }
   
-  /* SCROLLBARS MINIMALISTAS */
+  /* SCROLLBARS */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
 
   ::-webkit-scrollbar-track {
@@ -81,19 +72,12 @@ background-color: #1a1a1a !important; /* Un gris muy oscuro casi negro */
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #d4d4d8;
+    background: #b5a47a; /* Color dorado para el scroll */
     border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #a1a1aa;
   }
 }
 
 @layer utilities {
-  /**
-   * OCULTAR SCROLLBAR
-   */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -103,45 +87,18 @@ background-color: #1a1a1a !important; /* Un gris muy oscuro casi negro */
     display: none;
   }
 
-  /* Efecto Vidrio Esmerilado (Glassmorphism) */
+  /* Glassmorphism para los modales */
   .glass {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  /* Texto Gradiente Dorado */
-  .text-champagne {
-    background: linear-gradient(135deg, #dcd0b9 0%, #b4a178 100%);
+  /* Gradiente Dorado */
+  .text-gold {
+    background: linear-gradient(135deg, #f5e1a4 0%, #b4a178 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-
-  /* Sombra de elevación */
-  .shadow-soft {
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
-  }
-
-  /* Unidades de Viewport estables para evitar saltos en iOS */
-  .min-h-svh {
-    min-height: 100svh;
-  }
-}
-
-/* Ajuste crítico para Safari en iOS */
-@supports (-webkit-touch-callout: none) {
-  .min-h-screen {
-    min-height: -webkit-fill-available;
-  }
-}
-
-/* Animación de carga sutil para mejorar el Speed Index */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in forwards;
 }

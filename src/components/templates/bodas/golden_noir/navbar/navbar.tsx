@@ -26,19 +26,20 @@ export const Navbar = ({ eventName, isDemo = false }: NavbarProps) => {
     <nav className="fixed top-0 w-full z-50 bg-black/40 backdrop-blur-md border-b border-white/10 py-2.5 px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
-        {/* BRANDING ORIGINAL GOLDEN NOIR */}
+        {/* BRANDING ACTUALIZADO CON FONT-SCRIPT */}
         <Link href="/" className="group">
-          <h1 className="text-white text-xl font-serif italic tracking-widest transition-colors group-hover:text-pink-300">
+          {/* Fuente Aplicada: font-script y ajuste de tamaño a text-3xl */}
+          <h1 className="text-white text-3xl font-script tracking-normal transition-colors group-hover:text-pink-300">
             {displayName}
           </h1>
-          <span className="block text-[9px] uppercase tracking-[0.3em] font-sans not-italic text-rose-400">
+          <span className="block text-[9px] uppercase tracking-[0.6em] font-sans font-bold text-rose-400 mt-2">
             ¡Nuestra Boda!
           </span>
         </Link>
 
         <div className="flex items-center gap-6"> 
           
-          {/* MODO DEMO: Solo Refresh (Igual que en Champagne) */}
+          {/* MODO DEMO: Solo Refresh */}
           {isDemo ? (
             <div className="flex flex-col items-center gap-0.5 animate-in fade-in zoom-in duration-500">
               <motion.button 

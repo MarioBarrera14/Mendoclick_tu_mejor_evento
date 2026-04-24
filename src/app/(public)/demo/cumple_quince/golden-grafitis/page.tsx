@@ -13,18 +13,30 @@ import {
   Navbar,
 } from "@/components/templates/cumple_quince/golden-grafitis";
 
-// Importamos la data hardcodeada de Quince
+// 1. IMPORTACIÓN DE FUENTES URBANAS
+import { Permanent_Marker, Montserrat } from "next/font/google";
+
+const graffitiFont = Permanent_Marker({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-graffiti",
+});
+
+const sansFont = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
+
 import { globalQuinceConfig as localConfig } from "@/data/event-config-bodas";
 
 interface GoldenBdayPageProps {
-  dbConfig?: any;    // Datos de Prisma
-  eventId?: string;  // ID del evento para la música
-  isDemo?: boolean;  // Si es true, usa datos locales; si es false, usa dbConfig
+  dbConfig?: any;
+  eventId?: string;
+  isDemo?: boolean;
 }
 
 export default function GoldenBdayPage({ dbConfig, eventId, isDemo = true }: GoldenBdayPageProps) {
   
-  // 1. Unificamos la fuente de datos (Fallback a localConfig)
   const config = dbConfig || {
     eventName: localConfig.personal.nombre,
     heroImage: localConfig.imagenes.hero.graffiti,
@@ -33,13 +45,10 @@ export default function GoldenBdayPage({ dbConfig, eventId, isDemo = true }: Gol
     musicUrl: localConfig.imagenes.musicaUrl.graffiti,
     videoUrl: localConfig.imagenes.videoUrl.graffiti,
     carruselImages: JSON.stringify(localConfig.imagenes.carrusel),
-    // Ubicación
     venueName: localConfig.ubicacion.nombreLugar,
     venueAddress: localConfig.ubicacion.direccion,
     mapLink: localConfig.ubicacion.googleMapsUrl,
-    // Listas
     itinerary: localConfig.itinerario,
-    // Detalles
     dressCode: localConfig.dressCode.titulo,
     dressDescription: localConfig.dressCode.descripcion,
     cbu: localConfig.regalo.datosBancarios.cbu,
@@ -52,7 +61,8 @@ export default function GoldenBdayPage({ dbConfig, eventId, isDemo = true }: Gol
   const currentEventId = eventId || "demo-quince-graffiti";
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
+    /* 2. INYECCIÓN DE VARIABLES CSS EN EL MAIN */
+    <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a] overflow-x-hidden`}>
       <Envelope musicUrl={config.musicUrl || localConfig.imagenes.musicaUrl.graffiti}>
         
         <Navbar eventName={config.eventName} isDemo={isDemo} />
@@ -68,14 +78,19 @@ export default function GoldenBdayPage({ dbConfig, eventId, isDemo = true }: Gol
           images={typeof config.carruselImages === 'string' ? config.carruselImages : JSON.stringify(config.carruselImages)}
           videoUrl={config.videoUrl || localConfig.imagenes.videoUrl.graffiti}
         />
-
-        <EventDetails config={{
+               <EventDetails config={{
           eventDate: config.eventDate,
           eventTime: config.eventTime,
           venueName: config.venueName,
           venueAddress: config.venueAddress,
           mapLink: config.mapLink
         }} />
+   <RSVP config={{
+          heroImage: config.heroImage || localConfig.imagenes.hero.graffiti,
+          eventDate: config.eventDate,
+          confirmDate: config.confirmDate || config.eventDate
+        }} />
+ 
 
         <DetailModal config={{
           dressCode: config.dressCode,
@@ -88,14 +103,9 @@ export default function GoldenBdayPage({ dbConfig, eventId, isDemo = true }: Gol
 
         <Itinerary items={config.itinerary || []} />
 
-
         <MusicSuggestion eventId={currentEventId} />
 
-        <RSVP config={{
-          heroImage: config.heroImage || localConfig.imagenes.hero.graffiti,
-          eventDate: config.eventDate,
-          confirmDate: config.confirmDate || config.eventDate
-        }} />
+     
         
         <Footer />
       </Envelope>

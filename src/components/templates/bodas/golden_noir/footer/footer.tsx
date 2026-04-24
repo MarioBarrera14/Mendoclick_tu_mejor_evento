@@ -52,7 +52,8 @@ export function Footer() {
             <span className="text-[#b5a47a] tracking-[0.5em] text-[10px] uppercase block mb-3 font-sans font-bold drop-shadow-sm">
               Hablemos
             </span>
-            <h2 className="text-3xl md:text-4xl font-serif italic text-white tracking-tight drop-shadow-md">
+            {/* Fuente Aplicada: font-script */}
+            <h2 className="text-5xl md:text-6xl font-script text-white drop-shadow-md leading-tight">
               ¿Tenés alguna duda?
             </h2>
             <div className="w-12 h-px bg-[#b5a47a]/30 mx-auto mt-4" />
@@ -107,7 +108,8 @@ export function Footer() {
 
             {/* MARCA */}
             <div className="order-1 md:order-2">
-              <span className="text-2xl md:text-3xl text-white font-serif italic tracking-tighter uppercase drop-shadow-md">
+              {/* Fuente Aplicada: font-script */}
+              <span className="text-4xl md:text-5xl text-white font-script drop-shadow-md leading-none">
                 {footer.marca}
               </span>
               <p className="text-[9px] text-[#b5a47a] tracking-[0.4em] uppercase mt-1 font-sans font-bold opacity-70">
@@ -136,8 +138,8 @@ export function Footer() {
         </div>
       </div>
 
-      {/* MARCA DE AGUA MÁS PEQUEÑA (Tailwind puro) */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[12vw] font-serif italic text-[#b5a47a]/10 select-none pointer-events-none whitespace-nowrap">
+      {/* MARCA DE AGUA (Font script aplicada) */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[15vw] font-script text-[#b5a47a]/5 select-none pointer-events-none whitespace-nowrap">
         {footer.marca}
       </div>
     </footer>

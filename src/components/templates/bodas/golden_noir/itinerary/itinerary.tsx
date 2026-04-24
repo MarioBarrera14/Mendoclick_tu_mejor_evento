@@ -49,7 +49,8 @@ export function Itinerary({ items }: ItineraryProps) {
         <span className="text-[8px] tracking-[0.6em] text-[#b5a47a] uppercase font-bold mb-2 opacity-80">
           Timeline
         </span>
-        <h2 className="text-2xl md:text-4xl font-serif italic text-white drop-shadow-md">
+        {/* Fuente Aplicada: font-script */}
+        <h2 className="text-4xl md:text-6xl font-script text-white drop-shadow-md leading-tight">
           Itinerario
         </h2>
         <div className="w-10 h-px bg-[#b5a47a]/40 mt-4" />
@@ -95,7 +96,8 @@ export function Itinerary({ items }: ItineraryProps) {
                     <span className="block text-[9px] md:text-[11px] font-black text-[#b5a47a] uppercase tracking-[0.2em] mb-1">
                       {item.time}
                     </span>
-                    <h3 className="text-sm md:text-xl font-serif italic text-white leading-tight drop-shadow-lg">
+                    {/* Fuente Aplicada: font-script */}
+                    <h3 className="text-2xl md:text-4xl font-script text-white leading-tight drop-shadow-lg">
                       {item.title}
                     </h3>
                     {item.description && (

@@ -48,7 +48,8 @@ export function Witnesses({ items }: WitnessesProps) {
           <span className="text-[9px] tracking-[0.6em] text-[#b5a47a] uppercase font-bold mb-3 drop-shadow-sm">
             Special People
           </span>
-          <h2 className="text-3xl md:text-5xl font-serif italic text-white tracking-tighter drop-shadow-lg leading-tight">
+          {/* Aplicada fuente font-script al título */}
+          <h2 className="text-5xl md:text-7xl font-script text-white tracking-normal drop-shadow-lg leading-tight">
             Los Testigos
           </h2>
           <div className="w-16 h-px bg-gradient-to-r from-transparent via-[#b5a47a]/40 to-transparent mt-4" />
@@ -74,10 +75,9 @@ export function Witnesses({ items }: WitnessesProps) {
                 
                 <div className="relative w-32 h-32 md:w-40 md:h-40 overflow-hidden rounded-full border-[4px] md:border-[6px] border-[#b5a47a] shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] z-20 transition-all duration-700 aspect-square">
                   <Image 
-                    src={witness.imageUrl || "/img_boda/placeholder-user.webp"} // Imagen por defecto si no hay en DB
+                    src={witness.imageUrl || "/img_boda/placeholder-user.webp"} 
                     alt={witness.nombre} 
                     fill
-                    sizes="(max-width: 768px) 128px, 160px"
                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" 
                   />
                   <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(0,0,0,0.7)] z-30 rounded-full pointer-events-none" />
@@ -86,7 +86,8 @@ export function Witnesses({ items }: WitnessesProps) {
 
               {/* TEXTO DINÁMICO */}
               <div className="text-center px-2 relative z-10">
-                <h3 className="text-lg md:text-xl font-serif italic text-white mb-1 tracking-tight leading-snug drop-shadow-md">
+                {/* Aplicada fuente font-script al nombre */}
+                <h3 className="text-3xl md:text-4xl font-script text-white mb-1 tracking-normal leading-snug drop-shadow-md">
                   {witness.nombre}
                 </h3>
                 <div className="w-6 h-px bg-[#b5a47a]/30 mx-auto mb-1.5 shadow-sm" />

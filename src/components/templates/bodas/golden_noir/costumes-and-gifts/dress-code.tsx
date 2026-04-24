@@ -39,7 +39,6 @@ function DetailModal({
   icon?: React.ElementType 
 }) {
   
-  // BLOQUEO DE SCROLL ROBUSTO (HTML + BODY)
   useEffect(() => {
     if (isOpen) {
       document.documentElement.style.overflow = "hidden";
@@ -48,8 +47,6 @@ function DetailModal({
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     }
-
-    // Limpieza al cerrar o desmontar
     return () => {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
@@ -65,7 +62,7 @@ function DetailModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] touch-none" // touch-none evita scroll táctil
+            className="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] touch-none"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -82,7 +79,8 @@ function DetailModal({
               </button>
               
               {Icon && <Icon className="text-[#b5a47a] mb-4" size={36} strokeWidth={1.5} />}
-              <h3 className="text-xl font-serif italic text-gray-900 tracking-tight border-b border-[#b5a47a]/30 w-full pb-3 text-center">
+              {/* Fuente Aplicada: font-script */}
+              <h3 className="text-4xl font-script text-gray-900 border-b border-[#b5a47a]/30 w-full pb-3 text-center">
                 {title}
               </h3>
             </div>
@@ -158,7 +156,10 @@ export default function Details({ config }: WeddingDetailsProps) {
               </div>
             </div>
             <div className="text-center">
-              <h3 className="text-xl md:text-2xl font-serif italic text-white drop-shadow-sm mb-1 transition-all duration-500 group-hover:drop-shadow-lg">Dress Code</h3>
+              {/* Fuente Aplicada: font-script */}
+              <h3 className="text-4xl md:text-5xl font-script text-white drop-shadow-sm mb-1 transition-all duration-500 group-hover:drop-shadow-lg leading-tight">
+                Dress Code
+              </h3>
               <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-[#b5a47a] drop-shadow-sm">Ver Detalles</p>
             </div>
           </motion.div>
@@ -178,7 +179,10 @@ export default function Details({ config }: WeddingDetailsProps) {
               </div>
             </div>
             <div className="text-center">
-              <h3 className="text-xl md:text-2xl font-serif italic text-white drop-shadow-md mb-1 transition-all duration-500 group-hover:drop-shadow-lg">Cuentas</h3>
+              {/* Fuente Aplicada: font-script */}
+              <h3 className="text-4xl md:text-5xl font-script text-white drop-shadow-md mb-1 transition-all duration-500 group-hover:drop-shadow-lg leading-tight">
+                Cuentas
+              </h3>
               <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-[#b5a47a] drop-shadow-sm">Ver Datos</p>
             </div>
           </motion.div>
@@ -191,7 +195,8 @@ export default function Details({ config }: WeddingDetailsProps) {
         <div className="text-center space-y-4">
           <p className="text-sm text-gray-500 italic leading-relaxed">
             Nuestra boda será un evento formal. <br />
-            <strong className="text-black font-bold uppercase tracking-[0.2em] block mt-2 text-lg">
+            {/* Fuente Aplicada: font-script para el código de vestimenta */}
+            <strong className="text-[#b5a47a] font-script block mt-2 text-4xl leading-snug">
               {config.dressCode || "Elegante Sport"}
             </strong>
           </p>

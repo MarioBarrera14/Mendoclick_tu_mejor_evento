@@ -98,10 +98,13 @@ export function PhotoGallerySection({ config }: PhotoGalleryProps) {
       <div className="absolute inset-0 z-0 bg-fixed bg-cover bg-center bg-[url('/img_boda/galeria.webp')]" />
       <div className="absolute inset-0 z-0 bg-black/75 backdrop-blur-sm" />
 
-      <div className="container mx-auto px-6 mb-8 text-center relative z-10">
-        <h3 className="text-3xl md:text-5xl font-serif italic text-white mb-2 drop-shadow-lg">Momentos Inolvidables</h3>
-        <div className="w-12 h-px bg-[#b5a47a]/60 mx-auto" />
-      </div>
+  <div className="container mx-auto px-6 mb-8 text-center relative z-10">
+  {/* Quitamos 'font-serif' e 'italic' que pueden hacer conflicto */}
+  <h3 className="font-script text-5xl md:text-7xl text-white mb-2 drop-shadow-lg">
+    Momentos Inolvidables
+  </h3>
+  <div className="w-12 h-px bg-[#b5a47a]/60 mx-auto" />
+</div>
 
       {/* Carrusel */}
       {fotos.length > 0 && (

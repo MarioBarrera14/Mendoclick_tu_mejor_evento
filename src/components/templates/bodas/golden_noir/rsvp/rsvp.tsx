@@ -148,7 +148,8 @@ export function RSVP({ config }: RSVPProps) {
           </motion.div>
 
           <div className="text-center px-4 max-w-sm relative z-10">
-            <h2 className="text-2xl md:text-4xl font-serif italic text-white mb-2 drop-shadow-md">
+            {/* Fuente Aplicada: font-script */}
+            <h2 className="text-5xl md:text-6xl font-script text-white mb-2 drop-shadow-md leading-tight">
               ¿Nos acompañas?
             </h2>
             <p className="text-[#b5a47a] text-[10px] md:text-[11px] uppercase font-bold tracking-[0.2em] mb-6 drop-shadow-sm opacity-90">
@@ -198,7 +199,8 @@ export function RSVP({ config }: RSVPProps) {
                     </div>
                 </div>
                 
-                <h4 className="text-2xl font-serif text-gray-800 uppercase tracking-widest mb-2">
+                {/* Fuente Aplicada: font-script */}
+                <h4 className="text-4xl md:text-5xl font-script text-gray-800 mb-2 leading-tight">
                   Ingresa tu código
                 </h4>
                 <div className="w-10 h-px bg-[#b5a47a]/40 mx-auto mb-4" />

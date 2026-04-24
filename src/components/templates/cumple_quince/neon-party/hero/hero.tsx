@@ -78,7 +78,7 @@ export function Hero({ config }: HeroProps) {
       className="absolute inset-0 w-full h-full object-cover brightness-[0.35] contrast-[1.15]"
     >
       <source 
-        src="https://res.cloudinary.com/diqipcpuu/video/upload/v1/Video_de_Esferas_de_Espejos_puhojq.mp4" 
+        src="https://res.cloudinary.com/diqipcpuu/video/upload/v1777001514/Video_de_Esferas_de_Espejos_rig1xl.mp4" 
         type="video/mp4" 
       />
       Tu navegador no soporta videos.

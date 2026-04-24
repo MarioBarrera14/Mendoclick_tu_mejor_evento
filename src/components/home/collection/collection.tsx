@@ -12,13 +12,74 @@ const phoneShakeVariants: Variants = {
   }
 };
 
+// --- AGREGAMOS LA PROPIEDAD SLUG A CADA DISEÑO ---
 const allDesigns = [
-  { id: '01', title: 'CHAMPAGNE LUX', img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742964/Samsun_s2eqfa.webp', price: 73000, oldPrice: 80000, tag: 'LUXURY', category: '15_AÑOS', link: '/demo/cumple_quince/champagne' },
-  { id: '02', title: 'NEON WAVE', img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742961/neon_t9dnda.webp', price: 73000, oldPrice: 80000, tag: 'VIBRANT', category: '15_AÑOS', link: '/demo/cumple_quince/neon-party' },
-  { id: '03', title: 'URBAN VIBE', img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742965/grafiti15_bptpc3.webp', price: 73000, oldPrice: 80000, tag: 'STREET', category: '15_AÑOS', link: '/demo/cumple_quince/golden-grafitis' },
-  { id: '04', title: 'DARK PREMIUM', img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742929/noir_qamzg1.webp', price: 73000, oldPrice: 80000, tag: 'NOIR', category: 'BODAS', link: '/demo/bodas/golden_noir' },
-  { id: '05', title: 'VINTAGE ROCK', img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742928/imgrock_mhe0kf.webp', price: 73000, oldPrice: 80000, tag: 'VIBE', category: 'BODAS', link: '/demo/bodas/bodas-rockeras' },
-  { id: '06', title: 'GRAFFITI LOVE', img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742937/graffiti_boda_l667p8.webp', price: 73000, oldPrice: 80000, tag: 'URBAN', category: 'BODAS', link: '/demo/bodas/bodas-grafitis' },
+  { 
+    id: '01', 
+    slug: 'luxury', // <--- Este nombre debe existir en tu TEMPLATES_DATA de la tienda
+    title: 'CHAMPAGNE LUX', 
+    img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742964/Samsun_s2eqfa.webp', 
+    price: 73000, 
+    oldPrice: 80000, 
+    tag: 'LUXURY', 
+    category: '15_AÑOS', 
+    link: '/demo/cumple_quince/champagne' 
+  },
+  { 
+    id: '02', 
+    slug: 'modern', 
+    title: 'NEON WAVE', 
+    img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742961/neon_t9dnda.webp', 
+    price: 73000, 
+    oldPrice: 80000, 
+    tag: 'VIBRANT', 
+    category: '15_AÑOS', 
+    link: '/demo/cumple_quince/neon-party' 
+  },
+  { 
+    id: '03', 
+    slug: 'urban_vibe', 
+    title: 'URBAN VIBE', 
+    img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742965/grafiti15_bptpc3.webp', 
+    price: 73000, 
+    oldPrice: 80000, 
+    tag: 'STREET', 
+    category: '15_AÑOS', 
+    link: '/demo/cumple_quince/golden-grafitis' 
+  },
+  { 
+    id: '04', 
+    slug: 'dark_premium', 
+    title: 'DARK PREMIUM', 
+    img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742929/noir_qamzg1.webp', 
+    price: 73000, 
+    oldPrice: 80000, 
+    tag: 'NOIR', 
+    category: 'BODAS', 
+    link: '/demo/bodas/golden_noir' 
+  },
+  { 
+    id: '05', 
+    slug: 'vintage', 
+    title: 'VINTAGE ROCK', 
+    img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742928/imgrock_mhe0kf.webp', 
+    price: 73000, 
+    oldPrice: 80000, 
+    tag: 'VIBE', 
+    category: 'BODAS', 
+    link: '/demo/bodas/bodas-rockeras' 
+  },
+  { 
+    id: '06', 
+    slug: 'urban_bodas', 
+    title: 'GRAFFITI LOVE', 
+    img: 'https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_400/v1776742937/graffiti_boda_l667p8.webp', 
+    price: 73000, 
+    oldPrice: 80000, 
+    tag: 'URBAN', 
+    category: 'BODAS', 
+    link: '/demo/bodas/bodas-grafitis' 
+  },
 ];
 
 export const Collection = () => {
@@ -108,9 +169,9 @@ export const Collection = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full px-4">
-                    {/* --- BOTÓN DE OPCIONES CORREGIDO --- */}
+                    {/* --- AHORAitem.slug YA NO SERÁ UNDEFINED --- */}
                     <Link 
-                      href="/demo/bodas/bodas-grafitis/productos/" 
+                      href={`/store/${item.slug}`}
                       className="flex items-center justify-center gap-2 w-full py-2.5 border-2 border-zinc-900 text-zinc-900 text-[10px] font-black tracking-widest rounded-full hover:bg-zinc-900 hover:text-white transition-all uppercase text-center"
                     >
                       <FiShoppingCart /> Opciones

@@ -10,10 +10,15 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // Mapeo de variables CSS a clases de Tailwind
+        // Mantenemos Montserrat para textos comunes
         sans: ["var(--font-montserrat)", "sans-serif"],
-        script: ["var(--font-pinyon)", "cursive"],
+        
+        // Esta es la que debes usar para "Luz Jazmín" (Cormorant)
         serif: ["var(--font-cormorant)", "serif"],
+        graffiti: ["var(--font-graffiti)", "cursive"], // Agregamos esta línea
+        // Puedes quitar 'script' si no quieres usar cursivas en ningún lado
+        // o dejarla pero NO usar la clase 'font-script' en el Hero.
+        elegante: ['var(--font-elegante)'],
       },
       colors: {
         border: "hsl(var(--border))",

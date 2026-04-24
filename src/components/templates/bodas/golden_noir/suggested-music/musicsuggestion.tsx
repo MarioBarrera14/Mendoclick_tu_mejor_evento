@@ -102,7 +102,8 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
           </div>
 
           <div className="text-center px-4 relative z-10">
-            <h2 className="text-xl md:text-3xl font-serif italic text-white mb-1.5 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-500">
+            {/* Fuente Aplicada: font-script */}
+            <h2 className="text-4xl md:text-5xl font-script text-white mb-1.5 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-500">
               ¿Bailamos?
             </h2>
             <div className="w-8 h-px bg-[#b5a47a]/40 mx-auto mb-2 shadow-sm" />
@@ -116,7 +117,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
       <AnimatePresence>
         {isOpen && (
           <div key="modal-container" className="fixed inset-0 z-[100] flex items-center justify-center">
-            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -125,7 +125,6 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
               className="absolute inset-0 bg-black/90 backdrop-blur-md touch-none"
             />
             
-            {/* Modal Content */}
             <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -142,7 +141,8 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
               </button>
 
               <header className="mb-6">
-                <h4 className="text-2xl md:text-3xl font-serif text-gray-900 tracking-tight italic">
+                {/* Fuente Aplicada: font-script */}
+                <h4 className="text-4xl md:text-5xl font-script text-gray-900 tracking-tight leading-tight">
                   Sugerencias Musicales
                 </h4>
                 <div className="w-12 h-[1px] bg-[#b5a47a]/60 mx-auto my-3" />

@@ -1,15 +1,47 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import {
-    Smartphone,
-    Tablet,
-    Laptop,
-    CreditCard,
     Building2,
     PlusCircle,
 } from 'lucide-react';
+
+// --- COMPONENTES DE TU HOME ---
+import { Navbar } from '@/components/home/navbar/navbar';
 import MPButton from '@/components/pagos/mpagos';
+
+// Carga diferida del Footer para mantener el rendimiento igual que en tu Home
+const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
+
+// --- DATA DINÁMICA DE PLANTILLAS (VINCULADA AL SLUG) ---
+const TEMPLATES_DATA: Record<string, { title: string; banner: string }> = {
+    "luxury": {
+        title: "Champagne Lux",
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1777001217/champan_dhjxzh.png"
+    },
+    "modern": {
+        title: "Neon Wave",
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1777002231/neon15_vf5js6.png"
+    },
+    "garden": {
+        title: "Garden",
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1777000491/grafiti_15_mrmpnm.jpg"
+    },
+    "dark_premium": {
+        title: "Dark Premium",
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1777002783/noirboda_unwaux.png"
+    },
+    "vintage": {
+        title: "Vintage Rock",
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1776991451/vintage_hsipcu.png"
+    },
+    "urban_bodas": {
+        title: "Graffiti Love",
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1776991809/graffitis_tanmpd.png"
+    }
+};
+
 // --- INTERFACES ---
 interface Plan {
     id: string;
@@ -73,18 +105,20 @@ const PLANS: Record<string, Plan> = {
     }
 };
 
-export default function AmoInvitarStore() {
+export default function AmoInvitarStore({ params }: { params: { slug: string } }) {
     const [selectedPlanKey, setSelectedPlanKey] = useState<string>('classic');
     const [selectedPlanModal, setSelectedPlanModal] = useState<Plan | null>(null);
 
-    // BLOQUEO DE SCROLL GLOBAL
+    // Obtener info de la plantilla según el slug de la URL
+    const template = TEMPLATES_DATA[params.slug] || TEMPLATES_DATA["garden"];
+
+    // BLOQUEO DE SCROLL GLOBAL AL ABRIR MODAL
     useEffect(() => {
         if (selectedPlanModal) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
         }
-        // Limpieza al desmontar el componente
         return () => { document.body.style.overflow = 'unset'; };
     }, [selectedPlanModal]);
 
@@ -92,23 +126,26 @@ export default function AmoInvitarStore() {
     const format = (num: number) => num.toLocaleString('es-AR');
 
     return (
-        <div className="bg-white min-h-screen text-[#333] font-sans">
-            <main className="max-w-6xl mx-auto px-4 py-6">
-                <p className="text-[11px] text-gray-400 mb-2">Invitaciones &rsaquo; Store &rsaquo; Boda</p>
-                <hr className="mb-6" />
+        <div className="min-h-svh bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
+            
+            {/* NAVBAR IMPORTADO DE TU HOME */}
+            <Navbar />
+
+            <main className="max-w-6xl mx-auto px-4 py-10">
+                <hr className="mb-10 border-zinc-200" />
 
                 {/* --- SECCIÓN PRODUCTO PRINCIPAL --- */}
                 <div className="grid lg:grid-cols-12 gap-8 mb-16">
                     <div className="lg:col-span-9">
                         <img
-                            src="https://amoinvitar.com/images/banner-garden-store.jpg"
-                            alt="Garden"
-                            className="w-full rounded-md shadow-sm"
+                            src={template.banner}
+                            alt={template.title}
+                            className="w-full rounded-md shadow-sm border border-zinc-200"
                         />
                     </div>
 
                     <div className="lg:col-span-3 space-y-4">
-                        <h1 className="text-2xl font-light uppercase text-gray-700 tracking-tight">Invitación web Garden</h1>
+                        <h1 className="text-2xl font-light uppercase text-gray-700 tracking-tight">Invitación web {template.title}</h1>
 
                         <div className="space-y-1">
                             <label className="text-[11px] text-gray-400 italic flex items-center gap-1">
@@ -120,7 +157,7 @@ export default function AmoInvitarStore() {
                             <select
                                 value={selectedPlanKey}
                                 onChange={(e) => setSelectedPlanKey(e.target.value)}
-                                className="w-full p-2 bg-[#f1fcf9] border border-gray-200 rounded text-sm focus:ring-1 focus:ring-[#4e9c87] outline-none"
+                                className="w-full p-2 bg-white border border-zinc-300 rounded text-sm focus:ring-1 focus:ring-[#4e9c87] outline-none"
                             >
                                 <option value="classic">CLASSIC</option>
                                 <option value="premium">PREMIUM</option>
@@ -129,7 +166,7 @@ export default function AmoInvitarStore() {
                         </div>
 
                         {/* Transferencia */}
-                        <div className="pt-4 border-t border-gray-100">
+                        <div className="pt-4 border-t border-zinc-200">
                             <div className="flex items-center gap-2 mb-1">
                                 <img src="https://amoinvitar.com/iconos/logo-transferencia.png" alt="Bank" className="h-4" />
                                 <span className="text-[10px] font-bold text-green-600 uppercase">
@@ -146,37 +183,34 @@ export default function AmoInvitarStore() {
                             </button>
                         </div>
 
-{/* Mercado Pago */}
-<div className="pt-4">
-    <div className="flex items-center gap-2 mb-1">
-        <img src="https://amoinvitar.com/iconos/logo-mp.svg" alt="MP" className="h-4" />
-        <span className="text-[10px] text-gray-400 font-bold border-l pl-2 uppercase tracking-tighter">Tarjeta</span>
-    </div>
-    <div className="flex items-baseline gap-1">
-        <span className="text-[10px] text-gray-400 uppercase">desde</span>
-        <span className="text-2xl font-bold text-gray-700">${format(plan.cardPrice)}</span>
-    </div>
-    
-    {/* EL BOTÓN DINÁMICO */}
-    <MPButton 
-        planName={plan.name} 
-        price={plan.cardPrice} 
-       
-        // Aquí deberías pasar el ID si el usuario está logueado
-    />
+                        {/* Mercado Pago */}
+                        <div className="pt-4">
+                            <div className="flex items-center gap-2 mb-1">
+                                <img src="https://amoinvitar.com/iconos/logo-mp.svg" alt="MP" className="h-4" />
+                                <span className="text-[10px] text-gray-400 font-bold border-l pl-2 uppercase tracking-tighter">Tarjeta</span>
+                            </div>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-[10px] text-gray-400 uppercase">desde</span>
+                                <span className="text-2xl font-bold text-gray-700">${format(plan.cardPrice)}</span>
+                            </div>
+                            
+                            <MPButton 
+                                planName={`${template.title} - ${plan.name}`} 
+                                price={plan.cardPrice} 
+                            />
 
-    <img src="https://amoinvitar.com/iconos/tarjetasMP.jpg" alt="Cards" className="w-full mt-2" />
-</div>
+                            <img src="https://amoinvitar.com/iconos/tarjetasMP.jpg" alt="Cards" className="w-full mt-2" />
+                        </div>
                     </div>
                 </div>
 
                 {/* --- CARACTERÍSTICAS DINÁMICAS --- */}
-                <section className="mb-16 bg-[#fcfdfd] p-6 rounded-xl border border-gray-100">
+                <section className="mb-16 bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
                     <h4 className="text-lg font-bold mb-1 uppercase">OPCIÓN {plan.name}</h4>
                     <p className="text-sm font-bold text-gray-400 mb-4">Características incluidas en este plan:</p>
                     <ul className="grid md:grid-cols-2 gap-y-2 gap-x-12">
                         {plan.features.map((item, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-[13px] text-gray-600 border-b border-gray-50 pb-1">
+                            <li key={idx} className="flex items-start gap-2 text-[13px] text-gray-600 border-b border-zinc-50 pb-1">
                                 <span className="text-[#4e9c87] shrink-0">✓</span>
                                 {item.includes("¡REGALO!") ? (
                                     <span><span className="text-[#4e9c87] font-bold uppercase text-[11px]">¡regalo!</span> {item.replace("¡REGALO! ", "")}</span>
@@ -185,29 +219,29 @@ export default function AmoInvitarStore() {
                         ))}
                     </ul>
                 </section>
+
+                {/* --- SELECTOR DE PLANES (CARDS) --- */}
                 <section className="mt-20 mb-20">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                         {Object.values(PLANS).map((p) => {
                             const isSelected = selectedPlanKey === p.id;
-                            const isPremium = p.id === 'premium'; // Marcamos el del medio como sugerido
+                            const isPremium = p.id === 'premium';
 
                             return (
                                 <div
                                     key={p.id}
                                     className={`relative flex flex-col h-full transition-all duration-300 rounded-3xl overflow-hidden
-                        ${isSelected
-                                            ? 'ring-2 ring-[#4e9c87] shadow-2xl scale-[1.02] bg-white z-10'
-                                            : 'border border-gray-100 shadow-lg bg-white/80 hover:shadow-xl'
-                                        }`}
+                                    ${isSelected
+                                        ? 'ring-2 ring-[#4e9c87] shadow-2xl scale-[1.02] bg-white z-10'
+                                        : 'border border-zinc-200 shadow-lg bg-white/80 hover:shadow-xl'
+                                    }`}
                                 >
-                                    {/* Etiqueta de Popularidad */}
                                     {isPremium && (
                                         <div className="absolute top-0 right-0 bg-[#4e9c87] text-white text-[10px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest">
                                             Más Popular
                                         </div>
                                     )}
 
-                                    {/* Header de la Card */}
                                     <div className={`p-8 text-center ${isSelected ? 'bg-[#f0f9f6]' : 'bg-transparent'}`}>
                                         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#4e9c87] mb-2">
                                             Invitación
@@ -227,10 +261,8 @@ export default function AmoInvitarStore() {
                                         </div>
                                     </div>
 
-                                    {/* Lista de Features */}
                                     <div className="px-8 pb-8 flex-1">
-                                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
-
+                                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-zinc-200 to-transparent mb-8" />
                                         <ul className="space-y-4 mb-8">
                                             {p.features.slice(0, 7).map((f, i) => (
                                                 <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
@@ -255,10 +287,10 @@ export default function AmoInvitarStore() {
                                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                                             }}
                                             className={`w-full py-4 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all
-                                ${isSelected
-                                                    ? 'bg-[#4e9c87] text-white shadow-lg shadow-[#4e9c87]/30 hover:bg-[#3d7d6c]'
-                                                    : 'bg-gray-800 text-white hover:bg-black'
-                                                }`}
+                                            ${isSelected
+                                                ? 'bg-[#4e9c87] text-white shadow-lg shadow-[#4e9c87]/30 hover:bg-[#3d7d6c]'
+                                                : 'bg-zinc-800 text-white hover:bg-black'
+                                            }`}
                                         >
                                             Seleccionar Plan
                                         </button>
@@ -270,7 +302,7 @@ export default function AmoInvitarStore() {
                 </section>
             </main>
 
-            {/* --- MODAL DE CARACTERÍSTICAS (SIN SCROLL INTERNO NI EXTERNO) --- */}
+            {/* MODAL DE CARACTERÍSTICAS */}
             {selectedPlanModal && (
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -290,11 +322,10 @@ export default function AmoInvitarStore() {
                             </div>
                         </div>
 
-                        {/* Contenedor sin scroll (ajustado para que quepa todo el contenido Deluxe) */}
                         <div className="p-6 bg-[#f8fdfb]">
                             <ul className="grid grid-cols-1 gap-y-1.5">
                                 {selectedPlanModal.features.map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-3 border-b border-gray-100 pb-1 last:border-0">
+                                    <li key={i} className="flex items-start gap-3 border-b border-zinc-100 pb-1 last:border-0">
                                         <span className="text-[#4e9c87] text-xs mt-1">✔</span>
                                         <span className="text-[11px] text-gray-600 leading-tight">{feature}</span>
                                     </li>
@@ -302,10 +333,10 @@ export default function AmoInvitarStore() {
                             </ul>
                         </div>
 
-                        <div className="p-4 bg-gray-50 border-t border-gray-100">
+                        <div className="p-4 bg-zinc-50 border-t border-zinc-100">
                             <button
                                 onClick={() => setSelectedPlanModal(null)}
-                                className="w-full py-3 bg-white border border-gray-200 text-gray-500 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-gray-100 transition-colors"
+                                className="w-full py-3 bg-white border border-zinc-200 text-gray-500 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-zinc-100 transition-colors"
                             >
                                 Cerrar
                             </button>
@@ -313,6 +344,9 @@ export default function AmoInvitarStore() {
                     </div>
                 </div>
             )}
+
+            {/* FOOTER IMPORTADO DE TU HOME */}
+            <Footer />
         </div>
     );
 }

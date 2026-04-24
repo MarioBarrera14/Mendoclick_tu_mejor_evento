@@ -5,30 +5,39 @@ import { ChevronDown } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 
-// 1. Definimos la interfaz para recibir las props del Schema
+// 1. IMPORTAMOS LAS FUENTES ELEGANTES
+import { Playfair_Display, Great_Vibes } from "next/font/google";
+
+// Fuente para los números y etiquetas (Serif elegante)
+const serifFont = Playfair_Display({ 
+  subsets: ["latin"], 
+  weight: ["400", "700"] 
+});
+
+// Fuente para los nombres (Manuscrita/Script)
+const scriptFont = Great_Vibes({ 
+  subsets: ["latin"], 
+  weight: ["400"] 
+});
+
 interface HeroSectionProps {
   heroImage?: string | null;
   eventName?: string | null;
   eventDate?: string | null;
 }
 
-// --- CONTADOR DINÁMICO ---
 function CountdownTimer({ targetDateStr }: { targetDateStr: string }) {
   const [timeLeft, setTimeLeft] = useState({ días: 0, horas: 0, min: 0, seg: 0 });
 
   useEffect(() => {
-    // Usamos la fecha que viene de la base de datos
     const targetDate = new Date(targetDateStr).getTime();
-    
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const difference = targetDate - now;
-      
       if (difference < 0) {
         clearInterval(interval);
         return;
       }
-
       setTimeLeft({
         días: Math.floor(difference / (1000 * 60 * 60 * 24)),
         horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
@@ -36,7 +45,6 @@ function CountdownTimer({ targetDateStr }: { targetDateStr: string }) {
         seg: Math.floor((difference / 1000) % 60),
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [targetDateStr]);
 
@@ -48,13 +56,13 @@ function CountdownTimer({ targetDateStr }: { targetDateStr: string }) {
   ];
 
   return (
-    <div className="flex gap-4 md:gap-6 mt-4">
+    <div className={`flex gap-4 md:gap-6 mt-4 ${serifFont.className}`}>
       {timeUnits.map((unit) => (
         <div key={unit.label} className="flex flex-col items-center">
-          <span className="text-2xl md:text-4xl font-light tracking-tighter text-white">
+          <span className="text-2xl md:text-4xl font-bold tracking-tighter text-white">
             {unit.value.toString().padStart(2, '0')}
           </span>
-          <span className="text-[7px] md:text-[9px] uppercase tracking-[0.2em] text-white/50 mt-1">
+          <span className="text-[7px] md:text-[9px] uppercase tracking-[0.3em] text-white/50 mt-1">
             {unit.label}
           </span>
         </div>
@@ -63,7 +71,6 @@ function CountdownTimer({ targetDateStr }: { targetDateStr: string }) {
   );
 }
 
-// 2. Agregamos las props a la función principal
 export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProps) {
   const containerRef = useRef<HTMLElement>(null);
   const [opacity, setOpacity] = useState(1);
@@ -84,7 +91,6 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
     window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
   };
 
-  // Separar los nombres si vienen con "&" o "y" para mantener el estilo del corazón
   const names = eventName?.split(/ [&y] /) || ["Boda", "Especial"];
 
   return (
@@ -92,11 +98,10 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
       ref={containerRef}
       className="relative h-[100svh] w-full flex items-end justify-center overflow-hidden bg-black"
     >
-      {/* --- CAPA DE IMAGEN DINÁMICA --- */}
       <div className="absolute inset-0 z-0">
         <motion.div style={{ y: yPos }} className="relative w-full h-full">
           <Image
-            src={heroImage || "/img_boda/bode_casado.webp"} // Fallback si no hay imagen en DB
+            src={heroImage || "/img_boda/bode_casado.webp"}
             alt={eventName || "Boda"}
             fill
             priority
@@ -114,7 +119,7 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-white/60 tracking-[0.6em] text-[10px] uppercase mb-4 font-light"
+            className={`text-white/60 tracking-[0.6em] text-[10px] uppercase mb-4 font-light ${serifFont.className}`}
           >
             Nuestra Boda
           </motion.span>
@@ -123,12 +128,13 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            className="font-script text-6xl md:text-8xl lg:text-[8rem] text-white leading-tight drop-shadow-2xl"
+            // 2. APLICAMOS LA FUENTE SCRIPT AQUÍ
+            className={`${scriptFont.className} text-7xl md:text-8xl lg:text-[9rem] text-white leading-none drop-shadow-2xl py-4`}
           >
             {names[0]} 
             {names[1] && (
               <>
-                <span className="text-2xl md:text-5xl lg:text-6xl inline-block animate-pulse text-white/80 mx-2">♥</span> 
+                <span className="text-2xl md:text-5xl lg:text-6xl inline-block animate-pulse text-[#b5a47a] mx-4">♥</span> 
                 {names[1]}
               </>
             )}
@@ -137,10 +143,9 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
           <div className="w-16 h-px bg-[#b5a47a]/40 my-6" />
 
           <div className="flex flex-col items-center md:items-start">
-            <p className="text-[9px] tracking-[0.4em] uppercase text-white/40 font-light">
+            <p className={`text-[9px] tracking-[0.4em] uppercase text-white/40 font-light ${serifFont.className}`}>
               Faltan solo
             </p>
-            {/* Pasamos la fecha del evento al contador */}
             <CountdownTimer targetDateStr={eventDate || "2026-12-31T00:00:00"} />
           </div>
         </div>

@@ -14,6 +14,20 @@ import {
   Witnesses,
 } from "@/components/templates/bodas/bodas-grafitis";
 
+// 1. IMPORTAMOS LA FUENTE DE GOOGLE
+import { Permanent_Marker, Montserrat } from "next/font/google";
+
+const graffitiFont = Permanent_Marker({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-graffiti", // Variable para el CSS
+});
+
+const sansFont = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
+
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 
 interface GraffitiPageProps {
@@ -24,7 +38,6 @@ interface GraffitiPageProps {
 
 export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = true }: GraffitiPageProps) {
   
-  // 1. Elegimos la fuente de datos
   const rawConfig = dbConfig || {
     eventName: localConfig.personal.nombres,
     heroImage: localConfig.imagenes.hero.graffiti,
@@ -50,21 +63,18 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = true }: G
     confirmDate: localConfig.confirmacion.fechaLimite
   };
 
-  // 2. SANITIZACIÓN: Si el campo es "" (string vacío), forzamos el uso del localConfig
-  // Esto evita que src="" llegue a los componentes Image o img
   const safeConfig = {
     ...rawConfig,
     heroImage: (rawConfig.heroImage && rawConfig.heroImage !== "") ? rawConfig.heroImage : localConfig.imagenes.hero.graffiti,
     musicUrl: (rawConfig.musicUrl && rawConfig.musicUrl !== "") ? rawConfig.musicUrl : localConfig.imagenes.musicaUrl.graffiti,
     videoUrl: (rawConfig.videoUrl && rawConfig.videoUrl !== "") ? rawConfig.videoUrl : localConfig.imagenes.videoUrl.graffiti,
-    // Podés agregar más campos si es necesario
   };
 
   const currentEventId = eventId || "demo-boda-graffiti";
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      {/* Usamos safeConfig en lugar de rawConfig */}
+    /* APLICAMOS LA CLASE DE LA FUENTE AQUÍ */
+    <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
       <Envelope musicUrl={safeConfig.musicUrl}>
         
         <Navbar eventName={safeConfig.eventName} isDemo={isDemo}/>
@@ -75,43 +85,14 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = true }: G
           eventDate={safeConfig.eventDate}
         />
 
-        <FotoCarousel
-          images={typeof safeConfig.carruselImages === 'string' ? safeConfig.carruselImages : JSON.stringify(safeConfig.carruselImages)} 
-          videoUrl={safeConfig.videoUrl} 
-        />
-
-        <EventDetails config={{
-          eventDate: safeConfig.eventDate,
-          eventTime: safeConfig.eventTime,
-          venueName: safeConfig.venueName,
-          venueAddress: safeConfig.venueAddress,
-          mapLink: safeConfig.mapLink,
-          churchName: safeConfig.churchName,
-          churchAddress: safeConfig.churchAddress,
-          churchMapLink: safeConfig.churchMapLink
-        }} />
-
-        <RSVP config={{
-          heroImage: safeConfig.heroImage, // Aquí estaba el error del RSVP
-          eventDate: safeConfig.eventDate,
-          confirmDate: safeConfig.confirmDate || safeConfig.eventDate
-        }} />
-        
-        <DetailModal config={{
-          dressCode: safeConfig.dressCode,
-          dressDescription: safeConfig.dressDescription,
-          cbu: safeConfig.cbu,
-          alias: safeConfig.alias,
-          bankName: safeConfig.bankName,
-          holderName: safeConfig.holderName
-        }} />
-
+        {/* El resto de componentes... */}
+        <FotoCarousel images={safeConfig.carruselImages} videoUrl={safeConfig.videoUrl} />
+        <EventDetails config={safeConfig} />
+        <RSVP config={safeConfig} />
+        <DetailModal config={safeConfig} />
         <Itinerary items={safeConfig.itinerary || []} />
-
         <Witnesses items={safeConfig.witnesses || safeConfig.testigos || []} />
-
         <MusicSuggestion eventId={currentEventId} />
-        
         <Footer />
       </Envelope>
     </main>

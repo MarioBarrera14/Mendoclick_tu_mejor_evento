@@ -1,5 +1,19 @@
 "use client";
 
+// 1. Importamos las fuentes y configuramos las variables CSS
+import { Playfair_Display, Great_Vibes } from "next/font/google";
+
+const serifFont = Playfair_Display({ 
+  subsets: ["latin"], 
+  variable: '--font-elegante', 
+});
+
+const scriptFont = Great_Vibes({ 
+  subsets: ["latin"], 
+  weight: "400",
+  variable: '--font-script', 
+});
+
 import {
   HeroSection,
   Itinerary,
@@ -26,7 +40,7 @@ interface GoldenNoirPageProps {
 
 export default function GoldenNoirPage({ dbConfig, eventId, isDemo = true }: GoldenNoirPageProps) {
   
-  // 1. Unificamos la fuente de datos
+  // Unificamos la fuente de datos
   const config = dbConfig || {
     eventName: localConfig.personal.nombres,
     heroImage: localConfig.imagenes.hero.noir,
@@ -35,17 +49,14 @@ export default function GoldenNoirPage({ dbConfig, eventId, isDemo = true }: Gol
     musicUrl: localConfig.imagenes.musicaUrl.noir,
     videoUrl: localConfig.imagenes.videoUrl.noir,
     carruselImages: JSON.stringify(localConfig.imagenes.carrusel),
-    // Ubicaciones
     venueName: localConfig.ubicacion.nombreLugar,
     venueAddress: localConfig.ubicacion.direccion,
     mapLink: localConfig.ubicacion.googleMapsUrl,
     churchName: localConfig.ubicacion.iglesiaNombre,
     churchAddress: localConfig.ubicacion.iglesiaDireccion,
     churchMapLink: localConfig.ubicacion.iglesiaMaps,
-    // Listas
     itinerary: localConfig.itinerario,
     witnesses: localConfig.testigos,
-    // Regalos y Dress Code
     dressCode: localConfig.dressCode.titulo,
     dressDescription: localConfig.dressCode.descripcion,
     cbu: localConfig.regalo.datosBancarios.cbu,
@@ -58,7 +69,12 @@ export default function GoldenNoirPage({ dbConfig, eventId, isDemo = true }: Gol
   const currentEventId = eventId || "demo-global-noir";
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
+    /**
+     * REPARACIÓN CRÍTICA: 
+     * Inyectamos las variables CSS en el main. 
+     * Sin esto, los componentes hijos no encuentran 'font-elegante' ni 'font-script'.
+     */
+    <main className={`${serifFont.variable} ${scriptFont.variable} font-elegante min-h-screen bg-[#0a0a0a] overflow-x-hidden`}>
       <Envelope musicUrl={config.musicUrl || localConfig.imagenes.musicaUrl.noir}>
         
         <Navbar eventName={config.eventName} isDemo={isDemo} />
@@ -82,6 +98,7 @@ export default function GoldenNoirPage({ dbConfig, eventId, isDemo = true }: Gol
         
         <SeparadorEntrePaginas />
         
+        {/* Aquí es donde fallaba antes: ahora recibirá las variables del padre */}
         <LocationsSection config={{
           eventDate: config.eventDate,
           eventTime: config.eventTime,

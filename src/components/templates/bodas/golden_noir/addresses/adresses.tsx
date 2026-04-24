@@ -62,11 +62,12 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
         <div className="mb-1 text-[#b5a47a] flex justify-center drop-shadow-md transition-transform duration-500 group-hover:scale-110">
           {location.icon}
         </div>
-        <h3 className="text-lg md:text-xl font-serif italic text-white mb-1 tracking-tight uppercase drop-shadow-md">
+        {/* Fuente Aplicada: font-script */}
+        <h3 className="text-4xl md:text-5xl font-script text-white mb-1 drop-shadow-md">
           {location.title}
         </h3>
         <div className="w-8 h-px bg-[#b5a47a]/40 mx-auto mb-2" />
-        <p className="text-[#b5a47a] text-[9px] uppercase font-bold tracking-[0.2em] opacity-80">
+        <p className="text-[#b5a47a] text-[10px] uppercase font-bold tracking-[0.2em] opacity-80">
           Ver ubicación
         </p>
       </div>
@@ -77,7 +78,6 @@ function LocationCard({ location, onOpen }: { location: LocationData; onOpen: ()
 export function LocationsSection({ config }: LocationsSectionProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
 
-  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
   useEffect(() => {
     if (selectedLocation) {
       document.documentElement.style.overflow = "hidden";
@@ -134,7 +134,6 @@ export function LocationsSection({ config }: LocationsSectionProps) {
       <AnimatePresence>
         {selectedLocation && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* touch-none para evitar scroll por gestos en el overlay */}
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSelectedLocation(null)}
@@ -153,7 +152,8 @@ export function LocationsSection({ config }: LocationsSectionProps) {
 
               <div className="p-10 flex flex-col items-center text-center">
                 <div className="text-[#b5a47a] mb-4">{selectedLocation.icon}</div>
-                <h2 className="text-3xl font-serif italic text-gray-900 uppercase tracking-widest mb-2">
+                {/* Título del Modal con font-script */}
+                <h2 className="text-5xl font-script text-gray-900 mb-2">
                   {selectedLocation.title}
                 </h2>
                 <div className="w-12 h-px bg-[#b5a47a]/30 mx-auto mb-8" />
@@ -161,13 +161,15 @@ export function LocationsSection({ config }: LocationsSectionProps) {
                 <div className="space-y-8 w-full text-gray-600">
                   <div className="border-y border-gray-100 py-6">
                     <p className="text-[#b5a47a] text-[10px] uppercase font-bold tracking-[0.2em] mb-2">Cuándo</p>
-                    <p className="text-xl italic font-serif text-gray-800">{selectedLocation.date}</p>
+                    {/* Fecha con font-script */}
+                    <p className="text-3xl font-script text-gray-800">{selectedLocation.date}</p>
                     <p className="text-lg font-light">{selectedLocation.time}</p>
                   </div>
 
                   <div>
                     <p className="text-[#b5a47a] text-[10px] uppercase font-bold tracking-[0.2em] mb-2">Dónde</p>
-                    <p className="text-xl text-gray-800 font-serif italic mb-2">{selectedLocation.placeName}</p>
+                    {/* Nombre del lugar con font-script */}
+                    <p className="text-3xl text-gray-800 font-script mb-2">{selectedLocation.placeName}</p>
                     <p className="text-sm font-light text-gray-400 px-6">{selectedLocation.address}</p>
                   </div>
 

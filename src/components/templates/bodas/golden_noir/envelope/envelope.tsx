@@ -70,7 +70,8 @@ export default function Envelope({ children, musicUrl }: EnvelopeProps) {
                   className="group relative flex h-36 w-36 sm:h-48 sm:w-48 items-center justify-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#f5e1a4] to-[#C49B2F] text-black shadow-[0_15px_50px_rgba(0,0,0,0.8)] border-2 border-[#8C6F1F]/20"
                 >
                   <div className="text-center select-none z-10">
-                    <span className="block font-serif text-2xl sm:text-3xl font-bold italic tracking-tight text-[#42340b]">
+                    {/* Fuente Aplicada: font-script */}
+                    <span className="block font-script text-4xl sm:text-5xl tracking-normal text-[#42340b]">
                       Mis 15
                     </span>
                     <span className="block text-[10px] sm:text-xs tracking-[0.4em] uppercase mt-2 font-black text-[#42340b]/60">
@@ -85,7 +86,8 @@ export default function Envelope({ children, musicUrl }: EnvelopeProps) {
                   <div className="absolute inset-3 rounded-full border border-[#8C6F1F]/30" />
                 </motion.button>
                 
-                <motion.p className="mt-10 font-serif italic text-[#D4AF37] text-base sm:text-xl tracking-wide animate-pulse drop-shadow-[0_2px_10px_rgba(0,0,0,1)]">
+                {/* Texto inferior con font-script */}
+                <motion.p className="mt-10 font-script text-2xl sm:text-3xl text-[#D4AF37] tracking-wide animate-pulse drop-shadow-[0_2px_10px_rgba(0,0,0,1)]">
                   Toca el sello para descubrir la magia
                 </motion.p>
               </motion.div>
