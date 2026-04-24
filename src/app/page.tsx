@@ -13,12 +13,12 @@ const TechSection = dynamic(() => import('@/components/home/tech-section/tech-se
 const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
 
 export default function LuxuryLanding() {
-    const enMantenimiento = false; 
+    const enMantenimiento = true; 
 
   if (enMantenimiento) {
     return <Maintenance />;
       }
-      
+
   return (
     // min-h-svh ayuda a evitar saltos de layout en móviles
     <div className="min-h-svh bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
