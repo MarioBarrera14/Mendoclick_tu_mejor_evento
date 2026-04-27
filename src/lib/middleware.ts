@@ -6,26 +6,22 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // 1. Verificamos si la ruta es de gestión (Manager o Admin)
-    const isRestrictedPath = path.startsWith("/manager") || path.startsWith("/admin");
-
-    // 2. Si es una ruta restringida y el usuario NO es ADMIN, lo mandamos al login
-    if (isRestrictedPath && token?.role !== "ADMIN") {
+    // Si intenta entrar a gestión y no es ADMIN, rebote al login
+    if ((path.startsWith("/manager") || path.startsWith("/admin")) && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/users/loginManager", req.url));
     }
   },
   {
     callbacks: {
-      // Si esta función retorna false, NextAuth redirige automáticamente al login
       authorized: ({ token }) => !!token,
     },
     pages: {
-      signIn: "/users/loginManager", // Tu página personalizada de login
+      // ESTA ES LA CLAVE: Aquí defines tu ruta de login personalizada
+      signIn: "/users/loginManager", 
     },
   }
 );
 
-// Configuración de las rutas que el middleware debe "escuchar"
 export const config = {
   matcher: ["/manager/:path*", "/admin/:path*"],
 };
