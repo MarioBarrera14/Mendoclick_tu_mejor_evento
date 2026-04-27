@@ -2,21 +2,31 @@
 
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+/**
+ * FUNCIÓN AUXILIAR DE SEGURIDAD
+ * Verifica si el usuario actual es un Administrador.
+ */
+async function validateAdminSession() {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") {
+    throw new Error("No autorizado: Se requieren permisos de administrador.");
+  }
+  return session;
+}
+
 // ==========================================
-// 1. GESTIÓN DE ADMINS (Registro de tu usuario)
+// 1. GESTIÓN DE ADMINS
 // ==========================================
 
 export async function registerUser(data: any) {
-  // Extraemos los datos para asegurar que sean objetos planos
   const { nombre, email, password, masterCode } = data;
 
   if (masterCode !== "MENDO_2026_PRO") {
-    return { error: "Código Maestro inválido. No tienes permiso." };
+    return { error: "Código Maestro inválido." };
   }
 
   try {
@@ -25,48 +35,48 @@ export async function registerUser(data: any) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Creamos el Admin
     await prisma.user.create({
       data: {
         nombre,
         email,
         password: hashedPassword,
         role: "ADMIN",
-        // Generamos un slug único para evitar errores de esquema
         slug: `admin-${Math.random().toString(36).substring(7)}`, 
       }
     });
 
     return { success: true };
   } catch (e) {
-    console.error("Error en registerUser:", e);
     return { error: "Error al crear la cuenta de administrador." };
   }
 }
 
 // ==========================================
-// 2. GESTIÓN DE CLIENTES (Para vos, el Manager)
+// 2. GESTIÓN DE CLIENTES (ACCIONES PROTEGIDAS)
 // ==========================================
 
 export async function getClients() {
-  console.log("Intentando obtener clientes desde la DB...");
   try {
+    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
+    
     const clients = await prisma.user.findMany({
       where: { role: "USER" },
       orderBy: { createdAt: "desc" }
     });
-    console.log("CLIENTES ENCONTRADOS EN DB:", clients.length); // Mirá tu terminal de VS Code
     return clients;
   } catch (error) {
-    console.error("ERROR AL OBTENER CLIENTES:", error);
+    console.error("Intento de acceso no autorizado a getClients");
     return [];
   }
 }
-export async function registerClient(formData: any) {
-  const { email, password, slug, templateId, masterCode } = formData;
-  if (masterCode !== "MENDO_2026_PRO") return { error: "Código Maestro inválido." };
 
+export async function registerClient(formData: any) {
   try {
+    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
+    
+    const { email, password, slug, templateId, masterCode } = formData;
+    if (masterCode !== "MENDO_2026_PRO") return { error: "Código Maestro inválido." };
+
     const existing = await prisma.user.findFirst({ 
       where: { OR: [{ email }, { slug }] } 
     });
@@ -82,24 +92,21 @@ export async function registerClient(formData: any) {
         slug,
         templateId,
         role: "USER",
-        eventConfig: { 
-          create: { 
-            eventName: "", 
-            eventDate: "2026-12-19" 
-          } 
-        }
+        eventConfig: { create: { eventName: "", eventDate: "2026-12-19" } }
       }
     });
     
     revalidatePath("/manager/clientes");
     return { success: true };
   } catch (e) {
-    return { error: "Error al crear la cuenta del cliente." };
+    return { error: "No autorizado o error de servidor." };
   }
 }
 
 export async function updateClientAction(id: string, data: any) {
   try {
+    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
+    
     await prisma.user.update({
       where: { id },
       data: {
@@ -113,22 +120,24 @@ export async function updateClientAction(id: string, data: any) {
     revalidatePath("/manager/clientes");
     return { success: true };
   } catch (error) {
-    return { success: false, error: "No se pudieron guardar los cambios." };
+    return { success: false, error: "No autorizado." };
   }
 }
 
 export async function deleteClientAction(id: string) {
   try {
+    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
+    
     await prisma.user.delete({ where: { id } });
     revalidatePath("/manager/clientes");
     return { success: true };
   } catch (error) {
-    return { success: false };
+    return { success: false, error: "No autorizado." };
   }
 }
 
 // ==========================================
-// 3. MULTIMEDIA Y GALERÍA (Para tus Clientes)
+// 3. MULTIMEDIA (PARA EL CLIENTE LOGUEADO)
 // ==========================================
 
 export async function getEventConfig() {
