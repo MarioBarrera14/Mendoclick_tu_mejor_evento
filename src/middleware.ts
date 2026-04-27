@@ -1,19 +1,14 @@
-
-
-export const config = {
-  matcher: ["/manager/:path*", "/admin/:path*"],
-};
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    // Si llegamos acá, es porque authorized devolvió true (hay sesión)
+    // Si hay sesión, lo dejamos pasar
     return NextResponse.next();
   },
   {
     callbacks: {
-      // ESTO ES LO IMPORTANTE: Si hay cualquier token (sesión), lo deja pasar
+      // Solo verifica que exista un token (sesión activa)
       authorized: ({ token }) => !!token,
     },
     pages: {
