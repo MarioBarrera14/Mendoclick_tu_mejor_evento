@@ -6,18 +6,21 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Si intenta entrar a gestión y no es ADMIN, rebote al login
-    if ((path.startsWith("/manager") || path.startsWith("/admin")) && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/users/loginManager", req.url));
+    // Si intenta entrar a /manager o /admin y NO es ADMIN, lo mandamos al login
+    const isRestrictedPath = path.startsWith("/manager") || path.startsWith("/admin");
+    
+    if (isRestrictedPath && token?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   },
   {
     callbacks: {
+      // authorized debe devolver true si hay un token válido
       authorized: ({ token }) => !!token,
     },
     pages: {
-      // ESTA ES LA CLAVE: Aquí defines tu ruta de login personalizada
-      signIn: "/users/loginManager", 
+      // ESTA ES LA RUTA A LA QUE REDIRIGE AUTOMÁTICAMENTE
+      signIn: "/login", 
     },
   }
 );
