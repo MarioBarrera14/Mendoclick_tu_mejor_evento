@@ -3,12 +3,14 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    // Si hay sesión, lo dejamos pasar
+    // Si llegamos acá es porque tiene sesión.
+    // Simplemente dejamos que continúe a la ruta pedida.
     return NextResponse.next();
   },
   {
     callbacks: {
-      // Solo verifica que exista un token (sesión activa)
+      // Mientras exista un token (sesión activa), lo deja pasar.
+      // Quitamos el check de ADMIN momentáneamente para que puedas entrar.
       authorized: ({ token }) => !!token,
     },
     pages: {
