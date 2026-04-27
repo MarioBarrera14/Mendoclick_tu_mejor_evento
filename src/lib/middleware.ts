@@ -6,25 +6,23 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Si intenta entrar a /manager o /admin y NO es ADMIN, lo mandamos al login
-    const isRestrictedPath = path.startsWith("/manager") || path.startsWith("/admin");
-    
-    if (isRestrictedPath && token?.role !== "ADMIN") {
+    // 1. Si intenta entrar a /manager o /admin y NO es ADMIN, lo mandamos al login
+    if ((path.startsWith("/manager") || path.startsWith("/admin")) && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   },
   {
     callbacks: {
-      // authorized debe devolver true si hay un token válido
       authorized: ({ token }) => !!token,
     },
     pages: {
-      // ESTA ES LA RUTA A LA QUE REDIRIGE AUTOMÁTICAMENTE
+      // 2. CAMBIO CLAVE: Aquí es donde definimos la redirección automática
       signIn: "/login", 
     },
   }
 );
 
 export const config = {
+  // 3. Rutas que el middleware va a vigilar
   matcher: ["/manager/:path*", "/admin/:path*"],
 };
