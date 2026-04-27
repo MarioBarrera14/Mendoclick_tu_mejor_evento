@@ -6,23 +6,23 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // 1. Si intenta entrar a /manager o /admin y NO es ADMIN, lo mandamos al login
-    if ((path.startsWith("/manager") || path.startsWith("/admin")) && token?.role !== "ADMIN") {
+    // DEBUG: Si el token existe pero no es ADMIN, vamos a ver si nos deja pasar solo con token
+    // Cambiamos temporalmente el check para que CUALQUIER logueado entre (solo para probar)
+    if ((path.startsWith("/manager") || path.startsWith("/admin")) && !token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   },
   {
     callbacks: {
+      // Mientras haya un token, NextAuth considera que estás autorizado para pasar el primer muro
       authorized: ({ token }) => !!token,
     },
     pages: {
-      // 2. CAMBIO CLAVE: Aquí es donde definimos la redirección automática
-      signIn: "/login", 
+      signIn: "/login",
     },
   }
 );
 
 export const config = {
-  // 3. Rutas que el middleware va a vigilar
   matcher: ["/manager/:path*", "/admin/:path*"],
 };
