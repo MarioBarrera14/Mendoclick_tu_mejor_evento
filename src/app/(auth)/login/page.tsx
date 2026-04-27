@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiLock, FiMail, FiEye, FiEyeOff, FiShield, FiKey, FiX, FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import Image from "next/image";
 
 export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
@@ -26,24 +25,26 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // Intentamos iniciar sesión con NextAuth
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirect: false, // Manejamos la redirección nosotros
     });
 
     if (res?.error) {
       setError("Credenciales incorrectas o sin permisos");
       setLoading(false);
     } else {
-      localStorage.setItem("manager_session", "active");
-      router.push("/manager/dashboard");
-      router.refresh();
+      // ÉXITO: Usamos window.location para que el Middleware 
+      // refresque la sesión correctamente al entrar al dashboard
+      window.location.href = "/manager/dashboard";
     }
   };
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
+    // Código maestro para habilitar el registro
     if (masterCode === "MENDO_2026_PRO") {
       setIsModalOpen(false);
       router.push("/register");
@@ -150,7 +151,7 @@ export default function LoginPage() {
         </div>
       </motion.div>
 
-      {/* --- MODAL DE SEGURIDAD --- */}
+      {/* --- MODAL DE SEGURIDAD PARA REGISTRO --- */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -195,7 +196,7 @@ export default function LoginPage() {
                     type="password"
                     autoFocus
                     placeholder="CÓDIGO DE SEGURIDAD"
-                    className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all`}
+                    className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all text-black`}
                     onChange={(e) => setMasterCode(e.target.value)}
                   />
                 </div>
