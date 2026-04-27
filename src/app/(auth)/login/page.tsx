@@ -25,26 +25,28 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // Intentamos iniciar sesión con NextAuth
+    // --- REPARACIÓN AQUÍ: CAPTURAMOS LA URL DE RETORNO ---
+    // Si el middleware te mandó aquí, habrá un ?callbackUrl=... en la dirección
+    const params = new URLSearchParams(window.location.search);
+    const callbackUrl = params.get("callbackUrl") || "/manager/dashboard";
+
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false, // Manejamos la redirección nosotros
+      redirect: false, 
     });
 
     if (res?.error) {
       setError("Credenciales incorrectas o sin permisos");
       setLoading(false);
     } else {
-      // ÉXITO: Usamos window.location para que el Middleware 
-      // refresque la sesión correctamente al entrar al dashboard
-      window.location.href = "/manager/dashboard";
+      // --- REPARACIÓN AQUÍ: REDIRIGIMOS AL DESTINO ORIGINAL ---
+      window.location.href = callbackUrl;
     }
   };
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
-    // Código maestro para habilitar el registro
     if (masterCode === "MENDO_2026_PRO") {
       setIsModalOpen(false);
       router.push("/register");
@@ -143,15 +145,9 @@ export default function LoginPage() {
             ¿No tienes cuenta? <span className="underline decoration-zinc-200 underline-offset-4">Regístrate</span>
           </button>
         </div>
-
-        <div className="mt-6 text-center">
-          <p className="text-[9px] font-black uppercase tracking-widest text-zinc-300">
-            &copy; 2026 MendoClick Control
-          </p>
-        </div>
       </motion.div>
 
-      {/* --- MODAL DE SEGURIDAD PARA REGISTRO --- */}
+      {/* --- MODAL DE SEGURIDAD --- */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -174,10 +170,7 @@ export default function LoginPage() {
               exit={{ opacity: 0, y: 50, scale: 0.9 }}
               className="relative w-full max-w-[350px] bg-white rounded-[2rem] p-8 shadow-2xl text-center"
             >
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-900"
-              >
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 text-zinc-400 hover:text-zinc-900">
                 <FiX size={20} />
               </button>
 
@@ -185,27 +178,16 @@ export default function LoginPage() {
                 <FiKey size={28} />
               </div>
 
-              <h2 className="text-xl font-black uppercase tracking-tighter mb-2 italic">Acceso Restringido</h2>
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-8 leading-relaxed">
-                Ingresa el código maestro para habilitar el registro de nuevos managers.
-              </p>
-
+              <h2 className="text-xl font-black uppercase tracking-tighter mb-2 italic text-black">Acceso Restringido</h2>
               <form onSubmit={handleVerifyCode} className="space-y-4">
-                <div className="relative">
-                  <input 
-                    type="password"
-                    autoFocus
-                    placeholder="CÓDIGO DE SEGURIDAD"
-                    className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all text-black`}
-                    onChange={(e) => setMasterCode(e.target.value)}
-                  />
-                </div>
-
-                <button 
-                  type="submit"
-                  className="w-full bg-zinc-950 text-white font-black uppercase py-4 rounded-2xl hover:bg-rose-600 transition-all flex items-center justify-center gap-2 text-[10px] tracking-widest"
-                >
-                  Verificar y Continuar <FiArrowRight />
+                <input 
+                  type="password"
+                  placeholder="CÓDIGO DE SEGURIDAD"
+                  className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all text-black`}
+                  onChange={(e) => setMasterCode(e.target.value)}
+                />
+                <button type="submit" className="w-full bg-zinc-950 text-white font-black uppercase py-4 rounded-2xl hover:bg-rose-600 transition-all flex items-center justify-center gap-2 text-[10px] tracking-widest">
+                  Verificar <FiArrowRight />
                 </button>
               </form>
             </motion.div>
