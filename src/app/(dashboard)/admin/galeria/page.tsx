@@ -57,13 +57,38 @@ export default function GestionGaleria() {
     loadData();
   }, []);
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    if (!res.ok) throw new Error("Error en el servidor");
-    const data = await res.json();
-    return data.url; 
+  // --- VALIDACIÓN Y SUBIDA ---
+  const validateAndUpload = async (file: File, type: 'image' | 'video' | 'audio') => {
+    // 1. Validar GIFs (Solo para imágenes)
+    if (type === 'image' && file.type === 'image/gif') {
+      Swal.fire("Formato Incorrecto", "Utiliza los siguientes formatos jpg, png, webp, avif, etc...", "warning");
+      return null;
+    }
+
+    // 2. Validar tamaño (Evitar Timeouts)
+    const maxSize = type === 'video' ? 20 * 1024 * 1024 : 5 * 1024 * 1024; // 20MB video, 5MB otros
+    if (file.size > maxSize) {
+      Swal.fire("Archivo muy pesado", `El límite es ${maxSize / (1024 * 1024)}MB para este tipo de archivo.`, "error");
+      return null;
+    }
+
+    // 3. Subida
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Error en el servidor");
+      }
+      
+      const data = await res.json();
+      return data.url;
+    } catch (error: any) {
+      Swal.fire("Error", error.message, "error");
+      return null;
+    }
   };
 
   const handlePublicar = async () => {
@@ -87,7 +112,7 @@ export default function GestionGaleria() {
   const handleLimpiarTodo = async () => {
     const confirm = await Swal.fire({
       title: '¿VACIAR TODO?',
-      text: "Se borrarán todas las referencias.",
+      text: "Se borrarán todas las referencias de la base de datos.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
@@ -118,7 +143,6 @@ export default function GestionGaleria() {
     <div className="min-h-screen bg-zinc-50 p-3 md:p-6 font-sans text-black">
       <div className="max-w-6xl mx-auto">
         
-        {/* Header Responsive */}
         <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 border-b-2 border-zinc-200 pb-4">
           <h1 className="text-2xl font-black uppercase italic tracking-tighter">Media <span className="text-red-600">Gallery</span></h1>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -154,9 +178,15 @@ export default function GestionGaleria() {
                 </div>
                 {fotoPrincipal && <button onClick={() => setFotoPrincipal(null)} className="absolute top-3 right-3 p-2 bg-black/80 text-white rounded-full hover:bg-red-600"><X size={14}/></button>}
               </div>
-              <input type="file" ref={mainInputRef} className="hidden" accept="image/*" onChange={(e) => {
+              <input type="file" ref={mainInputRef} className="hidden" accept="image/png, image/jpeg, image/webp" onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) { setLoading("main"); uploadFile(file).then(url => setFotoPrincipal(url)).finally(() => setLoading(null)); }
+                if (file) { 
+                  setLoading("main"); 
+                  const url = await validateAndUpload(file, 'image');
+                  if (url) setFotoPrincipal(url);
+                  setLoading(null);
+                  e.target.value = ""; // Reset input
+                }
               }} />
             </section>
             
@@ -171,9 +201,17 @@ export default function GestionGaleria() {
                   </>
                 )}
               </div>
-              <input type="file" ref={musicInputRef} className="hidden" accept="audio/*" onChange={(e) => {
+              <input type="file" ref={musicInputRef} className="hidden" accept="audio/*" onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) { setLoading("music"); setMusicName(file.name); uploadFile(file).then(url => setMusicFile(url)).finally(() => setLoading(null)); }
+                if (file) { 
+                  setLoading("music"); 
+                  setMusicName(file.name); 
+                  const url = await validateAndUpload(file, 'audio');
+                  if (url) setMusicFile(url);
+                  else setMusicName("Sin archivo");
+                  setLoading(null);
+                  e.target.value = "";
+                }
               }} />
             </section>
           </div>
@@ -182,7 +220,6 @@ export default function GestionGaleria() {
           <div className="lg:col-span-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Video Hero */}
               <section className="bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
                 <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
@@ -194,13 +231,18 @@ export default function GestionGaleria() {
                   </div>
                   {videoFile && <button onClick={() => setVideoFile(null)} className="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full hover:bg-red-600"><X size={14}/></button>}
                 </div>
-                <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={(e) => {
+                <input type="file" ref={videoInputRef} className="hidden" accept="video/mp4, video/webm" onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file) { setLoading("video-main"); uploadFile(file).then(url => setVideoFile(url)).finally(() => setLoading(null)); }
+                  if (file) { 
+                    setLoading("video-main"); 
+                    const url = await validateAndUpload(file, 'video');
+                    if (url) setVideoFile(url);
+                    setLoading(null);
+                    e.target.value = "";
+                  }
                 }} />
               </section>
 
-              {/* Carrusel */}
               <section className="bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
                 <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
@@ -215,11 +257,17 @@ export default function GestionGaleria() {
                         ) : <Upload size={18} className="text-zinc-300" />}
                       </div>
                       {url && <button onClick={(e) => { e.stopPropagation(); setCarrusel(prev => { const n = [...prev]; n[index] = null; return n; }); }} className="absolute -top-1.5 -right-1.5 p-1.5 bg-black text-white rounded-full hover:bg-red-600 z-10 shadow-lg"><X size={10}/></button>}
-                      <input type="file" ref={el => { carruselRefs.current[index] = el }} className="hidden" accept="image/*,video/*" onChange={(e) => {
+                      <input type="file" ref={el => { carruselRefs.current[index] = el }} className="hidden" accept="image/png, image/jpeg, image/webp, video/mp4, video/webm" onChange={async (e) => {
                          const file = e.target.files?.[0];
                          if (file) {
                            setLoading(`carrusel-${index}`);
-                           uploadFile(file).then(url => { setCarrusel(prev => { const n = [...prev]; n[index] = url; return n; }); }).finally(() => setLoading(null));
+                           const type = file.type.startsWith('video') ? 'video' : 'image';
+                           const url = await validateAndUpload(file, type);
+                           if (url) {
+                             setCarrusel(prev => { const n = [...prev]; n[index] = url; return n; });
+                           }
+                           setLoading(null);
+                           e.target.value = "";
                          }
                       }} />
                     </div>

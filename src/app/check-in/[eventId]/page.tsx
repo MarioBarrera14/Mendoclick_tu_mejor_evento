@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState } from 'react';
+import { use, useState } from 'react'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hash, MapPin, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 export default function GuestCheckIn({ params }: { params: Promise<{ eventId: string }> }) {
-  const resolvedParams = React.use(params); 
-  const eventId = resolvedParams.eventId;
+  /** * DESEMPAQUETADO DE PARAMS (Next.js 15)
+   * Usamos 'use' para obtener el eventId de la promesa de forma segura.
+   */
+  const { eventId } = use(params); 
 
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [guestData, setGuestData] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState(""); // <--- NUEVO: Para mensajes personalizados
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleCheckIn = async () => {
     setStatus('loading');
@@ -30,7 +32,7 @@ export default function GuestCheckIn({ params }: { params: Promise<{ eventId: st
         setGuestData(data);
         setStatus('success');
       } else {
-        // Capturamos el error que mandamos desde la API (ej: "No has confirmado...")
+        // Capturamos errores personalizados desde tu API
         setErrorMessage(data.error || "Código incorrecto o no encontrado");
         setStatus('error');
       }
@@ -45,12 +47,19 @@ export default function GuestCheckIn({ params }: { params: Promise<{ eventId: st
       <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-8 shadow-2xl">
         <AnimatePresence mode="wait">
           {status !== 'success' ? (
-            <motion.div key="step-1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+            <motion.div 
+              key="step-1" 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: -20 }}
+            >
               <div className="text-center mb-8">
                 <h1 className="text-2xl font-black italic uppercase tracking-tighter">
                   Mendo<span className="text-red-600">Click</span>
                 </h1>
-                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">Check-in de Invitados</p>
+                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-2">
+                  Check-in de Invitados
+                </p>
               </div>
 
               <div className="space-y-6">
@@ -93,7 +102,12 @@ export default function GuestCheckIn({ params }: { params: Promise<{ eventId: st
               </div>
             </motion.div>
           ) : (
-            <motion.div key="step-2" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-6">
+            <motion.div 
+              key="step-2" 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              className="text-center py-6"
+            >
               <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 className="text-green-500 h-10 w-10" />
               </div>
@@ -107,12 +121,16 @@ export default function GuestCheckIn({ params }: { params: Promise<{ eventId: st
                 <div className="absolute -right-4 -top-4 text-white/5">
                   <MapPin size={120} />
                 </div>
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">Tu Mesa Asignada</span>
+                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-2">
+                  Tu Mesa Asignada
+                </span>
                 <span className="text-6xl font-black text-red-600 italic tracking-tighter">
                     #{guestData?.mesa}
                 </span>
               </div>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Disfrutá de la fiesta.</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                Disfrutá de la fiesta.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>

@@ -4,17 +4,13 @@ import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-mot
 import { ChevronDown } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-
-// 1. IMPORTAMOS LAS FUENTES ELEGANTES
 import { Playfair_Display, Great_Vibes } from "next/font/google";
 
-// Fuente para los números y etiquetas (Serif elegante)
 const serifFont = Playfair_Display({ 
   subsets: ["latin"], 
   weight: ["400", "700"] 
 });
 
-// Fuente para los nombres (Manuscrita/Script)
 const scriptFont = Great_Vibes({ 
   subsets: ["latin"], 
   weight: ["400"] 
@@ -26,6 +22,7 @@ interface HeroSectionProps {
   eventDate?: string | null;
 }
 
+// --- TIMER COMPONENT ---
 function CountdownTimer({ targetDateStr }: { targetDateStr: string }) {
   const [timeLeft, setTimeLeft] = useState({ días: 0, horas: 0, min: 0, seg: 0 });
 
@@ -71,10 +68,22 @@ function CountdownTimer({ targetDateStr }: { targetDateStr: string }) {
   );
 }
 
+// --- MAIN HERO SECTION ---
 export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProps) {
   const containerRef = useRef<HTMLElement>(null);
   const [opacity, setOpacity] = useState(1);
   const [yPos, setYPos] = useState(0);
+
+  // FUNCIÓN DE REPARACIÓN: Corrige "LUZ JAZMIN" -> "Luz Jazmin"
+  const formatName = (text: string) => {
+    return text
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const cleanEventName = formatName(eventName?.trim() || "Nuestra Boda");
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -91,8 +100,6 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
     window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
   };
 
-  const names = eventName?.split(/ [&y] /) || ["Boda", "Especial"];
-
   return (
     <section
       ref={containerRef}
@@ -102,10 +109,10 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
         <motion.div style={{ y: yPos }} className="relative w-full h-full">
           <Image
             src={heroImage || "/img_boda/bode_casado.webp"}
-            alt={eventName || "Boda"}
+            alt={cleanEventName}
             fill
             priority
-            className="object-cover opacity-60 md:opacity-80"
+            className="object-cover opacity-60 md:opacity-80 brightness-[0.85]"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black" />
         </motion.div>
@@ -124,21 +131,21 @@ export function HeroSection({ heroImage, eventName, eventDate }: HeroSectionProp
             Nuestra Boda
           </motion.span>
           
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-            // 2. APLICAMOS LA FUENTE SCRIPT AQUÍ
-            className={`${scriptFont.className} text-7xl md:text-8xl lg:text-[9rem] text-white leading-none drop-shadow-2xl py-4`}
-          >
-            {names[0]} 
-            {names[1] && (
-              <>
-                <span className="text-2xl md:text-5xl lg:text-6xl inline-block animate-pulse text-[#b5a47a] mx-4">♥</span> 
-                {names[1]}
-              </>
-            )}
-          </motion.h1>
+          <div className="relative w-full overflow-visible">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+              className={`${scriptFont.className} text-white drop-shadow-2xl py-4 normal-case
+                ${cleanEventName.length > 15 
+                  ? "text-5xl md:text-7xl lg:text-[7rem] leading-[1.4]" 
+                  : "text-6xl md:text-8xl lg:text-[9rem] leading-[1.2]"}
+              `}
+              style={{ textTransform: 'none' }}
+            >
+              {cleanEventName}
+            </motion.h1>
+          </div>
 
           <div className="w-16 h-px bg-[#b5a47a]/40 my-6" />
 

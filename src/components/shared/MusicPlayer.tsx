@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause } from "lucide-react";
+import { Music, Pause } from "lucide-react";
 
 export default function ReproductorMusica({ url, autoPlay = false }: { url: string, autoPlay?: boolean }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Efecto para el autoPlay cuando el sobre se abre
   useEffect(() => {
     if (autoPlay && audioRef.current && !isPlaying) {
       handlePlay();
@@ -18,7 +17,7 @@ export default function ReproductorMusica({ url, autoPlay = false }: { url: stri
     if (audioRef.current) {
       audioRef.current.play()
         .then(() => setIsPlaying(true))
-        .catch(err => console.log("El navegador bloqueó el autoplay hasta que el usuario interactúe", err));
+        .catch(err => console.log("Autoplay bloqueado", err));
     }
   };
 
@@ -36,19 +35,39 @@ export default function ReproductorMusica({ url, autoPlay = false }: { url: stri
   if (!url) return null;
 
   return (
-    <div className="fixed bottom-8 left-8 z-[110]">
+    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[120]">
       <audio ref={audioRef} src={url} loop preload="auto" />
+      
       <button
         onClick={togglePlay}
-        className={`flex items-center gap-3 px-6 py-4 rounded-full shadow-2xl transition-all duration-500 ${
-          isPlaying ? "bg-white text-black scale-105" : "bg-zinc-900 text-white"
-        }`}
+        className={`
+          relative flex items-center justify-center rounded-full 
+          transition-all duration-500 border-2 shadow-xl
+          w-10 h-10 md:w-14 md:h-14 
+          ${isPlaying 
+            ? "bg-[#33aba1] border-white scale-105 md:scale-110 shadow-[#33aba1]/50" 
+            : "bg-white border-[#33aba1] text-[#33aba1]"
+          }
+        `}
       >
-        {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
-        <div className="flex flex-col items-start leading-none text-left">
-          <span className="text-[10px] font-black uppercase tracking-widest">
-            {isPlaying ? "Pausar" : "Play Music"}
-          </span>
+        {/* Onda de choque reducida para mobile */}
+        {isPlaying && (
+          <span className="absolute inset-0 rounded-full bg-[#33aba1] animate-ping opacity-20" />
+        )}
+
+        <div className="relative z-10">
+          {isPlaying ? (
+            /* Ecualizador: más pequeño en mobile */
+            <div className="flex items-end gap-[2px] md:gap-[3px] h-3 md:h-5">
+              <div className="w-[2px] md:w-[3px] bg-white rounded-full animate-[bounce_0.8s_infinite] h-full" />
+              <div className="w-[2px] md:w-[3px] bg-white rounded-full animate-[bounce_0.5s_infinite] h-[60%]" />
+              <div className="w-[2px] md:w-[3px] bg-white rounded-full animate-[bounce_1.1s_infinite] h-[80%]" />
+              <div className="w-[2px] md:w-[3px] bg-white rounded-full animate-[bounce_0.7s_infinite] h-[40%]" />
+            </div>
+          ) : (
+            /* Icono que también escala */
+            <Music className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+          )}
         </div>
       </button>
     </div>

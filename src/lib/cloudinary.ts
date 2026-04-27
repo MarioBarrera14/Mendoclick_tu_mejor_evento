@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 
+// Configuración con limpieza de espacios en blanco
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
   api_key: process.env.CLOUDINARY_API_KEY?.trim(),
@@ -13,36 +14,30 @@ export async function uploadToCloudinary(
   mimeType: string 
 ): Promise<{ url: string; publicId: string }> {
   
-  const base64File = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
-  
-  // MODIFICACIÓN AQUÍ:
-  // Cloudinary usa 'video' tanto para videos como para archivos de audio (mp3, wav, etc.)
-  let resourceType = 'image';
-  if (mimeType.includes('video') || mimeType.includes('audio')) {
-    resourceType = 'video';
-  }
+  try {
+    // Convertimos el buffer a un formato que el SDK de Cloudinary entiende (Data URI)
+    const base64File = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      file: base64File,
+    // Usamos el uploader del SDK directamente
+    const result = await cloudinary.uploader.upload(base64File, {
       folder: folder,
-      upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET || 'ml_default', 
-      resource_type: resourceType, 
-    }),
-  });
+      // 'auto' detecta automáticamente si es imagen, video, audio o raw (PDF, etc.)
+      resource_type: "auto", 
+      // Opcional: puedes usar el fileName original si lo deseas
+      public_id: fileName.split('.')[0], 
+    });
 
-  const result = await response.json();
+    return {
+      url: result.secure_url,
+      publicId: result.public_id,
+    };
 
-  if (!response.ok) {
-    console.error("Detalle error Cloudinary:", result);
-    throw new Error(result.error?.message || 'Error en Cloudinary');
+  } catch (error: any) {
+    // Esto imprimirá el error real en tu terminal de VS Code para debuguear
+    console.error("Detalle error Cloudinary SDK:", error);
+    
+    throw new Error(
+      error.message || 'Error en la subida a Cloudinary'
+    );
   }
-
-  return {
-    url: result.secure_url,
-    publicId: result.public_id,
-  };
 }

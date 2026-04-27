@@ -16,25 +16,36 @@ export const Navbar = ({ eventName, isDemo = false }: NavbarProps) => {
   const router = useRouter();
   const { status } = useSession();
 
-  const displayName = eventName || localConfig.personal.nombre || "Luz Jazmín";
+  // --- FUNCIÓN DE REPARACIÓN DE TEXTO ---
+  // Convierte "LUZ JAZMIN" -> "Luz Jazmin" para que la fuente cursiva no se deforme
+  const formatDisplayName = (text: string) => {
+    if (!text) return "";
+    return text
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const rawName = eventName || localConfig.personal.nombre || "Luz Jazmín";
+  const displayName = formatDisplayName(rawName);
 
   const handleRefresh = () => {
     window.location.reload();
   };
 
   return (
-    // Navbar con Glassmorphism suave y bordes champagne muy finos
     <nav className="fixed top-0 w-full z-[100] bg-white/40 backdrop-blur-md border-b border-[#b4a178]/20 py-3 px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
-        {/* BRANDING: Coherente con el Hero */}
-        <Link href="/" className="group flex flex-col items-start">
-          <h1 className="text-gray-800 text-lg md:text-xl font-script italic leading-tight transition-colors group-hover:text-[#b4a178]">
+        {/* BRANDING: Aplicamos normal-case para anular cualquier uppercase de CSS */}
+        <Link href="/" className="group flex flex-col items-start overflow-visible">
+          <h1 className="text-gray-800 text-lg md:text-2xl font-script leading-none transition-colors group-hover:text-[#b4a178] normal-case" style={{ textTransform: 'none' }}>
             {displayName}
           </h1>
-          <div className="flex items-center gap-1.5 -mt-0.10">
+          <div className="flex items-center gap-1.5 mt-1">
             <div className="h-[0.5px] w-3 bg-[#b4a178]/50" />
-            <span className="text-[10px] uppercase tracking-[0.1em] font-sans font-light text-black">
+            <span className="text-[8px] uppercase tracking-[0.2em] font-sans font-bold text-black/60">
               Mis 15 Años
             </span>
           </div>
@@ -42,72 +53,52 @@ export const Navbar = ({ eventName, isDemo = false }: NavbarProps) => {
 
         {/* CONTENEDOR DE ACCESO / CONTROL */}
         <div className="flex items-center gap-5"> 
-          
-          {/* MODO DEMO */}
           {isDemo ? (
             <div className="flex flex-col items-center gap-0.5">
               <motion.button 
                 whileHover={{ rotate: 180, scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRefresh}
-                className="group flex items-center justify-center w-9 h-9 
-                           bg-white border border-gray-200 rounded-full text-gray-400 
-                           transition-all duration-300 hover:border-[#b4a178]/40 hover:text-[#b4a178] shadow-sm"
+                className="group flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-full text-gray-400 transition-all duration-300 hover:border-[#b4a178]/40 hover:text-[#b4a178] shadow-sm"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
               </motion.button>
-              <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">
-                Reiniciar
-              </span>
+              <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">Reiniciar</span>
             </div>
           ) : (
             <>
-              {/* LOGIN */}
               {status === "unauthenticated" && (
                 <div className="flex flex-col items-center gap-0.5">
                   <button 
                     onClick={() => router.push("/client-login")}
-                    className="group flex items-center justify-center w-9 h-9 
-                               bg-white border border-gray-200 rounded-full text-gray-400 
-                               transition-all duration-300 hover:border-[#b4a178]/40 hover:text-[#b4a178] shadow-sm"
+                    className="group flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-full text-gray-400 transition-all duration-300 hover:border-[#b4a178]/40 hover:text-[#b4a178] shadow-sm"
                   >
                     <Users className="w-3.5 h-3.5" />
                   </button>
-                  <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">
-                    Invitado
-                  </span>
+                  <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">Invitado</span>
                 </div>
               )}
 
-              {/* ADMIN Y LOGOUT */}
               {status === "authenticated" && (
                 <>
                   <div className="flex flex-col items-center gap-0.5">
                     <button 
                       onClick={() => router.push("/admin/count")}
-                      className="group flex items-center justify-center w-9 h-9 
-                                 bg-white border border-gray-200 rounded-full text-gray-400 
-                                 transition-all duration-300 hover:border-[#b4a178]/40 hover:text-[#b4a178] shadow-sm"
+                      className="group flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-full text-gray-400 transition-all duration-300 hover:border-[#b4a178]/40 hover:text-[#b4a178] shadow-sm"
                     >
                       <LayoutDashboard className="w-3.5 h-3.5" />
                     </button>
-                    <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">
-                      Panel
-                    </span>
+                    <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">Panel</span>
                   </div>
 
                   <div className="flex flex-col items-center gap-0.5">
                     <button 
                       onClick={() => signOut()}
-                      className="group flex items-center justify-center w-9 h-9 
-                                 bg-white border border-gray-200 rounded-full text-gray-400 
-                                 transition-all duration-300 hover:border-red-200 hover:text-red-400 shadow-sm"
+                      className="group flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-full text-gray-400 transition-all duration-300 hover:border-red-200 hover:text-red-400 shadow-sm"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                     </button>
-                    <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">
-                      Salir
-                    </span>
+                    <span className="text-[7px] uppercase tracking-widest font-bold text-gray-400">Salir</span>
                   </div>
                 </>
               )}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import dynamic from 'next/dynamic';
 import {
     Building2,
@@ -11,10 +11,10 @@ import {
 import { Navbar } from '@/components/home/navbar/navbar';
 import MPButton from '@/components/pagos/mpagos';
 
-// Carga diferida del Footer para mantener el rendimiento igual que en tu Home
+// Carga diferida del Footer
 const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
 
-// --- DATA DINÁMICA DE PLANTILLAS (VINCULADA AL SLUG) ---
+// --- DATA DINÁMICA DE PLANTILLAS ---
 const TEMPLATES_DATA: Record<string, { title: string; banner: string }> = {
     "luxury": {
         title: "Champagne Lux",
@@ -34,11 +34,11 @@ const TEMPLATES_DATA: Record<string, { title: string; banner: string }> = {
     },
     "vintage": {
         title: "Vintage Rock",
-        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1776991451/vintage_hsipcu.png"
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1777137304/vintagerock_swfwrl.jpg"
     },
     "urban_bodas": {
         title: "Graffiti Love",
-        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1776991809/graffitis_tanmpd.png"
+        banner: "https://res.cloudinary.com/diqipcpuu/image/upload/v1777137304/boda_urban_iliaoe.jpg"
     }
 };
 
@@ -53,7 +53,6 @@ interface Plan {
     features: string[];
 }
 
-// --- DATA ESTRUCTURADA ---
 const PLANS: Record<string, Plan> = {
     classic: {
         id: 'classic',
@@ -105,14 +104,16 @@ const PLANS: Record<string, Plan> = {
     }
 };
 
-export default function AmoInvitarStore({ params }: { params: { slug: string } }) {
+export default function AmoInvitarStore({ params }: { params: Promise<{ slug: string }> }) {
+    // 1. DESEMPAQUETAMOS LA PROMESA (Next.js 15)
+    const { slug } = use(params);
+
     const [selectedPlanKey, setSelectedPlanKey] = useState<string>('classic');
     const [selectedPlanModal, setSelectedPlanModal] = useState<Plan | null>(null);
 
-    // Obtener info de la plantilla según el slug de la URL
-    const template = TEMPLATES_DATA[params.slug] || TEMPLATES_DATA["garden"];
+    // 2. CORRECCIÓN: Usamos el slug ya extraído
+    const template = TEMPLATES_DATA[slug] || TEMPLATES_DATA["garden"];
 
-    // BLOQUEO DE SCROLL GLOBAL AL ABRIR MODAL
     useEffect(() => {
         if (selectedPlanModal) {
             document.body.style.overflow = 'hidden';
@@ -127,14 +128,11 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
 
     return (
         <div className="min-h-svh bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
-            
-            {/* NAVBAR IMPORTADO DE TU HOME */}
             <Navbar />
 
             <main className="max-w-6xl mx-auto px-4 py-10">
                 <hr className="mb-10 border-zinc-200" />
 
-                {/* --- SECCIÓN PRODUCTO PRINCIPAL --- */}
                 <div className="grid lg:grid-cols-12 gap-8 mb-16">
                     <div className="lg:col-span-9">
                         <img
@@ -165,7 +163,6 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
                             </select>
                         </div>
 
-                        {/* Transferencia */}
                         <div className="pt-4 border-t border-zinc-200">
                             <div className="flex items-center gap-2 mb-1">
                                 <img src="https://amoinvitar.com/iconos/logo-transferencia.png" alt="Bank" className="h-4" />
@@ -183,7 +180,6 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
                             </button>
                         </div>
 
-                        {/* Mercado Pago */}
                         <div className="pt-4">
                             <div className="flex items-center gap-2 mb-1">
                                 <img src="https://amoinvitar.com/iconos/logo-mp.svg" alt="MP" className="h-4" />
@@ -204,7 +200,6 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
                     </div>
                 </div>
 
-                {/* --- CARACTERÍSTICAS DINÁMICAS --- */}
                 <section className="mb-16 bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
                     <h4 className="text-lg font-bold mb-1 uppercase">OPCIÓN {plan.name}</h4>
                     <p className="text-sm font-bold text-gray-400 mb-4">Características incluidas en este plan:</p>
@@ -220,7 +215,6 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
                     </ul>
                 </section>
 
-                {/* --- SELECTOR DE PLANES (CARDS) --- */}
                 <section className="mt-20 mb-20">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                         {Object.values(PLANS).map((p) => {
@@ -302,7 +296,6 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
                 </section>
             </main>
 
-            {/* MODAL DE CARACTERÍSTICAS */}
             {selectedPlanModal && (
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -345,7 +338,6 @@ export default function AmoInvitarStore({ params }: { params: { slug: string } }
                 </div>
             )}
 
-            {/* FOOTER IMPORTADO DE TU HOME */}
             <Footer />
         </div>
     );

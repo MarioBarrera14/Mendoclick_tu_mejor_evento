@@ -49,7 +49,7 @@ export const Hero: React.FC = () => {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-zinc-900 rounded-b-2xl z-40" />
             <div className="absolute inset-0 overflow-y-auto scrollbar-hide touch-pan-y">
               <Image 
-                src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_500/v1776742964/Samsun_s2eqfa.webp" 
+                src="https://res.cloudinary.com/diqipcpuu/image/upload/v1777242233/champagnecumple_uqdlfs.webp" 
                 width={280}
                 height={900}
                 className="w-full h-auto"

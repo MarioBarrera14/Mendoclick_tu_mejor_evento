@@ -16,6 +16,16 @@ interface WeddingDetailsProps {
   };
 }
 
+// Función para evitar la deformación de la fuente cursiva
+const formatForScript = (text: string) => {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const SpeedLinesBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
     <div 
@@ -24,7 +34,6 @@ const SpeedLinesBackground = () => (
   </div>
 );
 
-// --- MODAL CON CORRECCIÓN DE SCROLL ---
 function DetailModal({ 
   isOpen, 
   onClose, 
@@ -79,8 +88,7 @@ function DetailModal({
               </button>
               
               {Icon && <Icon className="text-[#b5a47a] mb-4" size={36} strokeWidth={1.5} />}
-              {/* Fuente Aplicada: font-script */}
-              <h3 className="text-4xl font-script text-gray-900 border-b border-[#b5a47a]/30 w-full pb-3 text-center">
+              <h3 className="text-4xl font-script text-gray-900 border-b border-[#b5a47a]/30 w-full pb-3 text-center leading-relaxed">
                 {title}
               </h3>
             </div>
@@ -156,8 +164,7 @@ export default function Details({ config }: WeddingDetailsProps) {
               </div>
             </div>
             <div className="text-center">
-              {/* Fuente Aplicada: font-script */}
-              <h3 className="text-4xl md:text-5xl font-script text-white drop-shadow-sm mb-1 transition-all duration-500 group-hover:drop-shadow-lg leading-tight">
+              <h3 className="text-4xl md:text-5xl font-script text-white drop-shadow-sm mb-1 transition-all duration-500 group-hover:text-amber-200 leading-[1.4]">
                 Dress Code
               </h3>
               <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-[#b5a47a] drop-shadow-sm">Ver Detalles</p>
@@ -179,8 +186,7 @@ export default function Details({ config }: WeddingDetailsProps) {
               </div>
             </div>
             <div className="text-center">
-              {/* Fuente Aplicada: font-script */}
-              <h3 className="text-4xl md:text-5xl font-script text-white drop-shadow-md mb-1 transition-all duration-500 group-hover:drop-shadow-lg leading-tight">
+              <h3 className="text-4xl md:text-5xl font-script text-white drop-shadow-md mb-1 transition-all duration-500 group-hover:text-amber-200 leading-[1.4]">
                 Cuentas
               </h3>
               <p className="text-[9px] tracking-[0.2em] uppercase font-bold text-[#b5a47a] drop-shadow-sm">Ver Datos</p>
@@ -195,9 +201,9 @@ export default function Details({ config }: WeddingDetailsProps) {
         <div className="text-center space-y-4">
           <p className="text-sm text-gray-500 italic leading-relaxed">
             Nuestra boda será un evento formal. <br />
-            {/* Fuente Aplicada: font-script para el código de vestimenta */}
-            <strong className="text-[#b5a47a] font-script block mt-2 text-4xl leading-snug">
-              {config.dressCode || "Elegante Sport"}
+            {/* Aplicación de formateo al dressCode dinámico */}
+            <strong className="text-[#b5a47a] font-script block mt-2 text-4xl leading-[1.5]">
+              {formatForScript(config.dressCode || "Elegante Sport")}
             </strong>
           </p>
           <div className="w-8 h-px bg-[#b5a47a]/30 mx-auto" />

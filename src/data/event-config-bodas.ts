@@ -69,9 +69,9 @@ export const globalBodaConfig: BodaConfig = {
     },
     // URLs de Cloudinary para evitar el error 404 local
     videoUrl: { 
-      rock: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
-      graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
-      noir: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4" 
+      rock: "https://res.cloudinary.com/diqipcpuu/video/upload/v1777143428/Video_De_Pareja_Reci%C3%A9n_Casados_laidu1.mp4", 
+      graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1777143428/Video_De_Pareja_Reci%C3%A9n_Casados_laidu1.mp4", 
+      noir: "https://res.cloudinary.com/diqipcpuu/video/upload/v1777143428/Video_De_Pareja_Reci%C3%A9n_Casados_laidu1.mp4" 
     },
     musicaUrl: { rock: "/audio/queenrock.mp3", graffiti: "/audio/edsheran.mp3", noir: "/audio/samsmith.mp3" },
     carrusel: ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-3.webp", "/img_boda/gallery-4.webp", "/img_boda/gallery-5.webp", "/img_boda/gallery-6.webp"]
@@ -132,9 +132,9 @@ export const globalQuinceConfig: QuinceConfig = {
     },
     // URLs de Cloudinary
     videoUrl: {
-      champagne: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4", 
-      neon: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4",
-      graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1776571849/quince_ae9orc.mp4",
+      champagne: "https://res.cloudinary.com/diqipcpuu/video/upload/v1777142695/Video_Generado_Con_Movimiento_Natural_rix9ub.mp4", 
+      neon: "https://res.cloudinary.com/diqipcpuu/video/upload/v1777142695/Video_Generado_Con_Movimiento_Natural_rix9ub.mp4",
+      graffiti: "https://res.cloudinary.com/diqipcpuu/video/upload/v1777142695/Video_Generado_Con_Movimiento_Natural_rix9ub.mp4",
     },
     musicaUrl: {
       champagne: "/audio/taylor.mp3",

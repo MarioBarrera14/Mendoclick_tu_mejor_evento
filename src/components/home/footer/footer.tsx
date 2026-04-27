@@ -94,7 +94,8 @@ export const Footer = () => {
           <div className="flex flex-col items-center md:items-start">
             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-900 mb-8">Contacto</h4>
             <ul className="space-y-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-              <li className="italic text-zinc-900 underline decoration-[#33aba1] underline-offset-4">info@mendoclick.com.ar</li>
+              <li className="italic text-zinc-900 underline decoration-[#33aba1] underline-offset-4">mendoclickinvitaciones@gmail.com
+</li>
               <li>WhatsApp Business</li>
               <li>Mendoza, Argentina</li>
             </ul>

@@ -14,13 +14,14 @@ import {
   Witnesses,
 } from "@/components/templates/bodas/bodas-grafitis";
 
-// 1. IMPORTAMOS LA FUENTE DE GOOGLE
 import { Permanent_Marker, Montserrat } from "next/font/google";
+import { useMemo } from "react";
+import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 
 const graffitiFont = Permanent_Marker({
   subsets: ["latin"],
   weight: "400",
-  variable: "--font-graffiti", // Variable para el CSS
+  variable: "--font-graffiti",
 });
 
 const sansFont = Montserrat({
@@ -28,56 +29,66 @@ const sansFont = Montserrat({
   variable: "--font-montserrat",
 });
 
-import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
-
 interface GraffitiPageProps {
   dbConfig?: any;
   eventId?: string;
   isDemo?: boolean;
 }
 
-export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = true }: GraffitiPageProps) {
+export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: GraffitiPageProps) {
   
-  const rawConfig = dbConfig || {
-    eventName: localConfig.personal.nombres,
-    heroImage: localConfig.imagenes.hero.graffiti,
-    eventDate: `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`,
-    eventTime: localConfig.fecha.hora,
-    musicUrl: localConfig.imagenes.musicaUrl.graffiti,
-    videoUrl: localConfig.imagenes.videoUrl.graffiti,
-    carruselImages: JSON.stringify(localConfig.imagenes.carrusel),
-    venueName: localConfig.ubicacion.nombreLugar,
-    venueAddress: localConfig.ubicacion.direccion,
-    mapLink: localConfig.ubicacion.googleMapsUrl,
-    churchName: localConfig.ubicacion.iglesiaNombre,
-    churchAddress: localConfig.ubicacion.iglesiaDireccion,
-    churchMapLink: localConfig.ubicacion.iglesiaMaps,
-    itinerary: localConfig.itinerario,
-    testigos: localConfig.testigos,
-    dressCode: localConfig.dressCode.titulo,
-    dressDescription: localConfig.dressCode.descripcion,
-    cbu: localConfig.regalo.datosBancarios.cbu,
-    alias: localConfig.regalo.datosBancarios.alias,
-    bankName: localConfig.regalo.datosBancarios.banco,
-    holderName: localConfig.regalo.datosBancarios.titular,
-    confirmDate: localConfig.confirmacion.fechaLimite
-  };
+  // Lógica de Fallback Robusta (Blindaje de datos)
+  const safeConfig = useMemo(() => {
+    const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
+    
+    if (dbConfig) {
+      return {
+        ...dbConfig,
+        eventName: dbConfig.eventName || localConfig.personal.nombres,
+        eventDate: dbConfig.eventDate || eventDateDefault,
+        eventTime: dbConfig.eventTime || localConfig.fecha.hora,
+        heroImage: dbConfig.heroImage || localConfig.imagenes.hero.graffiti,
+        musicUrl: dbConfig.musicUrl || localConfig.imagenes.musicaUrl.graffiti,
+        videoUrl: dbConfig.videoUrl || localConfig.imagenes.videoUrl.graffiti,
+        carruselImages: dbConfig.carruselImages || JSON.stringify(localConfig.imagenes.carrusel),
+        itinerary: dbConfig.itinerary || localConfig.itinerario,
+        witnesses: dbConfig.witnesses || dbConfig.testigos || localConfig.testigos,
+        confirmDate: dbConfig.confirmDate || dbConfig.eventDate || eventDateDefault,
+        // Datos de ubicación para DetailModal / EventDetails
+        venueName: dbConfig.venueName || localConfig.ubicacion.nombreLugar,
+        venueAddress: dbConfig.venueAddress || localConfig.ubicacion.direccion,
+        mapLink: dbConfig.mapLink || localConfig.ubicacion.googleMapsUrl,
+      };
+    }
 
-  const safeConfig = {
-    ...rawConfig,
-    heroImage: (rawConfig.heroImage && rawConfig.heroImage !== "") ? rawConfig.heroImage : localConfig.imagenes.hero.graffiti,
-    musicUrl: (rawConfig.musicUrl && rawConfig.musicUrl !== "") ? rawConfig.musicUrl : localConfig.imagenes.musicaUrl.graffiti,
-    videoUrl: (rawConfig.videoUrl && rawConfig.videoUrl !== "") ? rawConfig.videoUrl : localConfig.imagenes.videoUrl.graffiti,
-  };
+    // Estado DEMO (Cuando dbConfig es null)
+    return {
+      eventName: localConfig.personal.nombres,
+      heroImage: localConfig.imagenes.hero.graffiti,
+      eventDate: eventDateDefault,
+      eventTime: localConfig.fecha.hora,
+      musicUrl: localConfig.imagenes.musicaUrl.graffiti,
+      videoUrl: localConfig.imagenes.videoUrl.graffiti,
+      carruselImages: JSON.stringify(localConfig.imagenes.carrusel),
+      venueName: localConfig.ubicacion.nombreLugar,
+      venueAddress: localConfig.ubicacion.direccion,
+      mapLink: localConfig.ubicacion.googleMapsUrl,
+      itinerary: localConfig.itinerario,
+      witnesses: localConfig.testigos,
+      confirmDate: localConfig.confirmacion.fechaLimite,
+    };
+  }, [dbConfig]);
 
   const currentEventId = eventId || "demo-boda-graffiti";
 
   return (
-    /* APLICAMOS LA CLASE DE LA FUENTE AQUÍ */
     <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
       <Envelope musicUrl={safeConfig.musicUrl}>
         
-        <Navbar eventName={safeConfig.eventName} isDemo={isDemo}/>
+        {/* SOLUCIÓN NAVBAR: Solo aparece si existe dbConfig (Cliente real) */}
+        {dbConfig && (
+          <Navbar eventName={safeConfig.eventName} isDemo={isDemo}/>
+        )}
 
         <Hero
           heroImage={safeConfig.heroImage}
@@ -85,14 +96,24 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = true }: G
           eventDate={safeConfig.eventDate}
         />
 
-        {/* El resto de componentes... */}
-        <FotoCarousel images={safeConfig.carruselImages} videoUrl={safeConfig.videoUrl} />
+        <FotoCarousel 
+          images={safeConfig.carruselImages} 
+          videoUrl={safeConfig.videoUrl} 
+        />
+
         <EventDetails config={safeConfig} />
+
+        {/* RSVP Blindado: Ya no tirará error porque safeConfig siempre tiene confirmDate */}
         <RSVP config={safeConfig} />
+
         <DetailModal config={safeConfig} />
+
         <Itinerary items={safeConfig.itinerary || []} />
-        <Witnesses items={safeConfig.witnesses || safeConfig.testigos || []} />
+
+        <Witnesses items={safeConfig.witnesses || []} />
+
         <MusicSuggestion eventId={currentEventId} />
+
         <Footer />
       </Envelope>
     </main>

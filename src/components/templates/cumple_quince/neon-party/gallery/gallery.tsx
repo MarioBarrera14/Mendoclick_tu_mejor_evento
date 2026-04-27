@@ -4,7 +4,7 @@ import { useRef, useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Volume2, VolumeX, Film, Zap, X, Sparkles, 
-  Play, Pause, Maximize 
+  Play, Pause
 } from "lucide-react";
 import Image from "next/image";
 
@@ -14,10 +14,10 @@ interface FotoCarouselProps {
 }
 
 const NeonDivider = () => (
-  <div className="absolute bottom-0 left-0 w-full h-1 z-10">
-    <div className="absolute inset-0 bg-purple-500 blur-sm opacity-80" />
+  <div className="absolute bottom-0 left-0 w-full h-[2px] z-10">
+    <div className="absolute inset-0 bg-purple-500 blur-[2px] opacity-80" />
     <div className="absolute inset-0 bg-white opacity-90" />
-    <div className="absolute bottom-0 left-0 w-full h-5 bg-gradient-to-t from-purple-600/20 to-transparent" />
+    <div className="absolute bottom-0 left-0 w-full h-3 bg-gradient-to-t from-purple-600/20 to-transparent" />
   </div>
 );
 
@@ -27,18 +27,34 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // --- BLOQUEO DE SCROLL ROBUSTO ---
+  // --- BLOQUEO DE SCROLL RADICAL Y VERSÁTIL (SIN SALTOS) ---
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
     if (selectedImg) {
-      document.documentElement.classList.add("overflow-hidden");
-      document.body.classList.add("overflow-hidden");
+      // 1. Bloqueamos el scroll visual en ambos contenedores principales
+      body.style.overflow = "hidden";
+      html.style.overflow = "hidden";
+      
+      // 2. Impedimos cualquier interacción táctil o de mouse con el fondo
+      // Esto es lo que realmente mata el scroll en mobile sin position:fixed
+      body.style.pointerEvents = "none";
+      body.style.touchAction = "none";
     } else {
-      document.documentElement.classList.remove("overflow-hidden");
-      document.body.classList.remove("overflow-hidden");
+      // Restauramos todo al cerrar
+      body.style.overflow = "";
+      html.style.overflow = "";
+      body.style.pointerEvents = "";
+      body.style.touchAction = "";
     }
+
     return () => {
-      document.documentElement.classList.remove("overflow-hidden");
-      document.body.classList.remove("overflow-hidden");
+      // Limpieza por seguridad si el componente se desmonta
+      body.style.overflow = "";
+      html.style.overflow = "";
+      body.style.pointerEvents = "";
+      body.style.touchAction = "";
     };
   }, [selectedImg]);
 
@@ -55,7 +71,7 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
       if (Array.isArray(images)) baseFotos = images;
     }
     if (baseFotos.length === 0) return [];
-    return [...baseFotos, ...baseFotos, ...baseFotos];
+    return [...baseFotos, ...baseFotos]; 
   }, [images]);
 
   const toggleMute = () => {
@@ -67,122 +83,93 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
 
   const togglePlay = () => {
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
+      if (isPlaying) videoRef.current.pause();
+      else videoRef.current.play();
       setIsPlaying(!isPlaying);
     }
   };
 
-  const handleFullscreen = () => {
-    if (videoRef.current) {
-      if (videoRef.current.requestFullscreen) {
-        videoRef.current.requestFullscreen();
-      } else if ((videoRef.current as any).webkitRequestFullscreen) {
-        (videoRef.current as any).webkitRequestFullscreen();
-      }
-    }
-  };
-
   return (
-    <section className="relative py-16 bg-[#0c001a] overflow-hidden font-sans">
-      
+    <section className="relative py-6 md:py-10 bg-[#0c001a] overflow-hidden font-sans min-h-[90vh] flex flex-col justify-center">
       <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(#9333ea_1px,transparent_1px),linear-gradient(90deg,#9333ea_1px,transparent_1px)] bg-[size:30px_30px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(#9333ea_1px,transparent_1px),linear-gradient(90deg,#9333ea_1px,transparent_1px)] bg-[size:20px_20px]" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 mb-8">
-        <div className="flex items-center gap-2 text-purple-500 mb-1">
-          <Zap size={16} fill="currentColor" className="animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-[0.4em]">Live Gallery</span>
+      {/* HEADER COMPACTO */}
+      <div className="relative z-10 container mx-auto px-6 mb-4">
+        <div className="flex items-center gap-2 text-purple-500 mb-0.5">
+          <Zap size={14} fill="currentColor" className="animate-pulse" />
+          <span className="text-[8px] font-black uppercase tracking-[0.4em]">Live Gallery</span>
         </div>
-        <h3 className="text-4xl md:text-6xl font-black text-white italic uppercase tracking-tighter leading-none">
+        <h3 className="text-3xl md:text-5xl font-black text-white italic uppercase tracking-tighter leading-none">
           The <span className="text-purple-600">Vibe</span>
         </h3>
       </div>
 
-      <div className="relative z-30 py-10"> 
-        <div className="flex whitespace-nowrap overflow-hidden group">
-          <div className="flex gap-6 animate-marquee-infinite group-hover:[animation-play-state:paused] py-2">
-            {fotos.map((url, i) => (
-              <motion.div 
-                key={`${url}-${i}`}
-                onClick={() => setSelectedImg(url)}
-                whileHover={{ scale: 1.05, rotate: 0, zIndex: 50 }}
-                className={`relative flex-shrink-0 w-[240px] md:w-[300px] cursor-pointer transition-all duration-500 z-20 ${
-                  i % 2 === 0 ? 'rotate-2' : '-rotate-2'
-                }`}
-              >
-                <div className={`p-1.5 rounded-xl border-2 shadow-xl backdrop-blur-sm bg-black/20 ${
-                  i % 2 === 0 ? 'border-purple-500/40' : 'border-white/10'
-                }`}>
-                  <div className="relative aspect-[3/4] rounded-lg overflow-hidden">
-                    <Image 
-                      src={url} 
-                      alt="Gallery" 
-                      fill 
-                      className="object-cover transition-transform duration-700 group-hover:scale-110" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 via-transparent to-transparent" />
-                  </div>
+      {/* CARRUSEL REDUCIDO Y TORCIDO */}
+      <div className="relative z-30 py-4 md:py-6 overflow-hidden group"> 
+        <motion.div 
+          className="flex gap-5 md:gap-8 whitespace-nowrap"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 35, ease: "linear", repeat: Infinity }}
+          style={{ width: "max-content" }}
+        >
+          {fotos.map((url, i) => (
+            <motion.div 
+              key={`${url}-${i}`}
+              onClick={() => setSelectedImg(url)}
+              whileHover={{ scale: 1.08, rotate: 0, zIndex: 50 }}
+              // Efecto torcido responsivo y alterno
+              className={`relative flex-shrink-0 w-[170px] md:w-[240px] cursor-pointer transition-all duration-500 z-20 shadow-xl ${
+                i % 2 === 0 ? 'rotate-[2deg] md:rotate-[3deg]' : '-rotate-[2deg] md:-rotate-[3deg]'
+              }`}
+            >
+              <div className="p-1 rounded-lg border border-white/10 backdrop-blur-sm bg-black/30 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                <div className="relative aspect-[3/4] rounded-md overflow-hidden PolariodFrame">
+                  <Image src={url} alt="Gallery item" fill className="object-cover" sizes="(max-width: 768px) 170px, 240px" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 via-transparent to-transparent" />
                 </div>
-                {i % 3 === 0 && (
-                  <div className="absolute -top-3 -right-3 bg-white text-purple-600 p-1.5 rounded-full shadow-lg z-40">
-                    <Sparkles size={14} className="animate-pulse" />
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
+              </div>
+              {i % 3 === 0 && (
+                <div className="absolute -top-3 -right-3 bg-white text-purple-600 p-1.5 rounded-full shadow-lg z-40 animate-pulse">
+                  <Sparkles size={14} />
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
 
-      <div className="mt-8 container mx-auto px-6 relative z-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative group p-1 bg-gradient-to-br from-purple-500/10 to-transparent rounded-[2rem]">
-             <div className="absolute -top-4 -left-2 z-20 bg-purple-600 text-white px-4 py-1.5 font-black italic text-base -rotate-3 shadow-xl uppercase tracking-tighter">
+      {/* VIDEO SECTION COMPACTA */}
+      <div className="mt-6 container mx-auto px-6 relative z-10">
+        <div className="max-w-2xl mx-auto">
+          <div className="relative group p-0.5 bg-gradient-to-br from-purple-500/20 to-transparent rounded-2xl">
+            <div className="absolute -top-3 -left-1 z-20 bg-purple-600 text-white px-3 py-1 font-black italic text-xs -rotate-2 shadow-lg uppercase">
               Director's Cut
             </div>
-            <div className="relative aspect-video rounded-[1.8rem] overflow-hidden border-2 border-white/5 bg-black shadow-2xl">
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
               {videoUrl ? (
                 <>
                   <video 
                     ref={videoRef} src={videoUrl} 
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700" 
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" 
                     loop muted={isMuted} autoPlay playsInline 
                   />
-                  
-                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex gap-2">
-                      <button 
-                        onClick={togglePlay} 
-                        className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
-                      >
-                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                      <button onClick={togglePlay} className="p-2 rounded-full bg-black/60 text-white border border-white/10">
+                        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
                       </button>
-                      
-                      <button 
-                        onClick={toggleMute} 
-                        className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
-                      >
-                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                      <button onClick={toggleMute} className="p-2 rounded-full bg-black/60 text-white border border-white/10">
+                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                       </button>
                     </div>
-
-                    <button 
-                      onClick={handleFullscreen} 
-                      className="p-2.5 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-white hover:text-black transition-all"
-                    >
-                      <Maximize size={18} />
-                    </button>
                   </div>
                 </>
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-purple-900">
-                  <Film size={40} className="animate-pulse" />
-                  <p className="font-mono text-[9px] uppercase tracking-widest mt-2">Tape loading...</p>
+                <div className="w-full h-full flex flex-col items-center justify-center text-purple-900/50">
+                  <Film size={30} />
+                  <p className="text-[8px] uppercase tracking-widest mt-1">Tape loading...</p>
                 </div>
               )}
             </div>
@@ -190,43 +177,30 @@ export function FotoCarousel({ images, videoUrl }: FotoCarouselProps) {
         </div>
       </div>
 
-      {/* MODAL CON SOLUCIÓN TOUCH-NONE */}
+      {/* MODAL CON BLOQUEO DE SCROLL ROBUSTO */}
       <AnimatePresence>
         {selectedImg && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Fondo / Overlay: touch-none desactiva el scroll táctil por completo */}
+          // El modal tiene pointer-events-auto para que ÉL SÍ reciba clicks
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto touch-none overscroll-none">
             <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSelectedImg(null)}
-              className="fixed inset-0 bg-black/90 backdrop-blur-md touch-none"
+              className="fixed inset-0 bg-black/95 backdrop-blur-xl"
             />
-            
-            {/* Contenido del Modal: touch-auto para permitir interacción dentro */}
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full h-[80vh] z-10 touch-auto"
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full h-[65vh] md:h-[80vh] z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              <button 
-                onClick={() => setSelectedImg(null)}
-                className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors"
-              >
+              <button onClick={() => setSelectedImg(null)} className="absolute -top-12 right-0 text-white hover:text-purple-400 p-2 transition-colors">
                 <X size={32} />
               </button>
-              <Image 
-                src={selectedImg} 
-                alt="Preview" 
-                fill 
-                className="object-contain" 
-              />
+              <Image src={selectedImg} alt="Preview" fill className="object-contain" priority />
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
       <NeonDivider />
     </section>
   );

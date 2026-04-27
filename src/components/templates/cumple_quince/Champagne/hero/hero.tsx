@@ -14,7 +14,17 @@ interface HeroProps {
 }
 
 export function Hero({ config }: HeroProps) {
-  const nombreEvento = config.eventName || "Boda & Especial";
+  // --- REPARACIÓN DE TEXTO ---
+  // Esta función convierte "LUZ JAZMIN" a "Luz Jazmin" para que la fuente no se deforme
+  const formatName = (text: string) => {
+    return text
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const nombreEvento = formatName(config.eventName?.trim() || "Mis 15 Años");
   
   const currentImage = (config.heroImage && config.heroImage !== "") 
     ? config.heroImage 
@@ -43,15 +53,11 @@ export function Hero({ config }: HeroProps) {
     return () => clearInterval(timer);
   }, [calculateTimeLeft]);
 
-  // Lógica para separar nombres y poner el corazón
-  const names = nombreEvento.split(/ [&y] /);
-
   return (
     <section className="relative min-h-screen flex flex-col bg-white overflow-hidden font-sans">
-      {/* --- PARTE SUPERIOR (IMAGEN) --- */}
       <div 
         className="relative w-full h-[70vh] md:h-[75vh] bg-[#111] overflow-hidden"
-        style={{ clipPath: "polygon(0 0, 100% 0, 100% 90%, 0% 100%)" }}
+        style={{ clipPath: "polygon(0 0, 100% 0, 100% 92%, 0% 100%)" }}
       >
         <AnimatePresence mode="wait">
           <motion.div key={currentImage} className="relative w-full h-full">
@@ -60,70 +66,73 @@ export function Hero({ config }: HeroProps) {
               alt={nombreEvento}
               fill
               priority
-              className="object-cover opacity-70 md:opacity-80 brightness-[0.9]"
+              className="object-cover opacity-70 md:opacity-80 brightness-[0.8]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
           </motion.div>
         </AnimatePresence>
 
-        <div className="absolute bottom-[15%] left-0 w-full z-30 px-6">
+        <div className="absolute bottom-[18%] left-0 w-full z-30 px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
             className="flex flex-col items-center text-center text-white"
           >
-            <span className="text-white/60 tracking-[0.6em] text-[10px] uppercase mb-4 font-light">
-            ¡Mis 15!
+            <span className="text-white/80 tracking-[0.6em] text-[10px] md:text-[12px] uppercase mb-4 font-light">
+              ¡Mis 15 años!
             </span>
 
-            <h1 className="font-script text-6xl md:text-8xl lg:text-[8rem] text-white leading-tight drop-shadow-2xl">
-              {names[0]} 
-              {names[1] && (
-                <>
-                  <span className="text-2xl md:text-5xl lg:text-6xl inline-block animate-pulse text-white/80 mx-2">♥</span> 
-                  {names[1]}
-                </>
-              )}
-            </h1>
+            {/* CONTENEDOR REPARADO */}
+            <div className="relative w-full overflow-visible px-2">
+              <h1 
+                className={`
+                  font-script text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)] text-center normal-case
+                  ${nombreEvento.length > 12 
+                    ? "text-5xl md:text-7xl lg:text-[7rem] leading-[1.4]" 
+                    : "text-6xl md:text-8xl lg:text-[9rem] leading-[1.2]"}
+                `}
+                style={{ wordBreak: 'keep-all', textTransform: 'none' }}
+              >
+                {nombreEvento}
+              </h1>
+            </div>
 
-            <div className="w-16 h-px bg-[#b5a47a]/40 my-6" />
+            <div className="w-16 h-[1px] bg-[#b5a47a] my-8 opacity-60" />
             
-            <span className="text-[10px] md:text-xs tracking-[0.5em] font-light uppercase text-white/70">
-              {config.eventDate.split("-").reverse().join(" · ")}
+            <span className="text-[11px] md:text-sm tracking-[0.5em] font-medium uppercase text-white/90">
+              {config.eventDate.split("-").reverse().join(" . ") }
             </span>
           </motion.div>
         </div>
       </div>
 
-      {/* --- PARTE INFERIOR (CONTADOR ESTILO HERO 1) --- */}
-{/* --- PARTE INFERIOR (CONTADOR CON CÍRCULOS DORADOS) --- */}
-<div className="flex-1 flex flex-col items-center justify-center py-12 bg-white">
-  <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 font-light mb-8">
-    Faltan solo
-  </p>
-  
-  <div className="flex gap-4 md:gap-8">
-    {[
-      { label: "Días", value: timeLeft.dias },
-      { label: "Horas", value: timeLeft.horas },
-      { label: "Min", value: timeLeft.min },
-      { label: "Seg", value: timeLeft.seg },
-    ].map((unit, index) => (
-      <div key={index} className="flex flex-col items-center">
-        {/* Círculo Dorado */}
-        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border border-[#b5a47a]/40 flex flex-col items-center justify-center mb-2 group hover:border-[#b5a47a] transition-colors duration-500">
-          <span className="text-xl md:text-2xl font-light text-gray-800 tracking-tighter">
-            {unit.value.toString().padStart(2, '0')}
-          </span>
-          <span className="text-[7px] md:text-[8px] uppercase tracking-[0.1em] text-[#b5a47a]">
-            {unit.label}
-          </span>
+      {/* --- CONTADOR --- */}
+      <div className="flex-1 flex flex-col items-center justify-center py-10 bg-white">
+        <p className="text-[10px] tracking-[0.4em] uppercase text-zinc-400 font-bold mb-8">
+          Faltan solo
+        </p>
+        
+        <div className="flex gap-4 md:gap-10">
+          {[
+            { label: "Días", value: timeLeft.dias },
+            { label: "Horas", value: timeLeft.horas },
+            { label: "Min", value: timeLeft.min },
+            { label: "Seg", value: timeLeft.seg },
+          ].map((unit, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border border-[#b5a47a]/30 flex flex-col items-center justify-center mb-2 shadow-sm">
+                <span className="text-xl md:text-3xl font-light text-zinc-800 tracking-tighter">
+                  {unit.value.toString().padStart(2, '0')}
+                </span>
+                <span className="text-[7px] md:text-[9px] uppercase tracking-[0.1em] text-[#b5a47a] font-bold">
+                  {unit.label}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    ))}
-  </div>
-</div>
     </section>
   );
 }

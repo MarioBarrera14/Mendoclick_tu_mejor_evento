@@ -37,7 +37,7 @@ export const TechSection = () => (
           <div className="absolute inset-0 overflow-y-auto bg-white scrollbar-hide touch-pan-y">
             <Image 
               // Usamos q_auto,f_auto y un ancho moderado para no saturar la red
-              src="https://res.cloudinary.com/diqipcpuu/image/upload/f_auto,q_auto,w_600/v1776742964/Samsun_s2eqfa.webp" 
+              src="https://res.cloudinary.com/diqipcpuu/image/upload/v1777242233/champagnecumple_uqdlfs.webp" 
               alt="Demo de funciones interactivas MendoClick"
               width={280}
               height={575}

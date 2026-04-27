@@ -25,19 +25,28 @@ interface RetroVinylViewProps {
 
 export default function RetroVinylView({ dbConfig, eventId, isDemo = false }: RetroVinylViewProps) {
   
-  // Lógica de "Fallback" Robusta
+  // Lógica de Fallback Unificada
   const config = useMemo(() => {
+    // Si existe dbConfig (Cliente real), combinamos sus datos con los fallbacks
     if (dbConfig) {
+      const eventDate = dbConfig.eventDate || `${globalBodaConfig.fecha.año}-${String(globalBodaConfig.fecha.mes).padStart(2, '0')}-${String(globalBodaConfig.fecha.dia).padStart(2, '0')}`;
+      
       return {
         ...dbConfig,
-        // Si carruselImages ya es un objeto (JSON de Postgres), lo pasamos tal cual.
-        // El componente se encargará de manejarlo.
+        eventName: dbConfig.eventName || globalBodaConfig.personal.nombres,
+        eventDate: eventDate,
+        eventTime: dbConfig.eventTime || globalBodaConfig.fecha.hora,
+        heroImage: dbConfig.heroImage || globalBodaConfig.imagenes.hero.rock,
+        musicUrl: dbConfig.musicUrl || globalBodaConfig.imagenes.musicaUrl.rock,
+        videoUrl: dbConfig.videoUrl || globalBodaConfig.imagenes.videoUrl.rock,
         carruselImages: dbConfig.carruselImages || [],
         itinerary: dbConfig.itinerary || [],
-        witnesses: dbConfig.witnesses || []
+        witnesses: dbConfig.witnesses || [],
+        confirmDate: dbConfig.confirmDate || eventDate, // Evita error en RSVP
       };
     }
-    // Si es Demo, usamos la config global
+
+    // Si NO existe dbConfig (Demo pura /app/demo/...), usamos TODO lo global
     return {
       eventName: globalBodaConfig.personal.nombres,
       eventDate: `${globalBodaConfig.fecha.año}-${String(globalBodaConfig.fecha.mes).padStart(2, '0')}-${String(globalBodaConfig.fecha.dia).padStart(2, '0')}`,
@@ -48,44 +57,49 @@ export default function RetroVinylView({ dbConfig, eventId, isDemo = false }: Re
       carruselImages: globalBodaConfig.imagenes.carrusel || [],
       itinerary: globalBodaConfig.itinerario,
       witnesses: globalBodaConfig.testigos,
-      dressCode: globalBodaConfig.dressCode.titulo,
-      dressDescription: globalBodaConfig.dressCode.descripcion,
-      cbu: globalBodaConfig.regalo.datosBancarios.cbu,
-      alias: globalBodaConfig.regalo.datosBancarios.alias,
-      bankName: globalBodaConfig.regalo.datosBancarios.banco,
-      holderName: globalBodaConfig.regalo.datosBancarios.titular,
       confirmDate: globalBodaConfig.confirmacion.fechaLimite
     };
   }, [dbConfig]);
 
-  const currentEventId = eventId || "demo-boda-rock-global";
-
   return (
-    <main className={`min-h-screen overflow-x-hidden font-sans ${isDemo ? 'bg-[#fdfcf0]' : 'bg-[#111]'}`}>
-      <Envelope musicUrl={config.musicUrl || globalBodaConfig.imagenes.musicaUrl.rock}>
-        <Navbar eventName={config.eventName} isDemo={isDemo} />
+    <main className={`min-h-screen overflow-x-hidden font-sans ${!dbConfig ? 'bg-[#fdfcf0]' : 'bg-[#111]'}`}>
+      <Envelope musicUrl={config.musicUrl}>
+        
+        {/* Solo mostramos Navbar si hay dbConfig (cliente real) */}
+        {dbConfig && (
+          <Navbar eventName={config.eventName} isDemo={isDemo} />
+        )}
+
         <Hero config={{
-          heroImage: config.heroImage || globalBodaConfig.imagenes.hero.rock,
+          heroImage: config.heroImage,
           eventName: config.eventName,
           eventDate: config.eventDate,
           eventTime: config.eventTime,
         }} />
+
         <FotoCarouselRetro
           images={config.carruselImages}
-          videoUrl={config.videoUrl || globalBodaConfig.imagenes.videoUrl.rock}
+          videoUrl={config.videoUrl}
         />
+
         <EventDetails config={config} />
         <Itinerary items={config.itinerary} />
+
         {config.witnesses && config.witnesses.length > 0 && (
           <SeccionTestigos items={config.witnesses} />
         )}
+
         <WeddingDetailsSection config={config} />
-        <MusicSuggestion eventId={currentEventId} />
+        
+        <MusicSuggestion eventId={eventId || "demo-boda"} />
+
+        {/* Fix RSVP: Ahora config siempre tiene heroImage, eventDate y confirmDate */}
         <RSVP config={{
-          heroImage: config.heroImage || globalBodaConfig.imagenes.hero.rock,
+          heroImage: config.heroImage,
           eventDate: config.eventDate,
-          confirmDate: config.confirmDate || config.eventDate
+          confirmDate: config.confirmDate
         }} />
+
         <Footer />
       </Envelope>
     </main>

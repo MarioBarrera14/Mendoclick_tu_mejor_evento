@@ -27,6 +27,15 @@ const config: Config = {
         rose: { 500: "#f43f5e", 600: "#e11d48" },
         gold: { 400: "#f5e1a4", 500: "#b4a178" }
       },
+      animation: {
+        'marquee-infinite': 'marquee 10s linear infinite',
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
