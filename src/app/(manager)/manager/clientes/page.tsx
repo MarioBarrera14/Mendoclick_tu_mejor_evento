@@ -1,45 +1,64 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Trash2, Pencil, ExternalLink, Search, UserPlus, 
-  Home, LayoutDashboard, Loader2, AlertCircle, CheckCircle2, X 
+  Home, LayoutDashboard, Loader2, CheckCircle2, X 
 } from "lucide-react";
 import Link from "next/link";
 import { getClients, deleteClientAction, updateClientAction } from "@/lib/actions"; 
 
 export default function ClientesPage() {
+  // 1. Control de Sesión
+  const { data: session, status } = useSession();
+  
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState({ type: "", msg: "" });
+  const [statusMsg, setStatusMsg] = useState({ type: "", msg: "" });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
 
+  // 2. Redirección automática si no hay sesión
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      redirect("/users/loginManager");
+    }
+  }, [status]);
+
+  // 3. Carga de datos protegida
   const loadClientes = async () => {
+    if (status !== "authenticated" || session?.user?.role !== "ADMIN") return;
+    
     setLoading(true);
     try {
       const data = await getClients();
       setClientes(Array.isArray(data) ? data : []);
     } catch (error) {
-      setStatus({ type: "error", msg: "Error al conectar con la base de datos" });
+      setStatusMsg({ type: "error", msg: "Error al conectar con la base de datos" });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadClientes(); }, []);
+  useEffect(() => { 
+    if (status === "authenticated") {
+      loadClientes(); 
+    }
+  }, [status]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await updateClientAction(editingClient.id, editingClient);
     if (result.success) {
       setIsEditModalOpen(false);
-      setStatus({ type: "success", msg: "Cliente actualizado con éxito" });
+      setStatusMsg({ type: "success", msg: "Cliente actualizado con éxito" });
       loadClientes(); 
-      setTimeout(() => setStatus({ type: "", msg: "" }), 3000);
+      setTimeout(() => setStatusMsg({ type: "", msg: "" }), 3000);
     }
   };
 
@@ -48,7 +67,7 @@ export default function ClientesPage() {
       const result = await deleteClientAction(id);
       if (result.success) {
         setClientes(prev => prev.filter(c => c.id !== id));
-        setStatus({ type: "success", msg: "Cliente eliminado" });
+        setStatusMsg({ type: "success", msg: "Cliente eliminado" });
       }
     }
   };
@@ -59,18 +78,26 @@ export default function ClientesPage() {
     c.slug?.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#f4f4f5] flex flex-col items-center justify-center">
-      <Loader2 className="animate-spin text-rose-500 mb-4" size={40} />
-      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Actualizando Mendoclick...</p>
-    </div>
-  );
+  // 4. Pantalla de carga de seguridad
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-[#f4f4f5] flex flex-col items-center justify-center">
+        <Loader2 className="animate-spin text-rose-500 mb-4" size={40} />
+        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 italic">
+          Verificando acceso a Mendoclick...
+        </p>
+      </div>
+    );
+  }
+
+  // 5. Si no es Admin, bloqueamos el renderizado completamente
+  if (session?.user?.role !== "ADMIN") return null;
 
   return (
     <div className="p-4 md:p-10 bg-[#f4f4f5] min-h-screen text-zinc-900 font-sans">
       <div className="max-w-6xl mx-auto">
         
-        {/* BOTONES DE NAVEGACIÓN AGREGADOS */}
+        {/* NAVEGACIÓN */}
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -99,9 +126,9 @@ export default function ClientesPage() {
             <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic">
               Gestión de <span className="text-rose-500">Clientes</span>
             </h1>
-            {status.msg && (
-              <p className="mt-2 text-[10px] font-black uppercase text-green-600 flex items-center gap-1">
-                <CheckCircle2 size={12} /> {status.msg}
+            {statusMsg.msg && (
+              <p className={`mt-2 text-[10px] font-black uppercase flex items-center gap-1 ${statusMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+                <CheckCircle2 size={12} /> {statusMsg.msg}
               </p>
             )}
           </div>
@@ -132,7 +159,13 @@ export default function ClientesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
-              {clientesFiltrados.map((cliente) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-20">
+                    <Loader2 className="animate-spin mx-auto text-rose-500" size={30} />
+                  </td>
+                </tr>
+              ) : clientesFiltrados.map((cliente) => (
                 <tr key={cliente.id} className="hover:bg-zinc-50/50 transition-colors">
                   <td className="px-8 py-6">
                     <p className="font-black uppercase italic text-sm">{cliente.nombre}</p>
