@@ -4,25 +4,28 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const isManagerPath = req.nextUrl.pathname.startsWith("/manager");
+    const path = req.nextUrl.pathname;
 
-    // Solo protegemos el panel si no es ADMIN
-    if (isManagerPath && token?.role !== "ADMIN") {
+    // 1. Verificamos si la ruta es de gestión (Manager o Admin)
+    const isRestrictedPath = path.startsWith("/manager") || path.startsWith("/admin");
+
+    // 2. Si es una ruta restringida y el usuario NO es ADMIN, lo mandamos al login
+    if (isRestrictedPath && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/users/loginManager", req.url));
     }
   },
   {
     callbacks: {
-      // Solo pedimos sesión para las rutas del MATCHER
+      // Si esta función retorna false, NextAuth redirige automáticamente al login
       authorized: ({ token }) => !!token,
     },
     pages: {
-      signIn: "/users/loginManager",
+      signIn: "/users/loginManager", // Tu página personalizada de login
     },
   }
 );
 
-// IMPORTANTE: Aquí NO debe estar "/invit/:path*" para que sea pública
+// Configuración de las rutas que el middleware debe "escuchar"
 export const config = {
-  matcher: ["/manager/:path*", "/admin/:path*"], 
+  matcher: ["/manager/:path*", "/admin/:path*"],
 };
