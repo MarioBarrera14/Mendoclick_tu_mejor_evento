@@ -23,7 +23,6 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
-        // Retornamos el objeto con toda la data necesaria para los callbacks
         return {
           id: user.id,
           email: user.email,
@@ -36,17 +35,14 @@ export const authOptions: NextAuthOptions = {
     })
   ],
 
-  // =====================================================
-  // CONFIGURACIÓN DE COOKIES (Estilo SaaS / Sitrack)
-  // =====================================================
+  // Simplificamos cookies para evitar bloqueos del navegador en producción
   cookies: {
     sessionToken: {
-      // Si en el futuro separas por subdominios, aquí puedes cambiar el nombre
-      name: process.env.NODE_ENV === "production" ? `__Secure-mendoclick.session-token` : `next-auth.session-token`,
+      name: `next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
-        path: '/', // Alcance global para que funcione en / y en /invit
+        path: '/',
         secure: process.env.NODE_ENV === "production",
       },
     },
@@ -73,16 +69,13 @@ export const authOptions: NextAuthOptions = {
     }
   },
 
-  // =====================================================
-  // PÁGINAS Y ESTRATEGIA
-  // =====================================================
   pages: { 
     signIn: "/login",
-    error: "/auth/error", // Es bueno tener una página de error
+    error: "/login", // Redirigimos errores al login para que el usuario vea el mensaje
   },
   session: { 
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 días de sesión activa
+    maxAge: 30 * 24 * 60 * 60, 
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
