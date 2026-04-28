@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, Users, LogOut, RefreshCw } from "lucide-react"; 
+import { LayoutDashboard, Users, LogOut, RefreshCw, Edit3 } from "lucide-react"; 
 import { useRouter } from "next/navigation";
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 import { useSession, signOut } from "next-auth/react";
@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 interface NavbarProps {
   eventName?: string | null;
   isDemo?: boolean;
-  plan?: string; // <--- AGREGADO: Esto elimina el error en page.tsx
+  plan?: string;
 }
 
 export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarProps) => {
@@ -21,6 +21,16 @@ export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarPr
 
   const handleRefresh = () => {
     window.location.reload();
+  };
+
+  // Lógica corregida para redirección
+  const handleDashboardRedirect = () => {
+    if (session?.user?.role === "ADMIN") {
+      router.push("/manager/dashboard");
+    } else {
+      // CAMBIO AQUÍ: Ahora mandamos al cliente a su panel de administración
+      router.push("/admin"); 
+    }
   };
 
   return (
@@ -54,7 +64,6 @@ export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarPr
             </div>
           ) : (
             <>
-              {/* Ocultamos opciones de Login/Admin si el plan es CLASSIC */}
               {plan !== "CLASSIC" && (
                 <>
                   {status === "unauthenticated" && (
@@ -75,13 +84,17 @@ export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarPr
                     <>
                       <div className="flex flex-col items-center gap-0.5">
                         <button 
-                          onClick={() => router.push("/admin")} 
+                          onClick={handleDashboardRedirect} 
                           className="flex items-center justify-center w-9 h-9 bg-[#5ba394] text-white rounded-full transition-all hover:scale-110 shadow-lg"
                         >
-                          <LayoutDashboard className="w-4 h-4" />
+                          {session?.user?.role === "ADMIN" ? (
+                            <LayoutDashboard className="w-4 h-4" />
+                          ) : (
+                            <Edit3 className="w-4 h-4" />
+                          )}
                         </button>
                         <span className="text-[7px] uppercase tracking-widest font-bold text-black/60">
-                          Admin
+                          {session?.user?.role === "ADMIN" ? "Admin" : "Mi Panel"}
                         </span>
                       </div>
 
@@ -97,7 +110,7 @@ export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarPr
                           <LogOut className="w-4 h-4" />
                         </button>
                         <span className="text-[7px] uppercase tracking-widest font-bold text-rose-600/70">
-                          Out
+                          Salir
                         </span>
                       </div>
                     </>

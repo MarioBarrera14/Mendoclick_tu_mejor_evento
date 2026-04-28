@@ -6,14 +6,20 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Redirección si ya está logueado e intenta ir al login
-    if (path === "/login" && !!token) {
-      return NextResponse.redirect(new URL("/manager/dashboard", req.url));
+    // 1. Si ya tiene sesión y trata de entrar a los logins, sacarlo de ahí
+    if ((path === "/login" || path === "/client-login") && !!token) {
+      const target = token.role === "ADMIN" ? "/manager/dashboard" : "/admin";
+      return NextResponse.redirect(new URL(target, req.url));
     }
 
-    // Protección de rutas de gestión por ROL (Solo ADMIN entra a /manager o /admin)
-    if ((path.startsWith("/manager") || path.startsWith("/admin")) && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+    // 2. Proteger /manager (Solo ADMIN)
+    if (path.startsWith("/manager") && token?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // 3. Proteger /admin (ADMIN y CLIENT entran)
+    if (path.startsWith("/admin") && !token) {
+       return NextResponse.redirect(new URL("/client-login", req.url));
     }
 
     return NextResponse.next();
@@ -22,26 +28,30 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-        // La página de login debe ser pública para que puedan loguearse
-        if (path === "/login") return true;
-        // El resto de las rutas capturadas por el matcher requieren sesión
+        
+        // Rutas que no requieren nada
+        if (
+          path === "/" ||
+          path === "/login" ||
+          path === "/client-login" ||
+          path.startsWith("/invit") ||
+          path.startsWith("/images") ||
+          path.startsWith("/audio") ||
+          path.startsWith("/assets")
+        ) return true;
+
+        // Rutas que requieren sesión (cualquiera)
         return !!token;
       },
     },
     pages: {
-      signIn: "/login",
+      signIn: "/client-login", // <--- IGUAL AL AUTH OPTIONS
     },
   }
 );
 
 export const config = {
   matcher: [
-    /*
-     * Matcher definitivo para MendoClick:
-     * Excluye de la protección (son públicos):
-     * - api/auth, státicos de Next, favicon, logo, assets, login e invitaciones.
-     * - La raíz (/) mediante el símbolo $
-     */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.webp|assets|login|invit|$).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.webp|assets|images|audio|login|client-login|invit|$).*)",
   ],
 };

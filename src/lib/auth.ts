@@ -27,27 +27,13 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           nombre: user.nombre,
-          role: user.role,
+          role: user.role, // ADMIN o CLIENT
           slug: user.slug,
           templateId: user.templateId, 
         };
       }
     })
   ],
-
-  // CONFIGURACIÓN DE COOKIES (Limpia para evitar conflictos en Vercel/Producción)
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
-
   callbacks: {
     async jwt({ token, user }: any) {
       if (user) {
@@ -68,16 +54,10 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   },
-
   pages: { 
     signIn: "/login",
-    error: "/login", // Redirigimos errores al login para mostrar los mensajes de error ahí
+    error: "/login", 
   },
-
-  session: { 
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 días de sesión activa
-  },
-
+  session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
 };

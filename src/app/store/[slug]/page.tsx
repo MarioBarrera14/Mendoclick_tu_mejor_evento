@@ -137,8 +137,7 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
         <div className="min-h-svh bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
             <Navbar />
 
-            <main className="max-w-6xl mx-auto px-4 py-10">
-                <hr className="mb-10 border-zinc-200" />
+            <main className="max-w-6xl mx-auto px-4 py-24">
 
                 <div className="grid lg:grid-cols-12 gap-8 mb-16">
                     <div className="lg:col-span-9">
