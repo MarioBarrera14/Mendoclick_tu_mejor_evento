@@ -42,17 +42,17 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
 
-        // ESTAS RUTAS NO PIDEN LOGIN (Públicas para invitados)
-        const isPublic = 
-          path === "/" ||
-          path === "/login" ||
-          path === "/client-login" ||
-          path.startsWith("/invit") ||    // Las invitaciones son públicas
-          path.startsWith("/images") ||   // Las imágenes DEBEN ser públicas
-          path.startsWith("/audio") ||    // El audio DEBE ser público
-          path.startsWith("/assets") ||
-          path === "/logo.webp" ||
-          path === "/favicon.ico";
+const isPublic = 
+  path === "/" ||
+  path === "/login" ||
+  path === "/client-login" ||
+  path.startsWith("/invit") ||
+  path.startsWith("/demo") ||
+  path.startsWith("/images") || // Carpeta public/images
+  path.startsWith("/img_boda") || // Carpeta public/img_boda
+  path.startsWith("/img_demo") || // Carpeta public/img_demo
+  path.startsWith("/audio") ||    // Carpeta public/audio
+  path.startsWith("/assets");
 
         if (isPublic) return true;
 
@@ -66,10 +66,9 @@ export default withAuth(
   }
 );
 
-// 2. EL MATCHER (Muy importante)
-// Si no pones "images" y "audio" aquí, el middleware las procesará igual.
+// middleware.ts
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.webp|assets|images|audio|login|client-login|invit|$).*)",
+   "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|audio|login|client-login|invit|demo|$).*)",
   ],
 };
