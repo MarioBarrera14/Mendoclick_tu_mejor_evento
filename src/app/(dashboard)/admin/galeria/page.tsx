@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { ImagePlus, Upload, Play, X, CheckCircle2, Loader2, FileAudio, Save, Eraser } from "lucide-react";
+import { ImagePlus, Upload, Play, X, Loader2, FileAudio, Save, Eraser, Lock } from "lucide-react";
 import { getGalleryConfig, updateGalleryConfig } from "@/actions/gallery.actions"; 
+import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
+import { cn } from "@/lib/utils";
 
 export default function GestionGaleria() {
+  const { data: session } = useSession();
+  const planLevel = (session?.user as any)?.planLevel || "CLASSIC";
+
   const [fotoPrincipal, setFotoPrincipal] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<string | null>(null);
   const [musicFile, setMusicFile] = useState<string | null>(null);
@@ -14,6 +19,11 @@ export default function GestionGaleria() {
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState<string | null>(null); 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // Permisos por plan
+  const canUploadMusic = planLevel !== "CLASSIC";
+  const canUploadCarrusel = planLevel !== "CLASSIC";
+  const canUploadVideo = planLevel === "DELUXE";
 
   const mainInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -57,36 +67,23 @@ export default function GestionGaleria() {
     loadData();
   }, []);
 
-  // --- VALIDACIÓN Y SUBIDA ---
   const validateAndUpload = async (file: File, type: 'image' | 'video' | 'audio') => {
-    // 1. Validar GIFs (Solo para imágenes)
     if (type === 'image' && file.type === 'image/gif') {
-      Swal.fire("Formato Incorrecto", "Utiliza los siguientes formatos jpg, png, webp, avif, etc...", "warning");
+      Swal.fire("Formato Incorrecto", "No se permiten GIFs.", "warning");
       return null;
     }
-
-    // 2. Validar tamaño (Evitar Timeouts)
-    const maxSize = type === 'video' ? 20 * 1024 * 1024 : 5 * 1024 * 1024; // 20MB video, 5MB otros
+    const maxSize = type === 'video' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      Swal.fire("Archivo muy pesado", `El límite es ${maxSize / (1024 * 1024)}MB para este tipo de archivo.`, "error");
+      Swal.fire("Archivo muy pesado", "El archivo excede el límite.", "error");
       return null;
     }
-
-    // 3. Subida
     try {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
-      
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Error en el servidor");
-      }
-      
       const data = await res.json();
       return data.url;
-    } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+    } catch (error) {
       return null;
     }
   };
@@ -96,15 +93,13 @@ export default function GestionGaleria() {
     const carruselLimpio = carrusel.filter(img => img !== null);
     const result = await updateGalleryConfig({
       heroImage: fotoPrincipal, 
-      videoUrl: videoFile,
-      musicUrl: musicFile, 
-      carruselImages: carruselLimpio
+      videoUrl: canUploadVideo ? videoFile : null,
+      musicUrl: canUploadMusic ? musicFile : null,
+      carruselImages: canUploadCarrusel ? carruselLimpio : []
     });
 
     if (result.success) {
       Swal.fire({ title: "¡HECHO!", text: "Galería actualizada.", icon: "success", confirmButtonColor: "#dc2626" });
-    } else {
-      Swal.fire("Error", "No se pudo sincronizar.", "error");
     }
     setIsSaving(false);
   };
@@ -142,7 +137,6 @@ export default function GestionGaleria() {
   return (
     <div className="min-h-screen bg-zinc-50 p-3 md:p-6 font-sans text-black">
       <div className="max-w-6xl mx-auto">
-        
         <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 border-b-2 border-zinc-200 pb-4">
           <h1 className="text-2xl font-black uppercase italic tracking-tighter">Media <span className="text-red-600">Gallery</span></h1>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -164,118 +158,82 @@ export default function GestionGaleria() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Lado Izquierdo: Portada y Música */}
           <div className="lg:col-span-4 space-y-6">
+            {/* PORTADA PRINCIPAL */}
             <section className="bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
               <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
                 <ImagePlus size={16} className="text-red-600"/> 01. Portada Principal
               </p>
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 border-2 border-dashed border-zinc-300">
-                <div onClick={() => mainInputRef.current?.click()} className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-200 transition-colors">
-                  {loading === "main" ? <Loader2 className="animate-spin text-red-600" /> : fotoPrincipal ? <img src={fotoPrincipal} className="w-full h-full object-cover" alt="Portada" /> : <Upload size={32} className="text-zinc-300" />}
-                </div>
-                {fotoPrincipal && <button onClick={() => setFotoPrincipal(null)} className="absolute top-3 right-3 p-2 bg-black/80 text-white rounded-full hover:bg-red-600"><X size={14}/></button>}
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 border-2 border-dashed border-zinc-300 cursor-pointer group" onClick={() => mainInputRef.current?.click()}>
+                {loading === "main" ? <Loader2 className="animate-spin mx-auto mt-20 text-red-600" /> : fotoPrincipal ? <img src={fotoPrincipal} className="w-full h-full object-cover" alt="Hero" /> : <div className="flex flex-col items-center justify-center h-full gap-2"><Upload size={32} className="text-zinc-300 group-hover:text-red-600 transition-colors" /><span className="text-[10px] text-zinc-400 font-bold uppercase">Subir Imagen</span></div>}
+                <input type="file" ref={mainInputRef} className="hidden" accept="image/*" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) { setLoading("main"); const url = await validateAndUpload(file, 'image'); if (url) setFotoPrincipal(url); setLoading(null); }
+                }} />
               </div>
-              <input type="file" ref={mainInputRef} className="hidden" accept="image/png, image/jpeg, image/webp" onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) { 
-                  setLoading("main"); 
-                  const url = await validateAndUpload(file, 'image');
-                  if (url) setFotoPrincipal(url);
-                  setLoading(null);
-                  e.target.value = ""; // Reset input
-                }
-              }} />
+              {fotoPrincipal && <button onClick={() => setFotoPrincipal(null)} className="absolute top-16 right-8 p-2 bg-black/80 text-white rounded-full hover:bg-red-600 shadow-xl transition-all"><X size={14}/></button>}
             </section>
-            
-            <section className="bg-zinc-950 p-5 rounded-[2rem] text-white shadow-xl border-b-4 border-red-600">
+
+            {/* MÚSICA DE FONDO */}
+            <section className={cn("bg-zinc-950 p-5 rounded-[2rem] text-white shadow-xl relative", !canUploadMusic && "opacity-60")}>
               <p className="text-[11px] font-black uppercase text-red-500 mb-3 tracking-widest">02. Música de Fondo</p>
-              <div onClick={() => musicInputRef.current?.click()} className="p-4 bg-white/5 border border-white/10 rounded-2xl cursor-pointer hover:bg-white/10 transition-all flex items-center gap-3">
-                {loading === "music" ? <Loader2 className="animate-spin text-red-500 mx-auto" size={20} /> : (
-                  <>
-                    <div className="p-2 bg-red-600/20 rounded-lg"><FileAudio size={20} className="text-red-500" /></div>
-                    <span className="text-xs font-bold truncate flex-1 tracking-tight">{musicName}</span>
-                    {musicFile && <X onClick={(e) => { e.stopPropagation(); setMusicFile(null); setMusicName("Sin archivo"); }} size={18} className="text-zinc-500 hover:text-white" />}
-                  </>
-                )}
+              <div onClick={() => canUploadMusic && musicInputRef.current?.click()} className={cn("p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3", canUploadMusic ? "cursor-pointer hover:bg-white/10" : "cursor-not-allowed")}>
+                {!canUploadMusic ? <div className="flex gap-2 text-zinc-500 text-[10px] uppercase font-bold"><Lock size={14}/> Bloqueado en Classic</div> : <><FileAudio size={20} className="text-red-500" /> <span className="text-xs truncate font-medium">{musicName}</span></>}
               </div>
               <input type="file" ref={musicInputRef} className="hidden" accept="audio/*" onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) { 
-                  setLoading("music"); 
-                  setMusicName(file.name); 
-                  const url = await validateAndUpload(file, 'audio');
-                  if (url) setMusicFile(url);
-                  else setMusicName("Sin archivo");
-                  setLoading(null);
-                  e.target.value = "";
-                }
+                 const file = e.target.files?.[0];
+                 if (file && canUploadMusic) { setLoading("music"); const url = await validateAndUpload(file, 'audio'); if (url) { setMusicFile(url); setMusicName(file.name); } setLoading(null); }
               }} />
             </section>
           </div>
 
-          {/* Lado Derecho: Video y Carrusel */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              <section className="bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
-                <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
-                  <Play size={16} className="text-red-600"/> 03. Video Hero
-                </p>
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border-2 border-zinc-900">
-                  <div onClick={() => videoInputRef.current?.click()} className="w-full h-full flex items-center justify-center cursor-pointer">
-                    {loading === "video-main" ? <Loader2 className="animate-spin text-red-600" /> : videoFile ? <video src={videoFile} className="w-full h-full object-cover" autoPlay muted loop /> : <div className="text-center"><Play className="text-red-600/20 mx-auto mb-2" size={48} fill="currentColor" /><p className="text-[9px] text-zinc-500 font-bold uppercase">Subir Video</p></div>}
-                  </div>
-                  {videoFile && <button onClick={() => setVideoFile(null)} className="absolute top-3 right-3 p-2 bg-black/60 text-white rounded-full hover:bg-red-600"><X size={14}/></button>}
-                </div>
-                <input type="file" ref={videoInputRef} className="hidden" accept="video/mp4, video/webm" onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) { 
-                    setLoading("video-main"); 
-                    const url = await validateAndUpload(file, 'video');
-                    if (url) setVideoFile(url);
-                    setLoading(null);
-                    e.target.value = "";
-                  }
-                }} />
-              </section>
+          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* VIDEO HERO */}
+            <section className={cn("bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative", !canUploadVideo && "bg-zinc-100")}>
+               <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">03. Video Hero {!canUploadVideo && <Lock size={12}/>}</p>
+               <div onClick={() => canUploadVideo && videoInputRef.current?.click()} className={cn("relative aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center", canUploadVideo ? "cursor-pointer" : "cursor-not-allowed")}>
+                  {!canUploadVideo ? <div className="text-center text-white/40 text-[8px] font-bold uppercase tracking-widest"><Lock className="mx-auto mb-2" size={24}/> Solo Deluxe</div> : videoFile ? <video src={videoFile} className="w-full h-full object-cover" autoPlay muted loop /> : <Play size={32} className="text-white/20"/>}
+               </div>
+               <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={async (e) => {
+                 const file = e.target.files?.[0];
+                 if (file && canUploadVideo) { setLoading("video-main"); const url = await validateAndUpload(file, 'video'); if (url) setVideoFile(url); setLoading(null); }
+               }} />
+            </section>
 
-              <section className="bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
-                <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
-                  <Upload size={16} className="text-red-600"/> 04. Carrusel (6 Fotos)
-                </p>
-                <div className="grid grid-cols-3 gap-3">
-                  {carrusel.map((url, index) => (
-                    <div key={index} className="relative aspect-square">
-                      <div onClick={() => carruselRefs.current[index]?.click()} className={`w-full h-full rounded-2xl overflow-hidden border-2 transition-all flex items-center justify-center cursor-pointer ${url ? 'border-zinc-200 shadow-sm' : 'border-dashed border-zinc-300 bg-zinc-50 hover:bg-white hover:border-red-400'}`}>
-                        {loading === `carrusel-${index}` ? <Loader2 className="animate-spin text-red-600" size={18} /> : url ? (
-                          isVideo(url) ? <video src={url} className="w-full h-full object-cover" muted loop autoPlay /> : <img src={url} className="w-full h-full object-cover" alt={`C-${index}`} />
-                        ) : <Upload size={18} className="text-zinc-300" />}
+            {/* GALERÍA CARRUSEL */}
+            <section className={cn("bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative", !canUploadCarrusel && "bg-zinc-100")}>
+               <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">04. Galería {!canUploadCarrusel && <Lock size={12}/>}</p>
+               <div className="grid grid-cols-3 gap-2">
+                  {carrusel.map((url, i) => (
+                    <div key={i} className="relative aspect-square">
+                      <div 
+                        onClick={() => canUploadCarrusel && carruselRefs.current[i]?.click()} 
+                        className={cn("w-full h-full rounded-xl border-2 flex items-center justify-center overflow-hidden transition-all", !canUploadCarrusel ? "bg-zinc-200 cursor-not-allowed" : "border-dashed border-zinc-300 cursor-pointer bg-zinc-50 hover:bg-white")}
+                      >
+                        {!canUploadCarrusel ? <Lock size={12} className="text-zinc-400"/> : loading === `carrusel-${i}` ? <Loader2 size={14} className="animate-spin text-red-600"/> : url ? (
+                           isVideo(url) ? <video src={url} className="w-full h-full object-cover" muted autoPlay loop /> : <img src={url} className="w-full h-full object-cover" alt="item" />
+                        ) : <Upload size={14} className="text-zinc-300" />}
                       </div>
-                      {url && <button onClick={(e) => { e.stopPropagation(); setCarrusel(prev => { const n = [...prev]; n[index] = null; return n; }); }} className="absolute -top-1.5 -right-1.5 p-1.5 bg-black text-white rounded-full hover:bg-red-600 z-10 shadow-lg"><X size={10}/></button>}
-                      <input type="file" ref={el => { carruselRefs.current[index] = el }} className="hidden" accept="image/png, image/jpeg, image/webp, video/mp4, video/webm" onChange={async (e) => {
-                         const file = e.target.files?.[0];
-                         if (file) {
-                           setLoading(`carrusel-${index}`);
-                           const type = file.type.startsWith('video') ? 'video' : 'image';
-                           const url = await validateAndUpload(file, type);
-                           if (url) {
-                             setCarrusel(prev => { const n = [...prev]; n[index] = url; return n; });
-                           }
-                           setLoading(null);
-                           e.target.value = "";
-                         }
-                      }} />
+                      <input 
+                        type="file" 
+                        ref={el => { if (el) carruselRefs.current[i] = el }} 
+                        className="hidden" 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file && canUploadCarrusel) { 
+                            setLoading(`carrusel-${i}`);
+                            const url = await validateAndUpload(file, file.type.startsWith('video') ? 'video' : 'image'); 
+                            if (url) setCarrusel(prev => { const n = [...prev]; n[i] = url; return n; }); 
+                            setLoading(null);
+                          }
+                        }} 
+                      />
+                      {url && canUploadCarrusel && <button onClick={(e) => { e.stopPropagation(); setCarrusel(prev => { const n = [...prev]; n[i] = null; return n; }); }} className="absolute -top-1 -right-1 p-1 bg-black text-white rounded-full hover:bg-red-600 transition-colors z-10"><X size={10}/></button>}
                     </div>
                   ))}
-                </div>
-              </section>
-
-            </div>
+               </div>
+            </section>
           </div>
         </div>
       </div>

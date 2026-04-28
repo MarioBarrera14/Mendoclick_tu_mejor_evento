@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, Users, Utensils, Send } from "lucide-react";
+import { X, Loader2, Users, Utensils, Send, Phone } from "lucide-react"; // Importamos Phone para WhatsApp
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Swal from "sweetalert2";
@@ -11,6 +11,9 @@ interface RSVPProps {
     heroImage: string;
     eventDate: string;
     confirmDate: string;
+    eventName: string; // Añadido para el mensaje de WA
+    confirmPhone?: string; // Teléfono del cliente
+    plan?: "CLASSIC" | "PREMIUM" | "DELUXE"; // Nuevo: Control de planes
   };
 }
 
@@ -27,7 +30,9 @@ export function RSVP({ config }: RSVPProps) {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"CONFIRMED" | "CANCELLED">("CONFIRMED");
 
-  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
+  // El plan por defecto si no viene nada será CLASSIC por seguridad
+  const currentPlan = config.plan || "CLASSIC";
+
   useEffect(() => {
     if (isOpen) {
       document.documentElement.style.overflow = "hidden";
@@ -42,6 +47,16 @@ export function RSVP({ config }: RSVPProps) {
     };
   }, [isOpen]);
 
+  // --- LÓGICA WHATSAPP (PLAN CLASSIC) ---
+  const handleWhatsAppConfirm = () => {
+    const telefono = config.confirmPhone || "549261000000"; // Fallback Mendoza
+    const texto = encodeURIComponent(
+      `¡Hola! Quiero confirmar mi asistencia al evento de ${config.eventName}. \nAsistiremos: [Cantidad] personas. \nMenú especial: [Opcional]. \n¡Gracias!`
+    );
+    window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+  };
+
+  // --- LÓGICA BASE DE DATOS (PLAN PREMIUM / DELUXE) ---
   const handleClose = () => {
     if (!isSubmitting) {
       setIsOpen(false);
@@ -125,15 +140,34 @@ export function RSVP({ config }: RSVPProps) {
             </div>
             <h2 className="font-['Permanent_Marker',_cursive] text-2xl md:text-4xl text-black mb-4 uppercase tracking-tighter">Confirmación</h2>
             <p className="text-black font-bold text-sm mb-8 uppercase tracking-widest">Antes del {formattedDate}</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsOpen(true)} className="px-8 py-4 bg-[#5ba394] text-white text-[10px] md:text-xs uppercase font-bold rounded-full shadow-lg tracking-[0.2em]">
-              CONFIRMAR ASISTENCIA
-            </motion.button>
+            
+            {/* BOTÓN CONDICIONAL POR PLAN */}
+            {currentPlan === "CLASSIC" ? (
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={handleWhatsAppConfirm} 
+                className="px-8 py-4 bg-[#25D366] text-white text-[10px] md:text-xs uppercase font-bold rounded-full shadow-lg tracking-[0.2em] flex items-center gap-2"
+              >
+                <Phone size={16} /> CONFIRMAR POR WHATSAPP
+              </motion.button>
+            ) : (
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={() => setIsOpen(true)} 
+                className="px-8 py-4 bg-[#5ba394] text-white text-[10px] md:text-xs uppercase font-bold rounded-full shadow-lg tracking-[0.2em]"
+              >
+                CONFIRMAR ASISTENCIA
+              </motion.button>
+            )}
           </div>
         </motion.div>
       </div>
 
+      {/* EL MODAL SOLO SE USA EN PREMIUM Y DELUXE */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && currentPlan !== "CLASSIC" && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm touch-none" />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 40 }} className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 text-center touch-auto">

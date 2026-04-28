@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
 
-  // Simplificamos cookies para evitar bloqueos del navegador en producción
+  // CONFIGURACIÓN DE COOKIES (Limpia para evitar conflictos en Vercel/Producción)
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
@@ -71,11 +71,13 @@ export const authOptions: NextAuthOptions = {
 
   pages: { 
     signIn: "/login",
-    error: "/login", // Redirigimos errores al login para que el usuario vea el mensaje
+    error: "/login", // Redirigimos errores al login para mostrar los mensajes de error ahí
   },
+
   session: { 
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, 
+    maxAge: 30 * 24 * 60 * 60, // 30 días de sesión activa
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 };

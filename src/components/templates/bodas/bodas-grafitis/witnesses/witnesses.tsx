@@ -3,7 +3,7 @@
 import { motion, Transition } from "framer-motion";
 import Image from "next/image";
 
-// 1. AJUSTAMOS LA INTERFAZ PARA QUE COINCIDA CON EL SCHEMA DE PRISMA
+// 1. AJUSTAMOS LA INTERFAZ PARA QUE COINCIDA CON EL SCHEMA Y ACEPTE EL PLAN
 interface Witness {
   nombre: string;
   rol: string;
@@ -12,10 +12,16 @@ interface Witness {
 
 interface WitnessesProps {
   items: Witness[];
+  plan?: string; // <--- Agregado para compatibilidad y evitar errores de TS
 }
 
-export function Witnesses({ items }: WitnessesProps) {
+export function Witnesses({ items, plan }: WitnessesProps) {
   
+  // --- REGLA DE NEGOCIO ---
+  // Si el plan es CLASSIC o no hay ítems, el componente no se renderiza.
+  if (!plan || plan === "CLASSIC") return null;
+  if (!items || items.length === 0) return null;
+
   const floatTransition: Transition = {
     duration: 4,
     ease: "easeInOut",
@@ -53,9 +59,9 @@ export function Witnesses({ items }: WitnessesProps) {
           </h2>
         </motion.div>
 
-        {/* GRILLA DINÁMICA: Mapeamos los 'items' que vienen del Schema */}
+        {/* GRILLA DINÁMICA */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto">
-          {items?.map((witness, index) => (
+          {items.map((witness, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -68,7 +74,6 @@ export function Witnesses({ items }: WitnessesProps) {
               <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
                 <div className="relative w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white bg-gray-100">
                   <Image 
-                    // Usamos imageUrl del Schema, con un fallback por si está vacío
                     src={witness.imageUrl || "/img_boda/placeholder-user.webp"} 
                     alt={witness.nombre} 
                     fill 

@@ -10,9 +10,10 @@ import Swal from "sweetalert2";
 
 interface MusicSuggestionProps {
   eventId: string;
+  plan?: string; // <--- Agregado para compatibilidad con planes
 }
 
-export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
+export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [guestCode, setGuestCode] = useState("");
@@ -81,6 +82,8 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
     }
   };
 
+  // --- REGLA DE NEGOCIO: Si el plan es CLASSIC, no se renderiza nada ---
+  if (!plan || plan === "CLASSIC") return null;
   if (!mounted) return null;
 
   return (

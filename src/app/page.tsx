@@ -13,7 +13,7 @@ const TechSection = dynamic(() => import('@/components/home/tech-section/tech-se
 const Footer = dynamic(() => import('@/components/home/footer/footer').then(mod => mod.Footer));
 
 export default function LuxuryLanding() {
-    const enMantenimiento = true; 
+    const enMantenimiento = false; 
 
   if (enMantenimiento) {
     return <Maintenance />;

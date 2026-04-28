@@ -2,19 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Trash2, Pencil, ExternalLink, Search, UserPlus, 
-  Home, LayoutDashboard, Loader2, CheckCircle2, X 
+  Home, LayoutDashboard, Loader2, CheckCircle2, X,
+  Zap, Package, Award 
 } from "lucide-react";
 import Link from "next/link";
 import { getClients, deleteClientAction, updateClientAction } from "@/lib/actions"; 
 
 export default function ClientesPage() {
-  // 1. Control de Sesión
   const { data: session, status } = useSession();
-  
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -23,17 +21,19 @@ export default function ClientesPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
 
-  // 2. Redirección automática si no hay sesión
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      redirect("/users/loginManager");
+  const renderPlanBadge = (plan: string) => {
+    switch (plan) {
+      case "DELUXE":
+        return <span className="flex items-center gap-1 text-[9px] font-black bg-rose-100 text-rose-600 px-2 py-1 rounded-lg border border-rose-200"><Award size={10}/> DELUXE</span>;
+      case "PREMIUM":
+        return <span className="flex items-center gap-1 text-[9px] font-black bg-amber-100 text-amber-600 px-2 py-1 rounded-lg border border-amber-200"><Zap size={10}/> PREMIUM</span>;
+      default:
+        return <span className="flex items-center gap-1 text-[9px] font-black bg-blue-100 text-blue-600 px-2 py-1 rounded-lg border border-blue-200"><Package size={10}/> CLASSIC</span>;
     }
-  }, [status]);
+  };
 
-  // 3. Carga de datos protegida
   const loadClientes = async () => {
     if (status !== "authenticated" || session?.user?.role !== "ADMIN") return;
-    
     setLoading(true);
     try {
       const data = await getClients();
@@ -78,52 +78,33 @@ export default function ClientesPage() {
     c.slug?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // 4. Pantalla de carga de seguridad
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#f4f4f5] flex flex-col items-center justify-center">
         <Loader2 className="animate-spin text-rose-500 mb-4" size={40} />
-        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 italic">
-          Verificando acceso a Mendoclick...
-        </p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 italic">Verificando acceso...</p>
       </div>
     );
   }
 
-  // 5. Si no es Admin, bloqueamos el renderizado completamente
   if (session?.user?.role !== "ADMIN") return null;
 
   return (
     <div className="p-4 md:p-10 bg-[#f4f4f5] min-h-screen text-zinc-900 font-sans">
       <div className="max-w-6xl mx-auto">
         
-        {/* NAVEGACIÓN */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap gap-3 mb-8"
-        >
-          <Link 
-            href="/manager/dashboard" 
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.1em] hover:bg-rose-600 transition-all shadow-md"
-          >
-            <LayoutDashboard size={14} />
-            Panel Control
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap gap-3 mb-8">
+          <Link href="/manager/dashboard" className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.1em] hover:bg-rose-600 transition-all shadow-md">
+            <LayoutDashboard size={14} /> Panel Control
           </Link>
-
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-900 border border-zinc-200 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] hover:bg-zinc-100 transition-all shadow-sm"
-          >
-            <Home size={14} />
-            Ver Web
+          <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-900 border border-zinc-200 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] hover:bg-zinc-100 transition-all shadow-sm">
+            <Home size={14} /> Ver Web
           </Link>
         </motion.div>
 
-        {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6 border-l-4 border-rose-500 pl-6">
           <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic text-black">
               Gestión de <span className="text-rose-500">Clientes</span>
             </h1>
             {statusMsg.msg && (
@@ -137,7 +118,6 @@ export default function ClientesPage() {
           </Link>
         </div>
 
-        {/* BUSCADOR */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 mb-8 flex items-center gap-4">
           <Search className="text-zinc-400" size={18} />
           <input 
@@ -147,13 +127,13 @@ export default function ClientesPage() {
           />
         </div>
 
-        {/* TABLA DESKTOP */}
         <div className="hidden md:block bg-white rounded-[2rem] shadow-xl border border-zinc-100 overflow-hidden text-black">
           <table className="w-full text-left">
             <thead className="bg-zinc-900 text-[10px] font-black uppercase tracking-widest text-zinc-400">
               <tr>
                 <th className="px-8 py-5">Info Cliente</th>
                 <th className="px-6 py-5">Link</th>
+                <th className="px-6 py-5 text-center">Plan</th>
                 <th className="px-6 py-5 text-center">Template</th>
                 <th className="px-8 py-5 text-right">Acciones</th>
               </tr>
@@ -161,22 +141,33 @@ export default function ClientesPage() {
             <tbody className="divide-y divide-zinc-50">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="text-center py-20">
+                  <td colSpan={5} className="text-center py-20">
                     <Loader2 className="animate-spin mx-auto text-rose-500" size={30} />
                   </td>
                 </tr>
               ) : clientesFiltrados.map((cliente) => (
                 <tr key={cliente.id} className="hover:bg-zinc-50/50 transition-colors">
-                  <td className="px-8 py-6">
+                  <td className="px-8 py-6 text-black">
                     <p className="font-black uppercase italic text-sm">{cliente.nombre}</p>
                     <p className="text-[10px] text-zinc-400 font-black">{cliente.email}</p>
                   </td>
                   <td className="px-6 py-6 font-mono text-[10px] text-zinc-500 italic">/{cliente.slug}</td>
+                  <td className="px-6 py-6 text-center">
+                    {renderPlanBadge(cliente.planLevel)}
+                  </td>
                   <td className="px-6 py-6 text-center text-[9px] font-black uppercase">{cliente.templateId}</td>
-                  <td className="px-8 py-6 text-right flex justify-end gap-2">
-                    <Link href={`/inv/${cliente.slug}`} target="_blank" className="p-2.5 bg-zinc-100 rounded-xl hover:bg-zinc-900 hover:text-white transition-all"><ExternalLink size={16} /></Link>
-                    <button onClick={() => { setEditingClient(cliente); setIsEditModalOpen(true); }} className="p-2.5 bg-zinc-100 rounded-xl hover:bg-zinc-900 hover:text-white transition-all"><Pencil size={16} /></button>
-                    <button onClick={() => eliminarCliente(cliente.id, cliente.nombre)} className="p-2.5 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all"><Trash2 size={16} /></button>
+                  <td className="px-8 py-6 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/inv/${cliente.slug}`} target="_blank" className="p-2.5 bg-zinc-100 rounded-xl hover:bg-zinc-900 hover:text-white transition-all text-black">
+                        <ExternalLink size={16} />
+                      </Link>
+                      <button onClick={() => { setEditingClient(cliente); setIsEditModalOpen(true); }} className="p-2.5 bg-zinc-100 rounded-xl hover:bg-zinc-900 hover:text-white transition-all text-black">
+                        <Pencil size={16} />
+                      </button>
+                      <button onClick={() => eliminarCliente(cliente.id, cliente.nombre)} className="p-2.5 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -184,40 +175,32 @@ export default function ClientesPage() {
           </table>
         </div>
 
-        {/* MODAL DE EDICIÓN */}
         <AnimatePresence>
           {isEditModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
               <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative text-black">
                 <button onClick={() => setIsEditModalOpen(false)} className="absolute top-6 right-6 p-2 text-zinc-400 hover:text-zinc-900"><X size={20}/></button>
                 <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6">Editar <span className="text-rose-600">Cliente</span></h2>
-                
                 <form onSubmit={handleUpdate} className="space-y-5">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase text-zinc-400 ml-1">Email</label>
-                    <input type="email" value={editingClient.email} className="w-full bg-zinc-100 p-4 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-rose-500" onChange={(e) => setEditingClient({...editingClient, email: e.target.value})} />
+                    <label className="text-[10px] font-black uppercase text-zinc-400 ml-1">Plan de Suscripción</label>
+                    <select 
+                      value={editingClient.planLevel} 
+                      className="w-full bg-zinc-100 p-4 rounded-2xl font-black text-sm outline-none border-2 border-transparent focus:border-rose-500 text-black"
+                      onChange={(e) => setEditingClient({...editingClient, planLevel: e.target.value})}
+                    >
+                      <option value="CLASSIC">CLASSIC (BÁSICO)</option>
+                      <option value="PREMIUM">PREMIUM (MULTIMEDIA)</option>
+                      <option value="DELUXE">DELUXE (LOGÍSTICA PRO)</option>
+                    </select>
                   </div>
-
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase text-zinc-400 ml-1">Slug (Link de URL)</label>
-                    <input 
-                      type="text" 
-                      value={editingClient.slug} 
-                      className="w-full bg-zinc-100 p-4 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-rose-500" 
-                      onChange={(e) => {
-                        const newSlug = e.target.value.toLowerCase().replace(/\s+/g, '-');
-                        setEditingClient({
-                          ...editingClient, 
-                          slug: newSlug,
-                          nombre: newSlug.toUpperCase().replace(/-/g, ' ') 
-                        });
-                      }} 
-                    />
+                    <label className="text-[10px] font-black uppercase text-zinc-400 ml-1">Email</label>
+                    <input type="email" value={editingClient.email} className="w-full bg-zinc-100 p-4 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-rose-500 text-black" onChange={(e) => setEditingClient({...editingClient, email: e.target.value})} />
                   </div>
-
                   <div className="space-y-1">
                     <label className="text-[10px] font-black uppercase text-zinc-400 ml-1">Plantilla</label>
-                    <select value={editingClient.templateId} className="w-full bg-zinc-100 p-4 rounded-2xl font-black text-sm outline-none cursor-pointer" onChange={(e) => setEditingClient({...editingClient, templateId: e.target.value})}>
+                    <select value={editingClient.templateId} className="w-full bg-zinc-100 p-4 rounded-2xl font-black text-sm outline-none text-black" onChange={(e) => setEditingClient({...editingClient, templateId: e.target.value})}>
                       <option value="DEMO1">Champagne 15</option>
                       <option value="DEMO2">Neon Party 15</option>
                       <option value="DEMO3">Graffiti Urbano 15</option>
@@ -226,7 +209,6 @@ export default function ClientesPage() {
                       <option value="DEMO6">Retro Viniyl Bodas</option>
                     </select>
                   </div>
-
                   <button type="submit" className="w-full bg-zinc-900 text-white font-black uppercase py-5 rounded-[1.8rem] hover:bg-rose-600 transition-all shadow-lg tracking-widest text-xs mt-4">
                     Guardar Cambios
                   </button>

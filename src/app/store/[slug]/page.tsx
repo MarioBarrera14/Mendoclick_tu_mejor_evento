@@ -62,10 +62,14 @@ const PLANS: Record<string, Plan> = {
         cardPrice: 80000,
         discount: '10% OFF',
         features: [
-            "Envío ilimitado", "Portada", "Cuenta regresiva", "Galería de hasta 4 fotos",
-            "Agenda digital multiplataforma", "Ubicación, mapa e indicaciones",
-            "Confirmación de asistencia online (RSVP)", "Código de vestimenta",
-            "Regalos", "Panel de administración (todas las respuestas)"
+            "Invitación Web Estándar",
+            "Nombres de Novios o Cumpleañera",
+            "Fecha y Cuenta regresiva",
+            "Ubicación de Iglesia y Salón (Maps)",
+            "Sección de Regalos (CBU/Alias/Transferencia)",
+            "Tipo de vestimenta (Dress Code)",
+            "Confirmación de asistencia vía WhatsApp",
+            "Envío ilimitado"
         ]
     },
     premium: {
@@ -76,30 +80,33 @@ const PLANS: Record<string, Plan> = {
         cardPrice: 100000,
         discount: '10% OFF',
         features: [
-            "Envío ilimitado", "Portada", "Música de fondo", "Cuenta regresiva",
-            "Nuestra historia", "Galería de hasta 8 fotos", "Agenda digital multiplataforma",
-            "Ubicación, mapa e indicaciones", "Confirmación de asistencia online (RSVP)",
-            "Código de vestimenta", "Regalos", "Instagram Wall y hashtag",
-            "Sugerencia de canciones", "Panel de administración",
-            "¡REGALO! Save The Date - Tarjeta"
+            "Todo lo del Plan CLASSIC",
+            "Galería Multimedia (Fotos + Video Hero)",
+            "Música de fondo personalizada",
+            "Itinerario del evento con horarios",
+            "Sección de Testigos o Padrinos",
+            "Confirmación Web en Base de Datos",
+            "Indicación de Menú (Celiacos, Veganos, etc.)",
+            "Sugerencia de canciones para la fiesta",
+            "¡REGALO! Save The Date Digital"
         ]
     },
     deluxe: {
         id: 'deluxe',
-        name: 'DELUXE',
-        originalPrice: 128000,
-        price: 115200,
-        cardPrice: 128000,
+        name: 'DELUXE (MendoClick PRO)',
+        originalPrice: 150000,
+        price: 135000,
+        cardPrice: 150000,
         discount: '10% OFF',
         features: [
-            "Envío ilimitado", "Portada", "Música de fondo", "Cuenta regresiva",
-            "Nuestra historia", "Álbum de hasta 12 fotos", "Agenda digital multiplataforma",
-            "Ubicación, mapa e indicaciones", "Itinerario (línea de tiempo)",
-            "Confirmación de asistencia online (RSVP)", "Código de vestimenta + sugerencias",
-            "Hoteles", "Transporte y servicio de Bus", "Opciones de Menú", "Regalos",
-            "Instagram Wall y hashtag", "Sugerencia de canciones", "Playlist de Spotify",
-            "Testigos/padrinos", "Redes oficiales", "Sección adicional",
-            "Acceso VIP", "Panel de administración", "¡REGALO! Save The Date - Tarjeta"
+            "Todo lo del Plan PREMIUM",
+            "MendoClick PRO: Gestión de Invitados",
+            "Código Único por Familia/Grupo",
+            "Check-in con Escaneo QR en el Salón",
+            "Asignación y consulta de Mesas vía QR",
+            "Pase Digital con cupos confirmados",
+            "Chat Live de confirmaciones en tiempo real",
+            "Soporte prioritario y acceso VIP"
         ]
     }
 };

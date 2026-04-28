@@ -2,22 +2,32 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import * as LucideIcons from "lucide-react"; // Importamos todos para el mapeo dinámico
-import { MapPin } from "lucide-react";
+import * as LucideIcons from "lucide-react"; 
 
-// Definimos la interfaz basada en tu modelo de Prisma
+// Definimos la interfaz
 interface ItineraryProps {
   items: {
     time: string;
     title: string;
-    icon: string; // Viene como string del Schema
+    icon: string; 
   }[];
+  plan?: string; 
 }
 
-export function Itinerary({ items }: ItineraryProps) {
+export function Itinerary({ items, plan }: ItineraryProps) {
+  
+  // --- 1. VALIDACIÓN RADICAL ---
+  // Si el plan es CLASSIC o no viene nada, matamos el componente antes de cualquier renderizado
+  if (!plan || plan === "CLASSIC") {
+    return null;
+  }
+
+  // Si no hay items, tampoco mostramos la sección
+  if (!items || items.length === 0) return null;
+
   // Función para renderizar el icono dinámicamente
   const IconComponent = (iconName: string) => {
-    // @ts-ignore - Mapeo dinámico de string a componente Lucide
+    // @ts-ignore
     const Icon = LucideIcons[iconName] || LucideIcons.Star;
     return <Icon size={20} strokeWidth={1.5} />;
   };
@@ -49,11 +59,9 @@ export function Itinerary({ items }: ItineraryProps) {
         <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[1.5px] bg-black -translate-x-1/2 z-0" />
 
         <div className="relative z-10">
-          {/* Mapeamos los items que vienen por Props desde la DB */}
-          {items?.map((item, index) => (
+          {items.map((item, index) => (
             <div key={index} className="relative mb-6 md:mb-8 flex items-center md:justify-center">
               
-              {/* NODO CON ICONO DINÁMICO */}
               <motion.div 
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
@@ -63,7 +71,6 @@ export function Itinerary({ items }: ItineraryProps) {
                 {IconComponent(item.icon)}
               </motion.div>
 
-              {/* BURBUJA DE TEXTO */}
               <motion.div 
                 initial={{ opacity: 0, x: (index % 2 === 0 ? -30 : 30) }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -85,7 +92,6 @@ export function Itinerary({ items }: ItineraryProps) {
                   {item.title}
                 </h3>
                 
-                {/* Triangulito con lógica alternada */}
                 <div className={`
                   absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border-b border-l border-black rotate-[45deg]
                   -left-[6px]
@@ -95,7 +101,6 @@ export function Itinerary({ items }: ItineraryProps) {
                   }
                 `} />
               </motion.div>
-
             </div>
           ))}
         </div>

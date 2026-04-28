@@ -25,23 +25,28 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    // --- REPARACIÓN AQUÍ: CAPTURAMOS LA URL DE RETORNO ---
-    // Si el middleware te mandó aquí, habrá un ?callbackUrl=... en la dirección
+    // Capturamos a dónde quería ir el usuario originalmente
     const params = new URLSearchParams(window.location.search);
     const callbackUrl = params.get("callbackUrl") || "/manager/dashboard";
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false, 
-    });
+    try {
+      const res = await signIn("credentials", {
+        email: email.trim(),
+        password: password,
+        redirect: false, 
+      });
 
-    if (res?.error) {
-      setError("Credenciales incorrectas o sin permisos");
+      if (res?.error) {
+        setError("Credenciales incorrectas o sin permisos");
+        setLoading(false);
+      } else {
+        localStorage.setItem("manager_session", "active");
+        // Redirección forzada para que el middleware tome la sesión
+        window.location.href = callbackUrl;
+      }
+    } catch (err) {
+      setError("Error crítico en la autenticación");
       setLoading(false);
-    } else {
-      // --- REPARACIÓN AQUÍ: REDIRIGIMOS AL DESTINO ORIGINAL ---
-      window.location.href = callbackUrl;
     }
   };
 
@@ -58,7 +63,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-zinc-100 flex items-center justify-center p-6 font-sans text-zinc-900 overflow-hidden">
-      
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -142,7 +146,7 @@ export default function LoginPage() {
             onClick={() => setIsModalOpen(true)}
             className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-rose-500 transition-colors"
           >
-            ¿No tienes cuenta? <span className="underline decoration-zinc-200 underline-offset-4">Regístrate</span>
+            ¿No tienes cuenta? <span className="underline decoration-zinc-200 underline-offset-4 text-black">Regístrate</span>
           </button>
         </div>
       </motion.div>
@@ -179,15 +183,23 @@ export default function LoginPage() {
               </div>
 
               <h2 className="text-xl font-black uppercase tracking-tighter mb-2 italic text-black">Acceso Restringido</h2>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-8 leading-relaxed">
+                Ingresa el código maestro para habilitar el registro de nuevos managers.
+              </p>
+
               <form onSubmit={handleVerifyCode} className="space-y-4">
                 <input 
                   type="password"
+                  autoFocus
                   placeholder="CÓDIGO DE SEGURIDAD"
                   className={`w-full bg-zinc-50 border-2 ${modalError ? 'border-rose-500' : 'border-transparent focus:border-zinc-950'} rounded-2xl py-4 px-6 text-center font-black tracking-[0.3em] outline-none transition-all text-black`}
                   onChange={(e) => setMasterCode(e.target.value)}
                 />
-                <button type="submit" className="w-full bg-zinc-950 text-white font-black uppercase py-4 rounded-2xl hover:bg-rose-600 transition-all flex items-center justify-center gap-2 text-[10px] tracking-widest">
-                  Verificar <FiArrowRight />
+                <button 
+                  type="submit"
+                  className="w-full bg-zinc-950 text-white font-black uppercase py-4 rounded-2xl hover:bg-rose-600 transition-all flex items-center justify-center gap-2 text-[10px] tracking-widest"
+                >
+                  Verificar y Continuar <FiArrowRight />
                 </button>
               </form>
             </motion.div>

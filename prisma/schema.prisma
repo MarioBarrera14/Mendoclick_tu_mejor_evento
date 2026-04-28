@@ -7,23 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. EL CLIENTE (Dueño de la invitación)
+// 1. ENUM DE PLANES (Nuevo)
+enum PlanLevel {
+  CLASSIC
+  PREMIUM
+  DELUXE
+}
+
+// 2. EL CLIENTE (Dueño de la invitación)
 model User {
   id              String   @id @default(cuid())
   nombre          String
   email           String   @unique
   password        String
-  role            String   @default("USER") // "ADMIN" o "USER"
+  role            String   @default("USER") 
   
-  // Datos para la URL y Diseño
-  slug            String   @unique // Ej: "boda-mario-y-clara"
+  // Nivel de plan para habilitar/deshabilitar secciones
+  planLevel       PlanLevel @default(CLASSIC) 
+  
+  slug            String   @unique 
   templateId      String   @default("")
 
-  // Relaciones
   eventConfig     EventConfig? 
   guests          Guest[]
   songSuggestions SongSuggestion[]
-  orders          Order[] // <-- RELACIÓN CON LAS ÓRDENES DE PAGO
+  orders          Order[] 
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -31,7 +39,7 @@ model User {
   @@map("users")
 }
 
-// 2. MODELO DE ÓRDENES Y PAGOS
+// 3. MODELO DE ÓRDENES Y PAGOS
 enum PaymentStatus {
   PENDING
   APPROVED
@@ -40,7 +48,7 @@ enum PaymentStatus {
 
 model Order {
   id                String        @id @default(cuid())
-  userId            String?       
+  userId            String?        
   user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   
   planName          String        // CLASSIC, PREMIUM, DELUXE
@@ -56,53 +64,55 @@ model Order {
   @@map("orders")
 }
 
-// 3. CONFIGURACIÓN DEL EVENTO
+// 4. CONFIGURACIÓN DEL EVENTO
 model EventConfig {
-  id               String          @id @default(cuid())
-  userId           String          @unique
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // --- Multimedia ---
-  heroImage        String?         @default("")
-  videoUrl         String?         @default("")
-  musicUrl         String?         @default("")
-  carruselImages   Json?           @default("[]") 
+  heroImage        String?          @default("")
+  videoUrl         String?          @default("")
+  musicUrl         String?          @default("")
+  carruselImages   Json?            @default("[]") 
 
   // --- Datos Principales ---
-  eventName        String          @default("")
-  eventDate        String          @default("")
-  eventTime        String          @default("")
+  eventName        String           @default("")
+  eventDate        String           @default("")
+  eventTime        String           @default("")
+  confirmDate      String           @default("") // Fecha límite para RSVP
+  confirmPhone     String?          @default("") // Nuevo: Para el Plan Classic (WhatsApp)
   
   // --- Ubicaciones ---
-  venueName        String          @default("")
-  venueAddress     String          @default("")
-  mapLink          String          @default("")
+  venueName        String           @default("")
+  venueAddress     String           @default("")
+  mapLink          String           @default("")
   
-  churchName       String?         @default("")
-  churchAddress    String?         @default("")
-  churchMapLink    String?         @default("")
-  churchDate       String?         @default("") 
-  churchTime       String?         @default("") 
+  churchName       String?          @default("")
+  churchAddress    String?          @default("")
+  churchMapLink    String?          @default("")
+  churchDate       String?          @default("") 
+  churchTime       String?          @default("") 
 
   // --- Detalles ---
-  dressCode        String?         @default("")
-  dressDescription String?         @default("")
+  dressCode        String?          @default("")
+  dressDescription String?          @default("")
 
   // --- Regalos / Datos Bancarios ---
-  cbu              String?         @default("")
-  alias            String?         @default("")
-  bankName         String?         @default("")
-  holderName       String?         @default("")
+  cbu              String?          @default("")
+  alias            String?          @default("")
+  bankName         String?          @default("")
+  holderName       String?          @default("")
 
   // --- Relaciones Dinámicas ---
   itinerary        ItineraryItem[]
   witnesses        Witness[]
 
-  updatedAt        DateTime        @updatedAt
+  updatedAt        DateTime         @updatedAt
   @@map("event_config")
 }
 
-// 4. ITINERARIO
+// 5. ITINERARIO
 model ItineraryItem {
   id            String      @id @default(cuid())
   time          String      
@@ -117,7 +127,7 @@ model ItineraryItem {
   @@map("itinerary_items")
 }
 
-// 5. TESTIGOS / PADRINOS
+// 6. TESTIGOS / PADRINOS
 model Witness {
   id            String      @id @default(cuid())
   nombre        String
@@ -130,7 +140,7 @@ model Witness {
   @@map("witnesses")
 }
 
-// 6. LOS INVITADOS
+// 7. LOS INVITADOS (Reforzado para Deluxe)
 model Guest {
   id                String   @id @default(cuid())
   nombre            String   
@@ -140,17 +150,20 @@ model Guest {
   status            String   @default("PENDING") 
   dietary           String?  
   message           String?  
+  
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   mesa              String?  @default("A Designar")
-  asistio           Boolean  @default(false)
+  asistio           Boolean  @default(false) // Esto es para el Check-in QR del Deluxe
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   @@map("guests")
 }
 
-// 7. SUGERENCIAS DE MÚSICA
+// 8. SUGERENCIAS DE MÚSICA
 model SongSuggestion {
   id          String   @id @default(cuid())
   tema1       String?

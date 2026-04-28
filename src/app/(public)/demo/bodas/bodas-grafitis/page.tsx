@@ -37,32 +37,29 @@ interface GraffitiPageProps {
 
 export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: GraffitiPageProps) {
   
-  // Lógica de Fallback Robusta (Blindaje de datos)
   const safeConfig = useMemo(() => {
     const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
-    
-    if (dbConfig) {
-      return {
-        ...dbConfig,
-        eventName: dbConfig.eventName || localConfig.personal.nombres,
-        eventDate: dbConfig.eventDate || eventDateDefault,
-        eventTime: dbConfig.eventTime || localConfig.fecha.hora,
-        heroImage: dbConfig.heroImage || localConfig.imagenes.hero.graffiti,
-        musicUrl: dbConfig.musicUrl || localConfig.imagenes.musicaUrl.graffiti,
-        videoUrl: dbConfig.videoUrl || localConfig.imagenes.videoUrl.graffiti,
-        carruselImages: dbConfig.carruselImages || JSON.stringify(localConfig.imagenes.carrusel),
-        itinerary: dbConfig.itinerary || localConfig.itinerario,
-        witnesses: dbConfig.witnesses || dbConfig.testigos || localConfig.testigos,
-        confirmDate: dbConfig.confirmDate || dbConfig.eventDate || eventDateDefault,
-        // Datos de ubicación para DetailModal / EventDetails
-        venueName: dbConfig.venueName || localConfig.ubicacion.nombreLugar,
-        venueAddress: dbConfig.venueAddress || localConfig.ubicacion.direccion,
-        mapLink: dbConfig.mapLink || localConfig.ubicacion.googleMapsUrl,
-      };
-    }
+    const currentPlan = dbConfig?.planLevel || "DELUXE";
 
-    // Estado DEMO (Cuando dbConfig es null)
-    return {
+    const baseData = dbConfig ? {
+      ...dbConfig,
+      plan: currentPlan,
+      eventName: dbConfig.eventName || localConfig.personal.nombres,
+      eventDate: dbConfig.eventDate || eventDateDefault,
+      eventTime: dbConfig.eventTime || localConfig.fecha.hora,
+      heroImage: dbConfig.heroImage || localConfig.imagenes.hero.graffiti,
+      musicUrl: dbConfig.musicUrl || localConfig.imagenes.musicaUrl.graffiti,
+      videoUrl: dbConfig.videoUrl || localConfig.imagenes.videoUrl.graffiti,
+      carruselImages: dbConfig.carruselImages || JSON.stringify(localConfig.imagenes.carrusel),
+      itinerary: dbConfig.itinerary || localConfig.itinerario,
+      witnesses: dbConfig.witnesses || dbConfig.testigos || localConfig.testigos,
+      confirmDate: dbConfig.confirmDate || dbConfig.eventDate || eventDateDefault,
+      venueName: dbConfig.venueName || localConfig.ubicacion.nombreLugar,
+      venueAddress: dbConfig.venueAddress || localConfig.ubicacion.direccion,
+      mapLink: dbConfig.mapLink || localConfig.ubicacion.googleMapsUrl,
+      confirmPhone: dbConfig.confirmPhone || "549261000000", 
+    } : {
+      plan: "DELUXE", 
       eventName: localConfig.personal.nombres,
       heroImage: localConfig.imagenes.hero.graffiti,
       eventDate: eventDateDefault,
@@ -77,45 +74,57 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       witnesses: localConfig.testigos,
       confirmDate: localConfig.confirmacion.fechaLimite,
     };
+
+    return baseData;
   }, [dbConfig]);
 
   const currentEventId = eventId || "demo-boda-graffiti";
+  const plan = safeConfig.plan;
 
-  return (
-    <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
-      <Envelope musicUrl={safeConfig.musicUrl}>
-        
-        {/* SOLUCIÓN NAVBAR: Solo aparece si existe dbConfig (Cliente real) */}
-        {dbConfig && (
-          <Navbar eventName={safeConfig.eventName} isDemo={isDemo}/>
-        )}
-
-        <Hero
-          heroImage={safeConfig.heroImage}
-          eventName={safeConfig.eventName}
-          eventDate={safeConfig.eventDate}
-        />
-
+  // --- COMPONENTE DE CONTENIDO ---
+  // Extraemos el contenido para no repetirlo en el condicional del render
+  const PageContent = (
+    <>
+      <Navbar eventName={safeConfig.eventName} isDemo={isDemo} plan={plan} />
+      <Hero
+        heroImage={safeConfig.heroImage}
+        eventName={safeConfig.eventName}
+        eventDate={safeConfig.eventDate}
+      />
+      {plan !== "CLASSIC" && (
         <FotoCarousel 
           images={safeConfig.carruselImages} 
           videoUrl={safeConfig.videoUrl} 
         />
+      )}
+      <EventDetails config={safeConfig} />
+      <RSVP config={safeConfig} />
+      <DetailModal config={safeConfig} />
+      {plan !== "CLASSIC" && (
+        <>
+          <Itinerary items={safeConfig.itinerary || []} />
+          <Witnesses items={safeConfig.witnesses || []} />
+          <MusicSuggestion eventId={currentEventId} />
+        </>
+      )}
+      <Footer />
+    </>
+  );
 
-        <EventDetails config={safeConfig} />
-
-        {/* RSVP Blindado: Ya no tirará error porque safeConfig siempre tiene confirmDate */}
-        <RSVP config={safeConfig} />
-
-        <DetailModal config={safeConfig} />
-
-        <Itinerary items={safeConfig.itinerary || []} />
-
-        <Witnesses items={safeConfig.witnesses || []} />
-
-        <MusicSuggestion eventId={currentEventId} />
-
-        <Footer />
-      </Envelope>
+  return (
+    <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
+      {/* Si es CLASSIC: No hay Envelope (no hay sobre, no hay música).
+          Si es PREMIUM/DELUXE: Envolvemos en el Envelope con música.
+      */}
+      {plan === "CLASSIC" ? (
+        <div className="animate-in fade-in duration-1000">
+          {PageContent}
+        </div>
+      ) : (
+        <Envelope musicUrl={safeConfig.musicUrl}>
+          {PageContent}
+        </Envelope>
+      )}
     </main>
   );
 }

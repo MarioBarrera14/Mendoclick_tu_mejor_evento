@@ -10,14 +10,14 @@ import { motion } from "framer-motion";
 interface NavbarProps {
   eventName?: string | null;
   isDemo?: boolean;
+  plan?: string; // <--- AGREGADO: Esto elimina el error en page.tsx
 }
 
-export const Navbar = ({ eventName, isDemo = false }: NavbarProps) => {
+export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarProps) => {
   const router = useRouter();
-  // AGREGADO 'data: session' para igualar configuración
   const { data: session, status } = useSession(); 
 
-const displayName = eventName || localConfig.personal.nombres || "Nuestra Boda";
+  const displayName = eventName || localConfig.personal.nombres || "Nuestra Boda";
 
   const handleRefresh = () => {
     window.location.reload();
@@ -54,51 +54,54 @@ const displayName = eventName || localConfig.personal.nombres || "Nuestra Boda";
             </div>
           ) : (
             <>
-              {status === "unauthenticated" && (
-                <div className="flex flex-col items-center gap-0.5">
-                  <button 
-                    onClick={() => router.push("/client-login")}
-                    className="flex items-center justify-center w-9 h-9 bg-black text-white rounded-full transition-all hover:scale-110 shadow-lg"
-                  >
-                    <Users className="w-4 h-4" />
-                  </button>
-                  <span className="text-[7px] uppercase tracking-widest font-bold text-black/60 font-sans">
-                    Login
-                  </span>
-                </div>
-              )}
-
-              {status === "authenticated" && (
+              {/* Ocultamos opciones de Login/Admin si el plan es CLASSIC */}
+              {plan !== "CLASSIC" && (
                 <>
-                  <div className="flex flex-col items-center gap-0.5">
-                    <button 
-                      // AJUSTADO a "/admin" para igualar la v1
-                      onClick={() => router.push("/admin")} 
-                      className="flex items-center justify-center w-9 h-9 bg-[#5ba394] text-white rounded-full transition-all hover:scale-110 shadow-lg"
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                    </button>
-                    <span className="text-[7px] uppercase tracking-widest font-bold text-black/60">
-                      Admin
-                    </span>
-                  </div>
+                  {status === "unauthenticated" && (
+                    <div className="flex flex-col items-center gap-0.5">
+                      <button 
+                        onClick={() => router.push("/client-login")}
+                        className="flex items-center justify-center w-9 h-9 bg-black text-white rounded-full transition-all hover:scale-110 shadow-lg"
+                      >
+                        <Users className="w-4 h-4" />
+                      </button>
+                      <span className="text-[7px] uppercase tracking-widest font-bold text-black/60 font-sans">
+                        Login
+                      </span>
+                    </div>
+                  )}
 
-                  <div className="flex flex-col items-center gap-0.5">
-                    <button 
-                      // LÓGICA DE SIGNOUT IGUALADA A LA V1
-                      onClick={() => {
-                        const currentSlug = session?.user?.slug;
-                        const redirectPath = currentSlug ? `/invit/${currentSlug}` : "/";
-                        signOut({ callbackUrl: redirectPath });
-                      }}
-                      className="flex items-center justify-center w-9 h-9 bg-rose-500 text-white rounded-full transition-all hover:scale-110 shadow-lg"
-                    >
-                      <LogOut className="w-4 h-4" />
-                    </button>
-                    <span className="text-[7px] uppercase tracking-widest font-bold text-rose-600/70">
-                      Out
-                    </span>
-                  </div>
+                  {status === "authenticated" && (
+                    <>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <button 
+                          onClick={() => router.push("/admin")} 
+                          className="flex items-center justify-center w-9 h-9 bg-[#5ba394] text-white rounded-full transition-all hover:scale-110 shadow-lg"
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                        </button>
+                        <span className="text-[7px] uppercase tracking-widest font-bold text-black/60">
+                          Admin
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-0.5">
+                        <button 
+                          onClick={() => {
+                            const currentSlug = session?.user?.slug;
+                            const redirectPath = currentSlug ? `/invit/${currentSlug}` : "/";
+                            signOut({ callbackUrl: redirectPath });
+                          }}
+                          className="flex items-center justify-center w-9 h-9 bg-rose-500 text-white rounded-full transition-all hover:scale-110 shadow-lg"
+                        >
+                          <LogOut className="w-4 h-4" />
+                        </button>
+                        <span className="text-[7px] uppercase tracking-widest font-bold text-rose-600/70">
+                          Out
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </>
