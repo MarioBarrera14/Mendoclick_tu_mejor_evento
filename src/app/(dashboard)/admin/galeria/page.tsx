@@ -20,10 +20,14 @@ export default function GestionGaleria() {
   const [loading, setLoading] = useState<string | null>(null); 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Permisos por plan
-  const canUploadMusic = planLevel !== "CLASSIC";
-  const canUploadCarrusel = planLevel !== "CLASSIC";
-  const canUploadVideo = planLevel === "DELUXE";
+  // ===========================================================
+  // PERMISOS ACTUALIZADOS: PREMIUM Y DELUXE TIENEN TODO LIBRE
+  // ===========================================================
+  const hasFullAccess = planLevel === "PREMIUM" || planLevel === "DELUXE";
+  
+  const canUploadMusic = hasFullAccess;
+  const canUploadCarrusel = hasFullAccess;
+  const canUploadVideo = hasFullAccess; // <--- AHORA TAMBIÉN PREMIUM
 
   const mainInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -74,7 +78,7 @@ export default function GestionGaleria() {
     }
     const maxSize = type === 'video' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      Swal.fire("Archivo muy pesado", "El archivo excede el límite.", "error");
+      Swal.fire("Archivo muy pesado", `El límite es de ${maxSize / (1024 * 1024)}MB.`, "error");
       return null;
     }
     try {
@@ -99,15 +103,15 @@ export default function GestionGaleria() {
     });
 
     if (result.success) {
-      Swal.fire({ title: "¡HECHO!", text: "Galería actualizada.", icon: "success", confirmButtonColor: "#dc2626" });
+      Swal.fire({ title: "¡ACTUALIZADO!", text: "Los cambios ya están en tu invitación.", icon: "success", confirmButtonColor: "#dc2626" });
     }
     setIsSaving(false);
   };
 
   const handleLimpiarTodo = async () => {
     const confirm = await Swal.fire({
-      title: '¿VACIAR TODO?',
-      text: "Se borrarán todas las referencias de la base de datos.",
+      title: '¿VACIAR GALERÍA?',
+      text: "Se borrarán todas las fotos, videos y música configurados.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
@@ -143,7 +147,7 @@ export default function GestionGaleria() {
             <button 
               onClick={handleLimpiarTodo} 
               disabled={isGalleryEmpty || isSaving}
-              className="flex-1 sm:flex-none justify-center bg-zinc-200 text-zinc-600 px-4 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-100 disabled:opacity-30 transition-all"
+              className="flex-1 sm:flex-none justify-center bg-zinc-200 text-zinc-600 px-4 py-3 rounded-xl font-bold text-[10px] tracking-widest flex items-center gap-2 hover:bg-red-100 disabled:opacity-30 transition-all shadow-sm"
             >
               <Eraser size={16} /> LIMPIAR
             </button>
@@ -159,7 +163,7 @@ export default function GestionGaleria() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 space-y-6">
-            {/* PORTADA PRINCIPAL */}
+            {/* 01. PORTADA */}
             <section className="bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-red-600" />
               <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
@@ -175,7 +179,7 @@ export default function GestionGaleria() {
               {fotoPrincipal && <button onClick={() => setFotoPrincipal(null)} className="absolute top-16 right-8 p-2 bg-black/80 text-white rounded-full hover:bg-red-600 shadow-xl transition-all"><X size={14}/></button>}
             </section>
 
-            {/* MÚSICA DE FONDO */}
+            {/* 02. MÚSICA */}
             <section className={cn("bg-zinc-950 p-5 rounded-[2rem] text-white shadow-xl relative", !canUploadMusic && "opacity-60")}>
               <p className="text-[11px] font-black uppercase text-red-500 mb-3 tracking-widest">02. Música de Fondo</p>
               <div onClick={() => canUploadMusic && musicInputRef.current?.click()} className={cn("p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3", canUploadMusic ? "cursor-pointer hover:bg-white/10" : "cursor-not-allowed")}>
@@ -189,11 +193,11 @@ export default function GestionGaleria() {
           </div>
 
           <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* VIDEO HERO */}
+            {/* 03. VIDEO HERO */}
             <section className={cn("bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative", !canUploadVideo && "bg-zinc-100")}>
                <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">03. Video Hero {!canUploadVideo && <Lock size={12}/>}</p>
                <div onClick={() => canUploadVideo && videoInputRef.current?.click()} className={cn("relative aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center", canUploadVideo ? "cursor-pointer" : "cursor-not-allowed")}>
-                  {!canUploadVideo ? <div className="text-center text-white/40 text-[8px] font-bold uppercase tracking-widest"><Lock className="mx-auto mb-2" size={24}/> Solo Deluxe</div> : videoFile ? <video src={videoFile} className="w-full h-full object-cover" autoPlay muted loop /> : <Play size={32} className="text-white/20"/>}
+                  {!canUploadVideo ? <div className="text-center text-white/40 text-[8px] font-bold uppercase tracking-widest"><Lock className="mx-auto mb-2" size={24}/> Solo Premium / Deluxe</div> : videoFile ? <video src={videoFile} className="w-full h-full object-cover" autoPlay muted loop /> : <Play size={32} className="text-white/20"/>}
                </div>
                <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={async (e) => {
                  const file = e.target.files?.[0];
@@ -201,7 +205,7 @@ export default function GestionGaleria() {
                }} />
             </section>
 
-            {/* GALERÍA CARRUSEL */}
+            {/* 04. CARRUSEL */}
             <section className={cn("bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative", !canUploadCarrusel && "bg-zinc-100")}>
                <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">04. Galería {!canUploadCarrusel && <Lock size={12}/>}</p>
                <div className="grid grid-cols-3 gap-2">

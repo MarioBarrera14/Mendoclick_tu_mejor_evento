@@ -63,6 +63,7 @@ const PLANS: Record<string, Plan> = {
         discount: '10% OFF',
         features: [
             "Invitación Web Estándar",
+            "Foto de Portada",
             "Nombres de Novios o Cumpleañera",
             "Fecha y Cuenta regresiva",
             "Ubicación de Iglesia y Salón (Maps)",
@@ -81,10 +82,10 @@ const PLANS: Record<string, Plan> = {
         discount: '10% OFF',
         features: [
             "Todo lo del Plan CLASSIC",
-            "Galería Multimedia (Fotos + Video Hero)",
+            "Galería Multimedia (6 Fotos + 1 Video Hero)",
             "Música de fondo personalizada",
             "Itinerario del evento con horarios",
-            "Sección de Testigos o Padrinos",
+            "Sección de Testigos o Padrinos (solo bodas)",
             "Confirmación Web en Base de Datos",
             "Indicación de Menú (Celiacos, Veganos, etc.)",
             "Sugerencia de canciones para la fiesta",
@@ -105,7 +106,7 @@ const PLANS: Record<string, Plan> = {
             "Check-in con Escaneo QR en el Salón",
             "Asignación y consulta de Mesas vía QR",
             "Pase Digital con cupos confirmados",
-            "Chat Live de confirmaciones en tiempo real",
+            "Chat Live de confirmaciones en tiempo real y dedicatoria",
             "Soporte prioritario y acceso VIP"
         ]
     }

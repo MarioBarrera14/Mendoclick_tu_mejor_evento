@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import * as LucideIcons from "lucide-react"; 
 
-// Definimos la interfaz
 interface ItineraryProps {
   items: {
     time: string;
@@ -16,16 +15,9 @@ interface ItineraryProps {
 
 export function Itinerary({ items, plan }: ItineraryProps) {
   
-  // --- 1. VALIDACIÓN RADICAL ---
-  // Si el plan es CLASSIC o no viene nada, matamos el componente antes de cualquier renderizado
-  if (!plan || plan === "CLASSIC") {
-    return null;
-  }
-
-  // Si no hay items, tampoco mostramos la sección
+  if (!plan || plan === "CLASSIC") return null;
   if (!items || items.length === 0) return null;
 
-  // Función para renderizar el icono dinámicamente
   const IconComponent = (iconName: string) => {
     // @ts-ignore
     const Icon = LucideIcons[iconName] || LucideIcons.Star;
@@ -34,12 +26,10 @@ export function Itinerary({ items, plan }: ItineraryProps) {
 
   return (
     <section className="relative py-8 md:py-12 bg-[#F2E8D9] overflow-hidden font-sans">
-      {/* SEPARADOR SUPERIOR */}
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none">
         <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>
 
-      {/* TÍTULO */}
       <div className="flex flex-col items-center mb-8 px-4 mt-10 md:mt-16">
         <div className="relative w-10 h-10 mb-1">
           <div className="absolute inset-0 bg-[#d29b7b] rounded-full blur-md opacity-40 scale-125" />
@@ -61,7 +51,6 @@ export function Itinerary({ items, plan }: ItineraryProps) {
         <div className="relative z-10">
           {items.map((item, index) => (
             <div key={index} className="relative mb-6 md:mb-8 flex items-center md:justify-center">
-              
               <motion.div 
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
@@ -106,7 +95,6 @@ export function Itinerary({ items, plan }: ItineraryProps) {
         </div>
       </div>
 
-      {/* SEPARADOR INFERIOR */}
       <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none">
         <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
       </div>

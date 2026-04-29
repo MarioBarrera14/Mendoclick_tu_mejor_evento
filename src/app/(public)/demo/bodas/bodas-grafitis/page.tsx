@@ -39,6 +39,7 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
   
   const safeConfig = useMemo(() => {
     const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
+    
     const currentPlan = dbConfig?.planLevel || "DELUXE";
 
     const baseData = dbConfig ? {
@@ -81,41 +82,51 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
   const currentEventId = eventId || "demo-boda-graffiti";
   const plan = safeConfig.plan;
 
-  // --- COMPONENTE DE CONTENIDO ---
-  // Extraemos el contenido para no repetirlo en el condicional del render
   const PageContent = (
     <>
       <Navbar eventName={safeConfig.eventName} isDemo={isDemo} plan={plan} />
+      
       <Hero
         heroImage={safeConfig.heroImage}
         eventName={safeConfig.eventName}
         eventDate={safeConfig.eventDate}
       />
+
       {plan !== "CLASSIC" && (
         <FotoCarousel 
           images={safeConfig.carruselImages} 
           videoUrl={safeConfig.videoUrl} 
+          plan={plan} 
         />
       )}
+
       <EventDetails config={safeConfig} />
+      
       <RSVP config={safeConfig} />
+      
       <DetailModal config={safeConfig} />
+
+      {/* SECCIONES PRO CORREGIDAS: Ahora pasan la prop 'plan' */}
       {plan !== "CLASSIC" && (
         <>
-          <Itinerary items={safeConfig.itinerary || []} />
-          <Witnesses items={safeConfig.witnesses || []} />
+          <Itinerary 
+            items={safeConfig.itinerary || []} 
+            plan={plan} 
+          />
+          <Witnesses 
+            items={safeConfig.witnesses || []} 
+            plan={plan} 
+          />
           <MusicSuggestion eventId={currentEventId} />
         </>
       )}
+
       <Footer />
     </>
   );
 
   return (
     <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
-      {/* Si es CLASSIC: No hay Envelope (no hay sobre, no hay música).
-          Si es PREMIUM/DELUXE: Envolvemos en el Envelope con música.
-      */}
       {plan === "CLASSIC" ? (
         <div className="animate-in fade-in duration-1000">
           {PageContent}

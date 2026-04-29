@@ -8,7 +8,6 @@ import { authOptions } from "@/lib/auth";
 
 /**
  * FUNCIÓN AUXILIAR DE SEGURIDAD
- * Verifica si el usuario actual es un Administrador.
  */
 async function validateAdminSession() {
   const session = await getServerSession(authOptions);
@@ -41,6 +40,7 @@ export async function registerUser(data: any) {
         email,
         password: hashedPassword,
         role: "ADMIN",
+        planLevel: "DELUXE", // Los admins suelen tener acceso total
         slug: `admin-${Math.random().toString(36).substring(7)}`, 
       }
     });
@@ -57,24 +57,22 @@ export async function registerUser(data: any) {
 
 export async function getClients() {
   try {
-    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
-    
+    await validateAdminSession();
     const clients = await prisma.user.findMany({
       where: { role: "USER" },
       orderBy: { createdAt: "desc" }
     });
     return clients;
   } catch (error) {
-    console.error("Intento de acceso no autorizado a getClients");
     return [];
   }
 }
 
 export async function registerClient(formData: any) {
   try {
-    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
+    await validateAdminSession();
     
-    const { email, password, slug, templateId, masterCode } = formData;
+    const { email, password, slug, templateId, planLevel, phone, masterCode } = formData;
     if (masterCode !== "MENDO_2026_PRO") return { error: "Código Maestro inválido." };
 
     const existing = await prisma.user.findFirst({ 
@@ -92,20 +90,27 @@ export async function registerClient(formData: any) {
         slug,
         templateId,
         role: "USER",
-        eventConfig: { create: { eventName: "", eventDate: "2026-12-19" } }
+        planLevel, // <--- Guardamos el nivel: CLASSIC, PREMIUM o DELUXE
+        eventConfig: { 
+          create: { 
+            eventName: "", 
+            eventDate: "2026-12-19",
+            confirmPhone: phone || "" // <--- Guardamos el WhatsApp para el plan Classic
+          } 
+        }
       }
     });
     
     revalidatePath("/manager/clientes");
     return { success: true };
   } catch (e) {
-    return { error: "No autorizado o error de servidor." };
+    return { error: "Error al crear cliente." };
   }
 }
 
 export async function updateClientAction(id: string, data: any) {
   try {
-    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
+    await validateAdminSession();
     
     await prisma.user.update({
       where: { id },
@@ -114,8 +119,17 @@ export async function updateClientAction(id: string, data: any) {
         email: data.email,
         slug: data.slug,
         templateId: data.templateId,
+        planLevel: data.planLevel, // Permite hacer upgrade/downgrade de plan
       }
     });
+
+    // Si es Classic, actualizamos el teléfono en eventConfig también
+    if (data.planLevel === "CLASSIC" && data.phone) {
+        await prisma.eventConfig.update({
+            where: { userId: id },
+            data: { confirmPhone: data.phone }
+        });
+    }
 
     revalidatePath("/manager/clientes");
     return { success: true };
@@ -126,8 +140,7 @@ export async function updateClientAction(id: string, data: any) {
 
 export async function deleteClientAction(id: string) {
   try {
-    await validateAdminSession(); // <--- BLOQUEO DE SEGURIDAD
-    
+    await validateAdminSession();
     await prisma.user.delete({ where: { id } });
     revalidatePath("/manager/clientes");
     return { success: true };
@@ -145,8 +158,10 @@ export async function getEventConfig() {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) return null;
 
+    // Traemos la configuración y el plan del usuario para validar límites en el front
     return await prisma.eventConfig.findFirst({
-      where: { user: { email: session.user.email } }
+      where: { user: { email: session.user.email } },
+      include: { user: { select: { planLevel: true } } }
     });
   } catch (error) { return null; }
 }

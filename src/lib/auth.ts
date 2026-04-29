@@ -27,9 +27,10 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           nombre: user.nombre,
-          role: user.role, // ADMIN o CLIENT
+          role: user.role, 
           slug: user.slug,
-          templateId: user.templateId, 
+          templateId: user.templateId,
+          planLevel: user.planLevel, // <--- AGREGADO: Recuperamos el plan de la DB
         };
       }
     })
@@ -41,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         token.slug = user.slug;
         token.id = user.id;
         token.templateId = user.templateId;
+        token.planLevel = user.planLevel; // <--- AGREGADO: Guardamos el plan en el JWT
       }
       return token;
     },
@@ -50,6 +52,7 @@ export const authOptions: NextAuthOptions = {
         session.user.slug = token.slug;
         session.user.id = token.id;
         session.user.templateId = token.templateId;
+        session.user.planLevel = token.planLevel; // <--- AGREGADO: Lo exponemos en la sesión
       }
       return session;
     }

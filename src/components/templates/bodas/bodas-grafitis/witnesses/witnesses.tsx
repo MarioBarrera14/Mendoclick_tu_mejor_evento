@@ -3,7 +3,6 @@
 import { motion, Transition } from "framer-motion";
 import Image from "next/image";
 
-// 1. AJUSTAMOS LA INTERFAZ PARA QUE COINCIDA CON EL SCHEMA Y ACEPTE EL PLAN
 interface Witness {
   nombre: string;
   rol: string;
@@ -12,14 +11,14 @@ interface Witness {
 
 interface WitnessesProps {
   items: Witness[];
-  plan?: string; // <--- Agregado para compatibilidad y evitar errores de TS
+  plan?: string; 
 }
 
 export function Witnesses({ items, plan }: WitnessesProps) {
   
-  // --- REGLA DE NEGOCIO ---
-  // Si el plan es CLASSIC o no hay ítems, el componente no se renderiza.
-  if (!plan || plan === "CLASSIC") return null;
+  const currentPlan = plan?.toUpperCase();
+
+  if (!currentPlan || currentPlan === "CLASSIC") return null;
   if (!items || items.length === 0) return null;
 
   const floatTransition: Transition = {
@@ -31,9 +30,8 @@ export function Witnesses({ items, plan }: WitnessesProps) {
 
   return (
     <section className="relative py-12 bg-[#e0f2f1] overflow-hidden mt-[-1px]">
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-6 relative z-10 text-black">
         
-        {/* ENCABEZADO */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -59,7 +57,6 @@ export function Witnesses({ items, plan }: WitnessesProps) {
           </h2>
         </motion.div>
 
-        {/* GRILLA DINÁMICA */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto">
           {items.map((witness, index) => (
             <motion.div
@@ -70,7 +67,6 @@ export function Witnesses({ items, plan }: WitnessesProps) {
               transition={{ delay: index * 0.1 }}
               className="flex flex-col items-center text-center group"
             >
-              {/* Imagen Circular */}
               <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
                 <div className="relative w-full h-full rounded-full overflow-hidden shadow-lg border-4 border-white bg-gray-100">
                   <Image 
@@ -83,12 +79,10 @@ export function Witnesses({ items, plan }: WitnessesProps) {
                 </div>
               </div>
 
-              {/* Nombre dinámico */}
               <h3 className="font-['Permanent_Marker',_cursive] text-xl md:text-2xl text-[#5ca394] mb-1 leading-tight">
                 {witness.nombre}
               </h3>
               
-              {/* Rol dinámico */}
               <p className="text-[9px] md:text-[10px] tracking-[0.1em] uppercase font-bold text-gray-400">
                 {witness.rol}
               </p>
