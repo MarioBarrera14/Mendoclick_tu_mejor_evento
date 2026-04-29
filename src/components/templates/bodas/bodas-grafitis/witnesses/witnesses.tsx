@@ -2,6 +2,7 @@
 
 import { motion, Transition } from "framer-motion";
 import Image from "next/image";
+import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 
 interface Witness {
   nombre: string;
@@ -10,7 +11,7 @@ interface Witness {
 }
 
 interface WitnessesProps {
-  items: Witness[];
+  items?: Witness[]; // Lo hacemos opcional para el modo demo
   plan?: string; 
 }
 
@@ -18,8 +19,15 @@ export function Witnesses({ items, plan }: WitnessesProps) {
   
   const currentPlan = plan?.toUpperCase();
 
-  if (!currentPlan || currentPlan === "CLASSIC") return null;
-  if (!items || items.length === 0) return null;
+  // 1. Solo bloqueamos si es explícitamente CLASSIC.
+  // Si es undefined (demo), permitimos que siga para mostrar el modelo.
+  if (currentPlan === "CLASSIC") return null;
+
+  // 2. Si no hay items (base de datos vacía), usamos los testigos de localConfig
+  const displayItems = items && items.length > 0 ? items : localConfig.testigos;
+
+  // 3. Si después del fallback sigue vacío, ocultamos la sección
+  if (!displayItems || displayItems.length === 0) return null;
 
   const floatTransition: Transition = {
     duration: 4,
@@ -32,6 +40,7 @@ export function Witnesses({ items, plan }: WitnessesProps) {
     <section className="relative py-12 bg-[#e0f2f1] overflow-hidden mt-[-1px]">
       <div className="container mx-auto px-6 relative z-10 text-black">
         
+        {/* ENCABEZADO */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -57,8 +66,9 @@ export function Witnesses({ items, plan }: WitnessesProps) {
           </h2>
         </motion.div>
 
+        {/* GRILLA DINÁMICA USANDO displayItems */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto">
-          {items.map((witness, index) => (
+          {displayItems.map((witness, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}

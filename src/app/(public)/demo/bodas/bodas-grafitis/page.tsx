@@ -40,7 +40,8 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
   const safeConfig = useMemo(() => {
     const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
     
-    const currentPlan = dbConfig?.planLevel || "DELUXE";
+    // Determinamos el plan: si no viene en dbConfig, asumimos DELUXE para la demo
+    const currentPlan = dbConfig?.planLevel || dbConfig?.plan || "DELUXE";
 
     const baseData = dbConfig ? {
       ...dbConfig,
@@ -52,6 +53,7 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       musicUrl: dbConfig.musicUrl || localConfig.imagenes.musicaUrl.graffiti,
       videoUrl: dbConfig.videoUrl || localConfig.imagenes.videoUrl.graffiti,
       carruselImages: dbConfig.carruselImages || JSON.stringify(localConfig.imagenes.carrusel),
+      // IMPORTANTE: Mapeo de Itinerario y Testigos desde DB o Local
       itinerary: dbConfig.itinerary || localConfig.itinerario,
       witnesses: dbConfig.witnesses || dbConfig.testigos || localConfig.testigos,
       confirmDate: dbConfig.confirmDate || dbConfig.eventDate || eventDateDefault,
@@ -92,6 +94,7 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
         eventDate={safeConfig.eventDate}
       />
 
+      {/* GALERÍA */}
       {plan !== "CLASSIC" && (
         <FotoCarousel 
           images={safeConfig.carruselImages} 
@@ -103,30 +106,32 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       <EventDetails config={safeConfig} />
       
       <RSVP config={safeConfig} />
-      
-      <DetailModal config={safeConfig} />
 
-      {/* SECCIONES PRO CORREGIDAS: Ahora pasan la prop 'plan' */}
+      {/* SECCIONES PRO: Se muestran si es PREMIUM o DELUXE */}
       {plan !== "CLASSIC" && (
         <>
-          <Itinerary 
-            items={safeConfig.itinerary || []} 
-            plan={plan} 
-          />
           <Witnesses 
             items={safeConfig.witnesses || []} 
+            plan={plan} 
+          />
+          <Itinerary 
+            items={safeConfig.itinerary || []} 
             plan={plan} 
           />
           <MusicSuggestion eventId={currentEventId} />
         </>
       )}
 
+      <DetailModal config={safeConfig} />
       <Footer />
     </>
   );
 
   return (
     <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
+      {/* Si el plan es CLASSIC entra directo. 
+          Si es PREMIUM o DELUXE, el sobre (Envelope) maneja la entrada y música.
+      */}
       {plan === "CLASSIC" ? (
         <div className="animate-in fade-in duration-1000">
           {PageContent}
