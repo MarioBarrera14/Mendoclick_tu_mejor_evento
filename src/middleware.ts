@@ -6,33 +6,28 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // 1. PROTECCIÓN PARA RUTAS DE MANAGER (Mario)
+    // 1. REGLA DE ORO PARA EL MANAGER (MARIO)
     if (path.startsWith("/manager")) {
-      // Si no hay token, al login de administrador de una
-      if (!token) {
-        return NextResponse.redirect(new URL("/login", req.url));
-      }
-      // Si hay token pero NO es ADMIN, lo sacamos al home
-      if (token.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/", req.url));
+      // Si no hay token o el rol NO es ADMIN, lo mandamos al login de manager
+      if (!token || token.role !== "ADMIN") {
+        const url = new URL("/login", req.url);
+        // Opcional: limpiar la sesión si no es admin para evitar bucles
+        return NextResponse.redirect(url);
       }
     }
 
-    // 2. PROTECCIÓN PARA PANEL DE CLIENTES (Admin de Invitados)
+    // 2. REGLA PARA EL PANEL DE CLIENTES
     if (path.startsWith("/admin")) {
-      // Si no hay token, al login de clientes
       if (!token) {
         return NextResponse.redirect(new URL("/client-login", req.url));
       }
-      // Aquí permitimos ADMIN y CLIENT (por si vos querés entrar a ver sus paneles)
+      // Aquí permitimos ADMIN y CLIENT
     }
 
-    // 3. REDIRECCIÓN SI YA ESTÁN LOGUEADOS
-    if (!!token) {
-      if (path === "/login" || path === "/client-login") {
-        const destination = token.role === "ADMIN" ? "/manager/dashboard" : "/admin";
-        return NextResponse.redirect(new URL(destination, req.url));
-      }
+    // 3. SI YA ESTÁ LOGUEADO Y VA A LOS LOGINS
+    if (!!token && (path === "/login" || path === "/client-login")) {
+      const dest = token.role === "ADMIN" ? "/manager/dashboard" : "/admin";
+      return NextResponse.redirect(new URL(dest, req.url));
     }
 
     return NextResponse.next();
@@ -41,8 +36,8 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-
-        // DEFINIMOS RUTAS PÚBLICAS (No disparan redirección automática)
+        
+        // Rutas públicas
         const isPublic = 
           path === "/" ||
           path === "/login" ||
@@ -53,29 +48,19 @@ export default withAuth(
           path.startsWith("/img_boda") ||
           path.startsWith("/img_demo") ||
           path.startsWith("/audio") ||
-          path.startsWith("/assets") ||
-          path === "/logo.webp" ||
-          path === "/favicon.ico";
+          path.startsWith("/assets");
 
-        // Si es pública, permitimos. Si no, la función middleware de arriba decide.
         if (isPublic) return true;
         
+        // Forzamos que exista un token para cualquier otra ruta
         return !!token;
       },
-    },
-    pages: {
-      signIn: "/login", // Por defecto, el sistema apunta a tu login
     },
   }
 );
 
 export const config = {
   matcher: [
-    /*
-     * MATCH DE EXCLUSIÓN: 
-     * No tocar estáticos ni rutas públicas.
-     * Agregamos tus carpetas de imágenes y audios para que se vean sin login.
-     */
     "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|audio|login|client-login|invit|demo|$).*)",
   ],
 };
