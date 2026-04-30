@@ -46,7 +46,7 @@ export default withAuth(
           path === "/login" ||
           path === "/client-login" ||
           path.startsWith("/admin/check-in/") || // Permitir la página de check-in
-          path.startsWith("/api/check-in") ||    // Permitir la llamada a la API
+          path.startsWith("/api/check-in/[eventId]") ||    // Permitir la llamada a la API
           path.startsWith("/invit") ||
           path.startsWith("/demo") ||
           path.startsWith("/images") ||
