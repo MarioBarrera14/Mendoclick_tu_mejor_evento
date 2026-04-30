@@ -6,17 +6,20 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // 1. REGLA DE ORO PARA EL MANAGER (MARIO)
+    // 1. EXCEPCIÓN PARA INVITADOS (Check-in público)
+    // Permitimos que accedan a /admin/check-in/[id] sin estar logueados
+    if (path.startsWith("/admin/check-in/")) {
+      return NextResponse.next();
+    }
+
+    // 2. REGLA DE ORO PARA EL MANAGER (ADMIN)
     if (path.startsWith("/manager")) {
-      // Si no hay token o el rol NO es ADMIN, lo mandamos al login de manager
       if (!token || token.role !== "ADMIN") {
-        const url = new URL("/login", req.url);
-        // Opcional: limpiar la sesión si no es admin para evitar bucles
-        return NextResponse.redirect(url);
+        return NextResponse.redirect(new URL("/login", req.url));
       }
     }
 
-    // 2. REGLA PARA EL PANEL DE CLIENTES
+    // 3. REGLA PARA EL PANEL DE CLIENTES
     if (path.startsWith("/admin")) {
       if (!token) {
         return NextResponse.redirect(new URL("/client-login", req.url));
@@ -24,7 +27,7 @@ export default withAuth(
       // Aquí permitimos ADMIN y CLIENT
     }
 
-    // 3. SI YA ESTÁ LOGUEADO Y VA A LOS LOGINS
+    // 4. SI YA ESTÁ LOGUEADO Y VA A LOS LOGINS
     if (!!token && (path === "/login" || path === "/client-login")) {
       const dest = token.role === "ADMIN" ? "/manager/dashboard" : "/admin";
       return NextResponse.redirect(new URL(dest, req.url));
@@ -37,11 +40,13 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
         
-        // Rutas públicas
+        // Rutas que no requieren NINGUNA sesión
         const isPublic = 
           path === "/" ||
           path === "/login" ||
           path === "/client-login" ||
+          path.startsWith("/admin/check-in/") || // Permitir la página de check-in
+          path.startsWith("/api/check-in") ||    // Permitir la llamada a la API
           path.startsWith("/invit") ||
           path.startsWith("/demo") ||
           path.startsWith("/images") ||
@@ -52,7 +57,7 @@ export default withAuth(
 
         if (isPublic) return true;
         
-        // Forzamos que exista un token para cualquier otra ruta
+        // Forzamos que exista un token para cualquier otra ruta (protegidas)
         return !!token;
       },
     },
@@ -60,7 +65,9 @@ export default withAuth(
 );
 
 export const config = {
+  // El matcher define qué rutas procesa este middleware.
+  // Se excluyen archivos estáticos, logos y las rutas públicas críticas.
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|audio|login|client-login|invit|demo|$).*)",
+    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|audio|login|client-login|invit|demo|$).*)",
   ],
 };
