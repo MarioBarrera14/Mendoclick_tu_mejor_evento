@@ -20,9 +20,9 @@ const QRGenerator = ({ eventId, eventName }: { eventId: string; eventName?: stri
     }
   };
 
-  //const checkInURL = `https://mendoclick.com.ar/admin/check-in/${eventId}`;
+const checkInURL = `https://mendoclick.com.ar/admin/check-in/${eventId}`;
 // Ejemplo con la IP 192.168.1.15
-const checkInURL = `http://192.168.249.37/admin/check-in/${eventId}`;
+//const checkInURL = `http://192.168.249.37/admin/check-in/${eventId}`;
   return (
     <div className="flex flex-col items-center p-6 md:p-8 bg-white border-2 border-zinc-100 rounded-[2rem] shadow-sm w-full max-w-sm mx-auto lg:mx-0">
       <div className="flex items-center gap-2 mb-6 text-zinc-400">
