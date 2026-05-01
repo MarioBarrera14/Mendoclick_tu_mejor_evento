@@ -7,7 +7,6 @@ export default withAuth(
     const path = req.nextUrl.pathname;
 
     // 1. EXCEPCIÓN PARA INVITADOS (Check-in público)
-    // Permitimos que accedan a /admin/check-in/[id] sin estar logueados
     if (path.startsWith("/admin/check-in/")) {
       return NextResponse.next();
     }
@@ -24,7 +23,6 @@ export default withAuth(
       if (!token) {
         return NextResponse.redirect(new URL("/client-login", req.url));
       }
-      // Aquí permitimos ADMIN y CLIENT
     }
 
     // 4. SI YA ESTÁ LOGUEADO Y VA A LOS LOGINS
@@ -40,25 +38,24 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
         
-        // Rutas que no requieren NINGUNA sesión
+        // Rutas que no requieren NINGUNA sesión (Públicas)
         const isPublic = 
           path === "/" ||
           path === "/login" ||
           path === "/client-login" ||
-          path.startsWith("/check-in/") || // Asegúrate de que coincida con la carpeta
-  path.startsWith("/api/check-in");   // Permitir la llamada a la API
+          path.startsWith("/check-in/") ||
+          path.startsWith("/api/check-in") ||
+          path.startsWith("/api/guests") || // Importante para RSVP
           path.startsWith("/invit") ||
           path.startsWith("/demo") ||
           path.startsWith("/images") ||
           path.startsWith("/img-rock") ||
           path.startsWith("/img_boda") ||
-          path.startsWith("/img_demo") ||
+          path.startsWith("/img_demo") || // <--- AGREGADO PARA LAS IMÁGENES HARCODEADAS
           path.startsWith("/audio") ||
           path.startsWith("/assets");
 
         if (isPublic) return true;
-        
-        // Forzamos que exista un token para cualquier otra ruta (protegidas)
         return !!token;
       },
     },
@@ -67,8 +64,8 @@ export default withAuth(
 
 export const config = {
   // El matcher define qué rutas procesa este middleware.
-  // Se excluyen archivos estáticos, logos y las rutas públicas críticas.
-matcher: [
-  "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img-rock|audio|login|client-login|invit|demo|$).*)",
-],
+  // IMPORTANTE: Agregamos img_demo aquí también para que Next.js no lo procese
+  matcher: [
+    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|img-rock|audio|login|client-login|invit|demo|$).*)",
+  ],
 };
