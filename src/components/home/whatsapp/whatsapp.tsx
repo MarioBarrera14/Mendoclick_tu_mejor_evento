@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { FaWhatsapp } from 'react-icons/fa';
 
 export const WhatsAppButton: React.FC = () => {
-  const whatsappNumber: string = "549261000000"; 
+  const whatsappNumber: string = "5492615388131"; 
   const message: string = "Hola MendoClick! Quería consultar por una invitación digital...";
   const url: string = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 

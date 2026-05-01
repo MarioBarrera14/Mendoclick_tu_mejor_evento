@@ -7,9 +7,8 @@ import { useSession, signOut } from "next-auth/react";
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { status } = useSession(); // Solo usamos status para evitar errores de data no definida
+  const { status } = useSession();
 
-  // --- EFECTO DE SCROLL ---
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -26,7 +25,6 @@ export const Navbar = () => {
       const offset = 80;
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
       const offsetPosition = elementPosition - offset;
-
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth'
@@ -37,7 +35,7 @@ export const Navbar = () => {
   return (
     <nav className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
       scrolled 
-        ? "bg-white/90 backdrop-blur-md py-2 border-b border-zinc-200 shadow-sm" 
+        ? "bg-[#33aba1]/20 backdrop-blur-md py-2 border-zinc-200 shadow-sm" 
         : "bg-transparent py-4"
     }`}>
       <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
@@ -91,13 +89,6 @@ export const Navbar = () => {
                 ACCESO
               </Link>
             )}
-            
-            <Link 
-              href="https://wa.me/549261000000" 
-              className="bg-[#33aba1] text-white px-6 py-2.5 rounded-full hover:bg-zinc-900 transition-all shadow-lg text-[9px] font-black"
-            >
-              CONTACTO
-            </Link>
           </div>
         </div>
 
@@ -110,29 +101,39 @@ export const Navbar = () => {
         </button>
       </div>
 
-      {/* MOBILE MENU (Sin dependencias externas complejas) */}
+      {/* MOBILE MENU ACTUALIZADO */}
       <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="bg-white border-b border-zinc-100 p-6 flex flex-col gap-4 text-[11px] font-black uppercase tracking-widest">
-          <a href="#modelos" onClick={(e) => scrollToSection(e, 'modelos')} className="py-3 border-b border-zinc-50 flex justify-between">
-            Modelos <span className="text-[#33aba1]">→</span>
-          </a>
-          <a href="#tecnologia" onClick={(e) => scrollToSection(e, 'tecnologia')} className="py-3 border-b border-zinc-50 flex justify-between">
-            Tecnología <span className="text-[#33aba1]">→</span>
+        {/* Cambiado bg-white por bg-[#33aba1] y textos a blanco */}
+        <div className="bg-[#33aba1]/50 border-[#2a8d85] p-6 flex flex-col gap-4 text-[11px] font-black uppercase tracking-widest text-white">
+          <a 
+            href="#modelos" 
+            onClick={(e) => scrollToSection(e, 'modelos')} 
+            className="py-3 border-b border-white/20 flex justify-between items-center"
+          >
+            Modelos <span className="bg-white text-[#33aba1] w-5 h-5 rounded-full flex items-center justify-center text-[8px]">→</span>
           </a>
           
           <div className="flex flex-col gap-3 pt-2">
             {status === "authenticated" ? (
               <>
-                <Link href="/manager/dashboard" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-center gap-2 bg-zinc-900 text-white py-4 rounded-2xl">
+                <Link 
+                  href="/manager/dashboard" 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className="flex items-center justify-center gap-2 bg-zinc-900 text-white py-4 rounded-2xl shadow-lg"
+                >
                   <FiLayout /> PANEL CONTROL
                 </Link>
-                <button onClick={() => signOut()} className="text-rose-600 font-black py-2">
+                <button onClick={() => signOut()} className="text-zinc-900 font-black py-2 bg-white/20 rounded-xl">
                   CERRAR SESIÓN
                 </button>
               </>
             ) : (
-              <Link href="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center justify-center gap-2 bg-zinc-100 py-4 rounded-2xl border border-zinc-200">
-                <FiUser /> ACCESO PRIVADO
+              <Link 
+                href="/login" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="flex items-center justify-center gap-2 bg-white text-zinc-900 py-4 rounded-2xl shadow-lg"
+              >
+                <FiUser className="text-[#33aba1]" /> ACCESO PRIVADO
               </Link>
             )}
           </div>

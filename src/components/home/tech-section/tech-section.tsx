@@ -7,13 +7,14 @@ import {
   FiCamera, FiMusic, FiUsers 
 } from 'react-icons/fi';
 import { AiOutlineQrcode } from 'react-icons/ai';
+import { CreditCard } from 'lucide-react';
 const funciones = [
  { i: AiOutlineQrcode, t: "ACCESO QR", d: "Pase digital exclusivo por familia o cupo para un ingreso ágil." },
   { i: FiUsers, t: "ASIGNACIÓN DE MESAS", d: "Tus invitados sabrán su ubicación exacta con su código único." },
   { i: FiCalendar, t: "RSVP", d: "Confirmación de asistencia online con un click y lista final." },
   { i: FiMapPin, t: "UBICACIÓN", d: "Google Maps integrado con navegación nativa directa." },
   { i: FiClock, t: "CUENTA REGRESIVA", d: "Reloj dinámico para generar expectativa en tus invitados." },
-  { i: FiGift, t: "REGALOS", d: "CBU, alias o links a listas de regalos de forma elegante." },
+  { i: CreditCard, t: "REGALOS", d: "Datos bancarios (CBU/Alias) presentados de forma elegante y práctica." },
   { i: FiCamera, t: "GALERÍA DE FOTOS", d: "Sección dedicada para mostrar los mejores momentos previos." },
   { i: FiMusic, t: "MÚSICA DE FONDO", d: "Tu tema favorito sonando mientras navegan la invitación." },
 ];
