@@ -172,7 +172,7 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
 
                         <div className="pt-4 border-t border-zinc-200">
                             <div className="flex items-center gap-2 mb-1">
-                                <img src="https://amoinvitar.com/iconos/logo-transferencia.png" alt="Bank" className="h-4" />
+                                <img src="/logo-transferencia.png" alt="Bank" className="h-4" />
                                 <span className="text-[10px] font-bold text-green-600 uppercase">
                                     {plan.discount} OFF
                                 </span>
@@ -189,7 +189,7 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
 
                         <div className="pt-4">
                             <div className="flex items-center gap-2 mb-1">
-                                <img src="https://amoinvitar.com/iconos/logo-mp.svg" alt="MP" className="h-4" />
+                                <img src="/logo-mercado-pago.png" alt="MP" className="h-10" />
                                 <span className="text-[10px] text-gray-400 font-bold border-l pl-2 uppercase tracking-tighter">Tarjeta</span>
                             </div>
                             <div className="flex items-baseline gap-1">
@@ -202,7 +202,7 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
                                 price={plan.cardPrice} 
                             />
 
-                            <img src="https://amoinvitar.com/iconos/tarjetasMP.jpg" alt="Cards" className="w-full mt-2" />
+                            <img src="/tarjetasMP.jpg" alt="Cards" className="w-full mt-2" />
                         </div>
                     </div>
                 </div>
