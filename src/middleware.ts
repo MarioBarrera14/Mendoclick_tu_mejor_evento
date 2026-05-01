@@ -62,8 +62,8 @@ export default withAuth(
   }
 );
 
+// middleware.ts
 export const config = {
-  // Se agregaron las extensiones de imagen comunes para evitar que el middleware las bloquee
   matcher: [
     "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|neobar.webp|assets|images|img_boda|img_demo|img-rock|audio|login|client-login|invit|demo|$).*)",
   ],
