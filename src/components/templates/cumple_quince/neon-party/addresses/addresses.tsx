@@ -101,7 +101,7 @@ export function Location({ config }: LocationProps) {
                   <div className="flex items-center gap-3">
                     <div className="h-[1px] w-6 bg-purple-500/30" />
                     <p className="text-[9px] text-purple-400 font-black uppercase tracking-[0.5em] italic">
-                      Te esperamos puntual
+                      Te espero para festejar
                     </p>
                     <div className="h-[1px] w-6 bg-purple-500/30" />
                   </div>

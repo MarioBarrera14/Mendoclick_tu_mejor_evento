@@ -1,66 +1,37 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, Loader2, KeyRound, CheckCircle2, AlertCircle, 
-  PartyPopper, Heart, MessageSquareHeart, Zap, Plus, Minus, Phone 
-} from "lucide-react";
-import { useEffect, useState, useMemo } from "react";
+import { X, Loader2, Users, Utensils, Send, Phone } from "lucide-react"; // Importamos Phone para WhatsApp
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 interface RSVPProps {
   config: {
     heroImage: string;
     eventDate: string;
     confirmDate: string;
-    eventName: string;
-    confirmPhone?: string;
-    plan?: "CLASSIC" | "PREMIUM" | "DELUXE";
+    eventName: string; // Añadido para el mensaje de WA
+    confirmPhone?: string; // Teléfono del cliente
+    plan?: "CLASSIC" | "PREMIUM" | "DELUXE"; // Nuevo: Control de planes
   };
 }
-
-const NeonDivider = () => (
-  <div className="absolute bottom-0 left-0 w-full h-[4px] z-[10]">
-    <div className="absolute inset-0 bg-purple-500 blur-[6px] opacity-80" />
-    <div className="absolute inset-0 bg-white opacity-90" />
-    <div className="absolute bottom-0 left-0 w-full h-[20px] bg-gradient-to-t from-purple-600/20 to-transparent" />
-  </div>
-);
 
 export function RSVP({ config }: RSVPProps) {
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [guestCode, setGuestCode] = useState("");
+
   const [isValidated, setIsValidated] = useState(false);
-  const [alreadyResponded, setAlreadyResponded] = useState(false);
-  const [familyCode, setFamilyCode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [guestInfo, setGuestInfo] = useState<any>(null);
-  
-  const [formData, setFormData] = useState({
-    name: "",
-    attendance: "", 
-    confirmados: 1, 
-    dietary: [] as string[],
-    message: "",
-  });
+  const [guestData, setGuestData] = useState<any>(null);
+  const [confirmados, setConfirmados] = useState(1);
+  const [dietary, setDietary] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"CONFIRMED" | "CANCELLED">("CONFIRMED");
 
+  // El plan por defecto si no viene nada será CLASSIC por seguridad
   const currentPlan = config.plan || "CLASSIC";
-
-  // --- SOLUCIÓN AL "INVALID DATE" ---
-  const formattedDate = useMemo(() => {
-    if (!config.confirmDate) return "";
-    try {
-      // Reemplazar guiones por barras para compatibilidad universal
-      const dateObj = new Date(config.confirmDate.replace(/-/g, '/'));
-      return dateObj.toLocaleDateString('es-AR', {
-        day: 'numeric',
-        month: 'long'
-      }).toUpperCase();
-    } catch (e) {
-      return config.confirmDate;
-    }
-  }, [config.confirmDate]);
 
   useEffect(() => {
     if (isOpen) {
@@ -70,251 +41,175 @@ export function RSVP({ config }: RSVPProps) {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     }
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
+  // --- LÓGICA WHATSAPP (PLAN CLASSIC) ---
   const handleWhatsAppConfirm = () => {
-    const telefono = config.confirmPhone || "549261000000";
+    const telefono = config.confirmPhone || "549261000000"; // Fallback Mendoza
     const texto = encodeURIComponent(
       `¡Hola! Quiero confirmar mi asistencia al evento de ${config.eventName}. \nAsistiremos: [Cantidad] personas. \nMenú especial: [Opcional]. \n¡Gracias!`
     );
     window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
   };
 
+  // --- LÓGICA BASE DE DATOS (PLAN PREMIUM / DELUXE) ---
   const handleClose = () => {
     if (!isSubmitting) {
       setIsOpen(false);
       setIsValidated(false);
-      setFamilyCode("");
-      setGuestInfo(null);
+      setGuestCode("");
+      setDietary("");
+      setMessage("");
     }
   };
 
-  const handleValidateCode = async () => {
-    if (!familyCode) return;
+  const handleValidarCodigo = async () => {
+    if (!guestCode) return;
     setIsSubmitting(true);
-    setErrorMessage("");
     try {
-      const response = await fetch(`/api/guests?code=${familyCode.toUpperCase().trim()}`);
-      if (!response.ok) {
-        setErrorMessage("Código no reconocido.");
-        return;
-      }
-      const invitadoEncontrado = await response.json();
-      if (invitadoEncontrado) {
-        if (invitadoEncontrado.status !== "PENDING" && invitadoEncontrado.status !== null) {
-          setAlreadyResponded(true);
-          setIsValidated(true);
+      const res = await fetch(`/api/guests?code=${guestCode.trim()}`);
+      const data = await res.json();
+      if (res.ok) {
+        if (data.status !== "PENDING") {
+          Swal.fire({
+            title: "RESPUESTA RECIBIDA",
+            text: `¡Hola ${data.nombre}! Ya registramos tu respuesta.`,
+            icon: "info",
+            confirmButtonColor: "#5ba394"
+          });
+          setGuestCode("");
           return;
         }
-        setGuestInfo(invitadoEncontrado);
-        setIsValidated(true);
-        setFormData(prev => ({ 
-          ...prev, 
-          name: invitadoEncontrado.nombre,
-          confirmados: invitadoEncontrado.cupos 
-        }));
+        setGuestData(data);
+        setConfirmados(data.cupos); 
+        setIsValidated(true); 
+      } else {
+        Swal.fire({ title: "CÓDIGO INVÁLIDO", icon: "error", confirmButtonColor: "#5ba394" });
       }
-    } catch (error) { setErrorMessage("Error de conexión."); }
-    finally { setIsSubmitting(false); }
+    } catch (error) { console.error(error); } finally { setIsSubmitting(false); }
   };
 
-  const handleSubmit = async () => {
-    if (!formData.attendance) return;
+  const handleConfirmarFinal = async () => {
     setIsSubmitting(true);
     try {
-      const dietaFinal = formData.dietary.length > 0 ? formData.dietary.join(", ") : "Ninguna";
-      const response = await fetch("/api/guests", {
+      const res = await fetch("/api/guests", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code: familyCode.toUpperCase().trim(),
-          name: formData.name,
-          status: formData.attendance === "YES" ? "CONFIRMED" : "CANCELLED",
-          dietary: dietaFinal,
-          message: formData.message,
-          confirmados: formData.confirmados,
-        }),
+          code: guestCode,
+          status: status,
+          confirmados: status === "CONFIRMED" ? confirmados : 0,
+          dietary: dietary,
+          message: message,
+          name: guestData.nombre
+        })
       });
-      if (response.ok) setAlreadyResponded(true);
-    } catch (error) { console.error(error); }
-    finally { setIsSubmitting(false); }
+      if (res.ok) {
+        await Swal.fire({ title: "¡LISTO!", icon: "success", confirmButtonColor: "#5ba394" });
+        handleClose();
+      }
+    } catch (error) { console.error(error); } finally { setIsSubmitting(false); }
   };
 
-  const handleDietaryChange = (item: string) => {
-    setFormData(prev => {
-      if (item === "NINGUNA") return { ...prev, dietary: [item] };
-      const filtered = prev.dietary.filter(i => i !== "NINGUNA");
-      return { 
-        ...prev, 
-        dietary: filtered.includes(item) ? filtered.filter(i => i !== item) : [...filtered, item] 
-      };
-    });
-  };
+  const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  }).toUpperCase();
 
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
   return (
-    <>
-      <section className="relative py-24 md:py-40 bg-[#0c001a] overflow-hidden font-sans">
-        
-        {/* FONDO CORREGIDO: neobar.webp */}
-        <div className="absolute inset-0 z-0">
-          <Image 
-            src="/neobar.webp" 
-            alt="Neon Background" 
-            fill 
-            className="object-cover opacity-50"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a] opacity-90" />
-          <div className="absolute inset-0 bg-black/30" />
-        </div>
+    <section className="relative py-16 md:py-28 overflow-hidden font-sans bg-[url('/images/img-grafitis/pared.webp')] bg-cover bg-center">
+      <div className="absolute top-0 left-0 w-full z-20 pointer-events-none -translate-y-[1px]">
+        <div className="w-full h-[60px] md:h-[180px] bg-[#f7e6c4] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
+      </div>
+      <div className="absolute inset-0 bg-black/60 z-0" />
 
-        <div className="container mx-auto px-6 relative z-20">
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20">
-            
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative w-full max-w-sm aspect-[3/4] group"
-            >
-              <div className="absolute -inset-4 bg-purple-600/30 rounded-[3rem] blur-2xl transition-all duration-700" />
-              <div className="relative w-full h-full rounded-[3rem] overflow-hidden border-2 border-purple-500/40 shadow-2xl bg-[#0c001a]">
-                <Image src={config.heroImage} alt="Hero" fill className="object-cover transition-all duration-700 scale-105 group-hover:scale-100" priority />
-              </div>
-              <div className="absolute -bottom-6 -right-6 bg-purple-600 p-4 rounded-2xl shadow-xl z-30">
-                <Zap size={24} className="text-white fill-white" />
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-xl"
-            >
-              <p className="text-purple-400 font-black tracking-[0.5em] mb-6 uppercase text-xs italic">R.S.V.P.</p>
-              <h2 className="text-6xl md:text-8xl font-black italic text-white tracking-tighter uppercase leading-[0.8] mb-8">
-                ¡No podés <br /> <span className="text-purple-600">faltar!</span>
-              </h2>
-              <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-2 leading-relaxed max-w-md">
-                Queremos compartir esta noche mágica con vos. ¿Nos acompañas?
-              </p>
-              <p className="text-white text-[10px] tracking-widest uppercase font-bold mb-10 opacity-70 italic">
-                Confirmar antes del {formattedDate}
-              </p>
-
-              {currentPlan === "CLASSIC" ? (
-                <motion.button
-                  whileHover={{ scale: 1.05, x: 5 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleWhatsAppConfirm}
-                  className="px-12 py-6 bg-[#25D366] text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl shadow-xl flex items-center gap-4 italic"
-                >
-                  CONFIRMAR POR WHATSAPP <Phone size={16} fill="currentColor" />
-                </motion.button>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.05, x: 5 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsOpen(true)}
-                  className="px-12 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl shadow-xl flex items-center gap-4 italic"
-                >
-                  CONFIRMAR ASISTENCIA <Heart size={16} fill="currentColor" />
-                </motion.button>
-              )}
-            </motion.div>
+      <div className="container mx-auto px-4 relative z-10 flex justify-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative bg-white/20 backdrop-blur-xl max-w-5xl w-full flex flex-col md:flex-row rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border border-white/30 shadow-2xl">
+          <div className="w-full md:w-1/2 h-[300px] md:h-auto relative">
+            <Image src={config.heroImage} alt="Evento" fill className="object-cover opacity-90" priority />
           </div>
-        </div>
-        <NeonDivider />
-      </section>
+          <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col items-center justify-center text-center relative">
+            <div className="mb-4 w-12 h-12 relative">
+              <Image src="/images/img-grafitis/sobre.webp" alt="Confirmar" fill className="object-contain" />
+            </div>
+            <h2 className="font-['Permanent_Marker',_cursive] text-2xl md:text-4xl text-black mb-4 uppercase tracking-tighter">Confirmación</h2>
+            <p className="text-black font-bold text-sm mb-8 uppercase tracking-widest">Antes del {formattedDate}</p>
+            
+            {/* BOTÓN CONDICIONAL POR PLAN */}
+            {currentPlan === "CLASSIC" ? (
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={handleWhatsAppConfirm} 
+                className="px-8 py-4 bg-[#25D366] text-white text-[10px] md:text-xs uppercase font-bold rounded-full shadow-lg tracking-[0.2em] flex items-center gap-2"
+              >
+                <Phone size={16} /> CONFIRMAR POR WHATSAPP
+              </motion.button>
+            ) : (
+              <motion.button 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                onClick={() => setIsOpen(true)} 
+                className="px-8 py-4 bg-[#5ba394] text-white text-[10px] md:text-xs uppercase font-bold rounded-full shadow-lg tracking-[0.2em]"
+              >
+                CONFIRMAR ASISTENCIA
+              </motion.button>
+            )}
+          </div>
+        </motion.div>
+      </div>
 
+      {/* EL MODAL SOLO SE USA EN PREMIUM Y DELUXE */}
       <AnimatePresence>
         {isOpen && currentPlan !== "CLASSIC" && (
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="fixed inset-0 backdrop-blur-md bg-black/90 touch-none" />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 50 }}
-              className="relative w-full max-w-md bg-[#0c001a] rounded-[3rem] shadow-2xl overflow-hidden border border-purple-500/30 z-10"
-              onClick={(e) => e.stopPropagation()}
-            >
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 bg-black/80 backdrop-blur-sm touch-none" />
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 40 }} className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 text-center touch-auto">
+              <button onClick={handleClose} className="absolute top-4 right-4 text-zinc-400 hover:text-black transition-colors"><X size={24} /></button>
+              
               {!isValidated ? (
-                <div className="p-10 text-center">
-                  <KeyRound className="w-16 h-16 text-purple-600/20 mx-auto mb-6" />
-                  <h3 className="text-4xl font-black italic text-white mb-8 uppercase tracking-tighter">Tu Código</h3>
-                  <input 
-                    type="text" value={familyCode} onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
-                    placeholder="CÓDIGO"
-                    className="w-full bg-white/5 border-b-2 border-purple-500/20 py-6 text-center text-3xl font-mono tracking-[0.4em] focus:border-purple-500 outline-none text-white uppercase"
-                  />
-                  {errorMessage && <p className="mt-4 text-rose-500 text-[10px] font-black uppercase italic tracking-widest"><AlertCircle size={14} className="inline mr-2" /> {errorMessage}</p>}
-                  <button onClick={handleValidateCode} disabled={isSubmitting || familyCode.length < 3} className="w-full mt-10 bg-purple-600 text-white py-6 rounded-2xl font-black text-[11px] tracking-widest uppercase italic shadow-xl shadow-purple-900/40">
-                    {isSubmitting ? <Loader2 className="animate-spin mx-auto" /> : "ACCEDER"}
-                  </button>
-                </div>
-              ) : alreadyResponded ? (
-                <div className="p-12 text-center bg-[#0c001a]">
-                  <PartyPopper size={60} className="text-purple-500 mx-auto mb-6" />
-                  <h4 className="text-4xl font-black italic text-white mb-4 uppercase tracking-tighter">¡LISTO!</h4>
-                  <p className="text-purple-100/50 text-xs font-mono tracking-widest mb-10 uppercase">RESPUESTA RECIBIDA. NOS VEMOS.</p>
-                  <button onClick={handleClose} className="px-12 py-5 bg-white/5 border border-white/10 text-white rounded-full text-[10px] font-black tracking-widest uppercase italic">CERRAR</button>
+                <div className="mt-4">
+                   <h3 className="font-['Permanent_Marker',_cursive] text-3xl mb-2 text-black uppercase">Asistencia</h3>
+                   <input type="text" value={guestCode} onChange={(e) => setGuestCode(e.target.value.toUpperCase())} placeholder="CÓDIGO" className="w-full bg-zinc-100 border-2 border-transparent focus:border-[#5ba394] p-4 rounded-2xl mb-4 text-center font-black tracking-[0.3em] outline-none text-black text-xl shadow-inner" />
+                   <button onClick={handleValidarCodigo} disabled={isSubmitting || !guestCode} className="w-full py-4 bg-black text-white rounded-2xl font-bold uppercase tracking-[0.2em] text-[10px] shadow-xl flex justify-center items-center gap-2">
+                     {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : "VALIDAR ACCESO"}
+                   </button>
                 </div>
               ) : (
-                <div className="max-h-[85vh] overflow-y-auto custom-scrollbar">
-                  <div className="bg-purple-600 text-center py-10 px-8 relative">
-                    <button onClick={handleClose} className="absolute right-8 top-6 text-white/30 hover:text-white"><X size={24} /></button>
-                    <h3 className="text-4xl font-black italic text-white mb-2 uppercase tracking-tighter">{guestInfo?.nombre}</h3>
-                    <p className="text-[10px] text-white tracking-widest font-black uppercase italic opacity-60">Cupos: {guestInfo?.cupos}</p>
-                  </div>
-
-                  <div className="p-8 space-y-8 bg-[#0c001a]">
-                    <div className="flex gap-3">
-                        <button onClick={() => setFormData({...formData, attendance: "YES"})} className={`flex-1 py-6 rounded-2xl text-[10px] font-black border-2 flex flex-col items-center gap-3 italic ${formData.attendance === "YES" ? 'bg-purple-600 text-white border-purple-600 scale-105' : 'bg-white/5 text-purple-400/30 border-white/5'}`}>
-                          <CheckCircle2 size={20} /> SÍ, VOY!
-                        </button>
-                        <button onClick={() => setFormData({...formData, attendance: "NO"})} className={`flex-1 py-6 rounded-2xl text-[10px] font-black border-2 flex flex-col items-center gap-3 italic ${formData.attendance === "NO" ? 'bg-zinc-800 text-white border-zinc-700' : 'bg-white/5 text-white/20 border-white/5'}`}>
-                          <X size={20} /> NO PUEDO
-                        </button>
+                <div className="mt-4 text-left animate-in fade-in zoom-in duration-500">
+                  <h3 className="font-['Permanent_Marker',_cursive] text-2xl mb-1 text-black uppercase text-center italic">¡Hola {guestData?.nombre}!</h3>
+                  <div className="space-y-4 font-sans">
+                    <div className="flex gap-2">
+                        <button onClick={() => setStatus("CONFIRMED")} className={`flex-1 py-3 rounded-xl border-2 font-black text-[9px] transition-all ${status === "CONFIRMED" ? "border-[#5ba394] bg-[#5ba394]/10 text-[#5ba394]" : "border-zinc-200 bg-white text-zinc-400"}`}>SI, ASISTIRÉ</button>
+                        <button onClick={() => setStatus("CANCELLED")} className={`flex-1 py-3 rounded-xl border-2 font-black text-[9px] transition-all ${status === "CANCELLED" ? "border-red-500 bg-red-50 text-red-600" : "border-zinc-200 bg-white text-zinc-400"}`}>NO PODRÉ IR</button>
                     </div>
 
-                    {formData.attendance === "YES" && (
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                    {status === "CONFIRMED" && (
                         <div className="space-y-4">
-                          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500 text-center italic">Confirmar cantidad:</p>
-                          <div className="flex items-center justify-center gap-6 bg-white/5 rounded-2xl p-4 border border-purple-500/20">
-                            <button onClick={() => setFormData(p => ({...p, confirmados: Math.max(1, p.confirmados - 1)}))} className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-white"><Minus size={18}/></button>
-                            <span className="text-3xl font-black text-white italic">{formData.confirmados}</span>
-                            <button onClick={() => setFormData(p => ({...p, confirmados: Math.min(guestInfo?.cupos || 1, p.confirmados + 1)}))} className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white"><Plus size={18}/></button>
-                          </div>
+                            <div>
+                                <label className="text-[9px] font-black text-black/60 uppercase tracking-widest ml-2 mb-1 flex items-center gap-2"><Users size={14} className="text-[#5ba394]"/> Invitados</label>
+                                <select value={confirmados} onChange={(e) => setConfirmados(Number(e.target.value))} className="w-full p-3 bg-zinc-50 rounded-xl border-2 border-zinc-200 font-bold text-sm text-black outline-none focus:border-[#5ba394]">
+                                    {[...Array(guestData?.cupos)].map((_, i) => <option key={i+1} value={i+1}>{i+1} Persona{i > 0 ? 's' : ''}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-black/60 uppercase tracking-widest ml-2 mb-1 flex items-center gap-2"><Utensils size={14} className="text-[#5ba394]"/> Menú Especial</label>
+                                <input type="text" placeholder="CELÍACO, VEGANO, ETC..." value={dietary} onChange={(e) => setDietary(e.target.value.toUpperCase())} className="w-full p-3 bg-zinc-50 rounded-xl border-2 border-zinc-200 font-bold text-xs text-black outline-none focus:border-[#5ba394] uppercase" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-black/60 uppercase tracking-widest ml-2 mb-1 flex items-center gap-2">✍️ Un mensaje lindo</label>
+                                <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Escribí acá..." rows={2} className="w-full p-3 bg-zinc-50 rounded-xl border-2 border-zinc-200 font-bold text-xs text-black outline-none focus:border-[#5ba394] shadow-inner resize-none uppercase" />
+                            </div>
                         </div>
-
-                        <div className="space-y-4">
-                          <p className="text-[10px] font-black tracking-[0.3em] uppercase text-purple-500 text-center italic">Menú Especial</p>
-                          <div className="flex flex-wrap justify-center gap-2">
-                            {["NINGUNA", "SIN TACC", "VEGANO", "VEGETARIANO"].map((item) => (
-                              <button key={item} onClick={() => handleDietaryChange(item)} className={`py-2 px-4 rounded-xl text-[9px] font-black border-2 transition-all ${formData.dietary.includes(item) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white/5 text-purple-300/30 border-white/5'}`}>{item}</button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="bg-white/5 p-6 rounded-3xl border border-purple-500/10">
-                          <label className="text-[10px] font-black tracking-[0.3em] uppercase text-purple-500 flex items-center gap-3 mb-3"><MessageSquareHeart size={18} /> Mensaje</label>
-                          <textarea
-                            value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                            className="w-full bg-transparent border-none p-0 outline-none text-white font-bold text-sm placeholder:text-white/10 resize-none italic"
-                            rows={2} placeholder="DEJALE UN MENSAJE..."
-                          />
-                        </div>
-                      </motion.div>
                     )}
-
-                    <button
-                      onClick={handleSubmit} disabled={isSubmitting || !formData.attendance}
-                      className="w-full bg-purple-600 text-white py-6 rounded-2xl text-[11px] font-black tracking-[0.3em] uppercase shadow-xl flex items-center justify-center gap-4 italic"
-                    >
-                      {isSubmitting ? <Loader2 className="animate-spin" /> : "ENVIAR MI RESPUESTA"}
+                    <button onClick={handleConfirmarFinal} disabled={isSubmitting} className="w-full py-4 bg-black text-white rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] shadow-xl flex justify-center items-center gap-2 mt-4">
+                        {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Send size={14} />} ENVIAR CONFIRMACIÓN
                     </button>
                   </div>
                 </div>
@@ -323,6 +218,9 @@ export function RSVP({ config }: RSVPProps) {
           </div>
         )}
       </AnimatePresence>
-    </>
+        <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none">
+        <div className="w-full h-[40px] md:h-[100px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
+      </div>
+    </section>
   );
 }

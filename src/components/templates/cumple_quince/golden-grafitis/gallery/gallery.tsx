@@ -66,7 +66,6 @@ export function FotoCarousel({ images, videoUrl }: { images?: string | null; vid
       
       {/* ENCABEZADO */}
       <div className="container mx-auto px-6 mb-8 text-center flex flex-col items-center relative z-10">
-        <motion.span className="text-lg text-black mb-2">Nuestra Historia</motion.span>
         <h3 className="text-4xl md:text-6xl text-black mb-4 tracking-tight">Momentos Inolvidables</h3>
         <div className="h-[1px] w-24 bg-black opacity-20" />
       </div>

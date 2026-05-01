@@ -211,7 +211,7 @@ export function RSVP({ config }: RSVPProps) {
                 ¡No podés <br /> <span className="text-purple-600">faltar!</span>
               </h2>
               <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-2 leading-relaxed max-w-md">
-                Queremos compartir esta noche mágica con vos. ¿Nos acompañas?
+                                Espero que puedas compartir conmigo este momento tan especial.
               </p>
               <p className="text-white text-[10px] tracking-widest uppercase font-bold mb-10 opacity-70 italic">
                 Confirmar antes del {formattedDate}

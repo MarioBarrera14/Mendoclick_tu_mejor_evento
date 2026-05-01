@@ -113,7 +113,7 @@ export function MusicSuggestion({ eventId }: MusicSuggestionProps) {
               </span>
             </h2>
             <p className="text-purple-100/70 font-medium italic text-xs md:text-sm max-w-[280px] mx-auto leading-relaxed">
-              ¿Qué canciones no pueden faltar? Ayudanos a armar la playlist ideal.
+              ¿Qué canciones no pueden faltar? Ayudame a armar la playlist ideal.
             </p>
           </div>
 
