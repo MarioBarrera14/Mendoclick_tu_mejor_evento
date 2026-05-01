@@ -45,15 +45,18 @@ export default withAuth(
           path === "/client-login" ||
           path.startsWith("/check-in/") ||
           path.startsWith("/api/check-in") ||
-          path.startsWith("/api/guests") || // Importante para RSVP
+          path.startsWith("/api/guests") || 
           path.startsWith("/invit") ||
           path.startsWith("/demo") ||
           path.startsWith("/images") ||
           path.startsWith("/img-rock") ||
           path.startsWith("/img_boda") ||
-          path.startsWith("/img_demo") || // <--- AGREGADO PARA LAS IMÁGENES HARCODEADAS
+          path.startsWith("/img_demo") || 
           path.startsWith("/audio") ||
-          path.startsWith("/assets");
+          path.startsWith("/assets") ||
+          path.endsWith(".webp") || // <--- PERMITIR CUALQUIER WEBP
+          path.endsWith(".png") ||  // <--- PERMITIR CUALQUIER PNG
+          path.endsWith(".jpg");    // <--- PERMITIR CUALQUIER JPG
 
         if (isPublic) return true;
         return !!token;
@@ -62,9 +65,18 @@ export default withAuth(
   }
 );
 
-// middleware.ts
+// CONFIGURACIÓN DEL MATCHER REPARADA
 export const config = {
   matcher: [
-    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|neobar.webp|assets|images|img_boda|img_demo|img-rock|audio|login|client-login|invit|demo|$).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (NextAuth)
+     * - api/check-in (Public API)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, logo.webp, neobar.webp (specific files)
+     * - Extensiones: .webp, .jpg, .png, .mp3
+     */
+    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|neobar.webp|assets|images|img_boda|img_demo|img-rock|audio|login|client-login|invit|demo|.*\\.(?:webp|jpg|png|mp3)$|$).*)",
   ],
 };
