@@ -63,10 +63,6 @@ export const Navbar = () => {
             Modelos
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#33aba1] transition-all group-hover:w-full"></span>
           </a>
-          <a href="#tecnologia" onClick={(e) => scrollToSection(e, 'tecnologia')} className="hover:text-[#33aba1] transition-colors relative group">
-            Tecnología
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#33aba1] transition-all group-hover:w-full"></span>
-          </a>
           
           <div className="flex items-center gap-4 border-l border-zinc-200 pl-8">
             {status === "authenticated" ? (
