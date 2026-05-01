@@ -5,7 +5,7 @@ import {
   X, Loader2, KeyRound, CheckCircle2, AlertCircle, 
   PartyPopper, Heart, MessageSquareHeart, Zap, Plus, Minus, Phone 
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 
 // --- INTERFAZ ACTUALIZADA ---
@@ -46,7 +46,7 @@ export function RSVP({ config }: RSVPProps) {
     message: "",
   });
 
-  const currentPlan = config.plan || "CLASSIC"; //
+  const currentPlan = config.plan || "CLASSIC";
 
   useEffect(() => {
     if (isOpen) {
@@ -64,17 +64,26 @@ export function RSVP({ config }: RSVPProps) {
 
   // --- LÓGICA WHATSAPP (PLAN CLASSIC) ---
   const handleWhatsAppConfirm = () => {
-    const telefono = config.confirmPhone || "549261000000"; //
+    const telefono = config.confirmPhone || "549261000000";
     const texto = encodeURIComponent(
       `¡Hola! Quiero confirmar mi asistencia al evento de ${config.eventName}. \nAsistiremos: [Cantidad] personas. \nMenú especial: [Opcional]. \n¡Gracias!`
     );
-    window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank"); //
+    window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
   };
 
-  const formattedDate = new Date(`${config.confirmDate}T00:00:00`).toLocaleDateString('es-AR', {
-    day: 'numeric',
-    month: 'long'
-  }).toUpperCase(); //
+  // --- FORMATEO DE FECHA SEGURO ---
+  const formattedDate = useMemo(() => {
+    if (!config.confirmDate) return "";
+    try {
+      const dateObj = new Date(config.confirmDate.replace(/-/g, '/'));
+      return dateObj.toLocaleDateString('es-AR', {
+        day: 'numeric',
+        month: 'long'
+      }).toUpperCase();
+    } catch (e) {
+      return config.confirmDate;
+    }
+  }, [config.confirmDate]);
   
   const resetAll = () => {
     setIsValidated(false);
@@ -158,15 +167,16 @@ export function RSVP({ config }: RSVPProps) {
     <>
       <section className="relative py-24 md:py-40 bg-[#0c001a] overflow-hidden font-sans">
         
-        {/* FONDO NEONBAR */}
+        {/* FONDO NEONBAR - CORREGIDO PARA VERCEL */}
         <div className="absolute inset-0 z-0">
- <Image 
-    src="/neonbar.webp"  // <--- Aquí está el error
-    alt="Neon Background" 
-    fill 
-    className="object-cover opacity-50"
-    priority
-  />
+          <Image 
+            src="/neobar.webp" 
+            alt="Neon Background" 
+            fill 
+            className="object-cover opacity-50"
+            priority
+            unoptimized
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a] opacity-90" />
           <div className="absolute inset-0 bg-black/30" />
         </div>
@@ -182,7 +192,7 @@ export function RSVP({ config }: RSVPProps) {
             >
               <div className="absolute -inset-4 bg-purple-600/30 rounded-[3rem] blur-2xl group-hover:bg-purple-500/50 transition-all duration-700" />
               <div className="relative w-full h-full rounded-[3rem] overflow-hidden border-2 border-purple-500/40 shadow-2xl bg-[#0c001a]">
-                <Image src={config.heroImage} alt="Quinceañera" fill className="object-cover transition-all duration-700 scale-105 group-hover:scale-100 opacity-100 brightness-100" priority />
+                <Image src={config.heroImage} alt="Quinceañera" fill className="object-cover transition-all duration-700 scale-105 group-hover:scale-100 opacity-100 brightness-100" priority unoptimized />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0c001a]/80 via-transparent to-transparent opacity-60 pointer-events-none" />
               </div>
               <div className="absolute -bottom-6 -right-6 bg-purple-600 p-4 rounded-2xl shadow-xl shadow-purple-900/50 z-30 group-hover:scale-110 transition-transform duration-500">
@@ -234,15 +244,9 @@ export function RSVP({ config }: RSVPProps) {
       </section>
 
       <AnimatePresence>
-        {/* EL MODAL SOLO SE ACTIVA EN PLANES PREMIUM/DELUXE */}
         {isOpen && currentPlan !== "CLASSIC" && (
           <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
-              onClick={handleClose} 
-              className="fixed inset-0 backdrop-blur-md touch-none bg-black/90" 
-            />
-
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="absolute inset-0 backdrop-blur-md touch-none bg-black/90" />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 50 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
@@ -260,7 +264,7 @@ export function RSVP({ config }: RSVPProps) {
                     placeholder="ELEG-2026"
                     className="w-full bg-white/5 border-b-2 border-purple-500/20 py-6 text-center text-3xl font-mono tracking-[0.4em] focus:border-purple-500 outline-none text-white uppercase placeholder:text-white/5"
                   />
-                  {errorMessage && <p className="mt-4 text-rose-500 text-[10px] font-black uppercase flex items-center justify-center gap-2"><AlertCircle size={14} /> {errorMessage}</p>}
+                  {errorMessage && <p className="mt-4 text-rose-500 text-[10px] font-black uppercase flex items-center justify-center gap-2 italic tracking-widest"><AlertCircle size={14} /> {errorMessage}</p>}
                   <button onClick={handleValidateCode} disabled={isSubmitting || familyCode.length < 3} className="w-full mt-10 bg-purple-600 text-white py-6 rounded-2xl font-black text-[11px] tracking-widest uppercase transition-all italic shadow-xl shadow-purple-900/40">
                     {isSubmitting ? <Loader2 className="animate-spin mx-auto" /> : "ACCEDER"}
                   </button>
@@ -293,7 +297,7 @@ export function RSVP({ config }: RSVPProps) {
                     {formData.attendance === "YES" && (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                         <div className="space-y-4">
-                          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500 text-center">Confirmar cantidad:</p>
+                          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500 text-center italic">Confirmar cantidad:</p>
                           <div className="flex items-center justify-center gap-6 bg-white/5 rounded-2xl p-4 border border-purple-500/20">
                             <button onClick={() => setFormData(p => ({...p, confirmados: Math.max(1, p.confirmados - 1)}))} className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-white"><Minus size={18}/></button>
                             <span className="text-3xl font-black text-white italic">{formData.confirmados}</span>
@@ -302,7 +306,7 @@ export function RSVP({ config }: RSVPProps) {
                         </div>
 
                         <div className="space-y-4">
-                          <p className="text-[10px] font-black tracking-[0.3em] uppercase text-purple-500 text-center">Menú Especial</p>
+                          <p className="text-[10px] font-black tracking-[0.3em] uppercase text-purple-500 text-center italic">Menú Especial</p>
                           <div className="flex flex-wrap justify-center gap-2">
                             {["NINGUNA", "SIN TACC", "VEGANO", "VEGETARIANO"].map((item) => (
                               <button key={item} onClick={() => handleDietaryChange(item)} className={`py-2 px-4 rounded-xl text-[9px] font-black border-2 transition-all ${formData.dietary.includes(item) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white/5 text-purple-300/30 border-white/5'}`}>{item}</button>
