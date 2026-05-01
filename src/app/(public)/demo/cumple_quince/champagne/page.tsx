@@ -42,13 +42,16 @@ interface ChampagnePageProps {
 
 export default function ChampagnePage({ dbConfig, eventId, isDemo = false }: ChampagnePageProps) {
   
-  // Lógica de Fallback Unificada y Robusta
   const config = useMemo(() => {
     const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
     
+    // Extraemos el plan. Si no hay dbConfig, asumimos DELUXE para la demo.
+    const plan = dbConfig?.planLevel || dbConfig?.plan || (dbConfig ? "CLASSIC" : "DELUXE");
+
     if (dbConfig) {
       return {
         ...dbConfig,
+        plan, // Guardamos el plan en la config
         eventName: dbConfig.eventName || localConfig.personal.nombre,
         eventDate: dbConfig.eventDate || eventDateDefault,
         eventTime: dbConfig.eventTime || localConfig.fecha.hora,
@@ -66,8 +69,8 @@ export default function ChampagnePage({ dbConfig, eventId, isDemo = false }: Cha
       };
     }
 
-    // Configuración para estado DEMO (dbConfig es null)
     return {
+      plan: "DELUXE",
       eventName: localConfig.personal.nombre,
       heroImage: localConfig.imagenes.hero.champagne,
       eventDate: eventDateDefault,
@@ -90,41 +93,67 @@ export default function ChampagnePage({ dbConfig, eventId, isDemo = false }: Cha
   }, [dbConfig]);
 
   const currentEventId = eventId || "demo-quince-champagne";
+  const isClassic = config.plan === "CLASSIC";
 
-  return (
-    <main className={`${serifFont.variable} ${scriptFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a] overflow-x-hidden`}>
+  const PageContent = (
+    <>
+      {dbConfig && !isDemo && (
+        <Navbar eventName={config.eventName} isDemo={isDemo} />
+      )}
       
-      <Envelope musicUrl={config.musicUrl}>
-        
-        {/* REGLA FÍSICA: Solo Navbar si hay datos de base de datos */}
-        {dbConfig && (
-          <Navbar eventName={config.eventName} isDemo={isDemo} />
-        )}
-        
-        <Hero config={config} />
+      <Hero config={config} />
 
+      {/* GALERÍA Y VIDEO: Solo Premium/Deluxe */}
+      {!isClassic && (
         <FotoCarousel 
           images={config.carruselImages} 
           videoUrl={config.videoUrl}
         />
+      )}
 
+      {/* ITINERARIO: Solo Premium/Deluxe */}
+      {!isClassic && (
         <Itinerary items={config.itinerary || []} />
+      )}
 
-        <Details config={config} />
+      <Details config={config} />
 
-        {/* RSVP Blindado: confirmDate siempre tendrá valor */}
-        <RSVP config={{
-          heroImage: config.heroImage,
-          eventDate: config.eventDate,
-          confirmDate: config.confirmDate
-        }}/>
+   {/* RSVP: Ahora recibe plan, nombre del evento y teléfono para WhatsApp */}
+      <RSVP config={{
+        heroImage: config.heroImage,
+        eventDate: config.eventDate,
+        confirmDate: config.confirmDate,
+        eventName: config.eventName,    // Faltaba para el mensaje de WA
+        confirmPhone: config.confirmPhone, // Faltaba el número de destino
+        plan: config.plan               // Faltaba para activar la lógica CLASSIC
+      }}/>
 
-        <Location config={config} />
+      <Location config={config} />
 
+      {/* MÚSICA: Solo Premium/Deluxe */}
+      {!isClassic && (
         <MusicSuggestion eventId={currentEventId} />
+      )}
 
-        <Footer />
-      </Envelope>
+      <Footer />
+    </>
+  );
+
+  return (
+    <main className={`${serifFont.variable} ${scriptFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a] overflow-x-hidden`}>
+      {/* 
+        Si es CLASSIC, renderizamos directo. 
+        Si es superior, envolvemos en Envelope (Sobre + Música).
+      */}
+      {isClassic ? (
+        <div className="animate-in fade-in duration-1000">
+          {PageContent}
+        </div>
+      ) : (
+        <Envelope musicUrl={config.musicUrl}>
+          {PageContent}
+        </Envelope>
+      )}
     </main>
   );
 }

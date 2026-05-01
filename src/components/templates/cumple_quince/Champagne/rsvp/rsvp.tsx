@@ -3,16 +3,20 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   CalendarCheck, X, Loader2, AlertCircle, 
-  PartyPopper, Heart, Plus, Minus, Utensils, MessageSquare 
+  PartyPopper, Heart, Plus, Minus, Utensils, MessageSquare, Phone 
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 interface RSVPProps {
   config: {
     heroImage: string;
     eventDate: string;
     confirmDate: string;
+    eventName: string;
+    confirmPhone?: string;
+    plan?: "CLASSIC" | "PREMIUM" | "DELUXE";
   };
 }
 
@@ -26,7 +30,6 @@ export function RSVP({ config }: RSVPProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [guestInfo, setGuestInfo] = useState<any>(null);
   
-  // ESTADO ACTUALIZADO con dietary (string) y message
   const [formData, setFormData] = useState({
     name: "",
     attendance: "", 
@@ -34,6 +37,8 @@ export function RSVP({ config }: RSVPProps) {
     dietary: "",
     message: "",
   });
+
+  const currentPlan = config.plan || "CLASSIC";
 
   useEffect(() => {
     if (isOpen) {
@@ -48,6 +53,15 @@ export function RSVP({ config }: RSVPProps) {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  // --- LÓGICA WHATSAPP (PLAN CLASSIC) ---
+  const handleWhatsAppConfirm = () => {
+    const telefono = config.confirmPhone || "549261000000";
+    const texto = encodeURIComponent(
+      `¡Hola! Quiero confirmar mi asistencia al evento de ${config.eventName}. \nAsistiremos: [Cantidad] personas. \nMenú especial: [Opcional]. \n¡Gracias!`
+    );
+    window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+  };
 
   const resetAll = () => {
     setIsValidated(false);
@@ -121,6 +135,10 @@ export function RSVP({ config }: RSVPProps) {
     }
   };
 
+  const formattedConfirmDate = new Date(`${config.confirmDate}T00:00:00`).toLocaleDateString('es-AR', {
+    day: 'numeric', month: 'long'
+  }).toUpperCase();
+
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
 
@@ -132,21 +150,32 @@ export function RSVP({ config }: RSVPProps) {
             <div className="text-center md:text-left flex flex-col items-center md:items-start text-white max-w-xl">
               <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="flex justify-center md:justify-start mb-4">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/30 bg-white/10 flex items-center justify-center shadow-inner">
-                  <CalendarCheck className="w-6 h-6 md:w-7 md:h-7 text-white stroke-[1]" />
+                  {currentPlan === "CLASSIC" ? <Phone className="w-6 h-6 text-white" /> : <CalendarCheck className="w-6 h-6 text-white stroke-[1]" />}
                 </div>
               </motion.div>
               <h2 className="font-script text-5xl md:text-6xl text-white mb-2">Confirmación</h2>
-              <p className="text-white/80 text-[10px] md:text-[12px] leading-relaxed font-light uppercase tracking-[0.2em] mb-8">
-                Esperamos que puedas acompañarnos en este momento tan especial.
+              <p className="text-white/80 text-[10px] md:text-[10px] leading-relaxed font-light uppercase tracking-[0.2em] mb-4">
+                Espero que puedas compartir conmigo este momento tan especial.
               </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(true)}
-                className="px-10 py-3.5 border border-white/50 rounded-full text-white text-[10px] font-medium tracking-widest uppercase hover:bg-white/10 transition-all shadow-sm"
-              >
-                Confirmar asistencia
-              </motion.button>
+              <p className="text-white text-[9px] tracking-widest uppercase font-bold mb-8 opacity-70">Confirmar antes del {formattedConfirmDate}</p>
+              
+              {currentPlan === "CLASSIC" ? (
+                <motion.button
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  onClick={handleWhatsAppConfirm}
+                  className="px-10 py-3.5 bg-[#25D366] rounded-full text-white text-[10px] font-black tracking-widest uppercase flex items-center gap-3 shadow-xl"
+                >
+                  <Phone size={14} /> Confirmar por WhatsApp
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsOpen(true)}
+                  className="px-10 py-3.5 border border-white/50 rounded-full text-white text-[10px] font-medium tracking-widest uppercase hover:bg-white/10 transition-all shadow-sm"
+                >
+                  Confirmar asistencia
+                </motion.button>
+              )}
             </div>
 
             <motion.div initial={{ opacity: 0, x: 50, rotate: 10 }} whileInView={{ opacity: 1, x: 0, rotate: -5 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.8, ease: "easeOut" }} className="relative w-full max-w-xs md:w-1/3 aspect-[3/4] z-20">
@@ -157,10 +186,7 @@ export function RSVP({ config }: RSVPProps) {
                 </div>
               </div>
               <motion.div animate={{ y: [0, -4, 0], rotate: [15, 12, 15] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-6 -right-4 z-30">
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-14 h-14 bg-white/30 backdrop-blur-[2px] rounded-full border border-white/40 shadow-sm" />
-                  <Heart className="w-9 h-9 text-white fill-white stroke-[1.5] drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)] relative z-10" />
-                </div>
+                <Heart className="w-9 h-9 text-white fill-white stroke-[1.5] drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" />
               </motion.div>
             </motion.div>
           </div>
@@ -168,7 +194,7 @@ export function RSVP({ config }: RSVPProps) {
       </section>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && currentPlan !== "CLASSIC" && (
           <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={handleClose} className="fixed inset-0 backdrop-blur-md bg-[radial-gradient(circle,_rgba(180,161,120,0.3)_0%,_rgba(0,0,0,0.95)_100%)]" />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative w-full max-w-md bg-white p-8 rounded-sm shadow-2xl flex flex-col max-h-[95vh] text-gray-800" onClick={(e) => e.stopPropagation()}>
@@ -196,7 +222,6 @@ export function RSVP({ config }: RSVPProps) {
                     <h3 className="font-script text-4xl text-[#b4a178]">{guestInfo?.nombre}</h3>
                     <p className="text-[9px] text-gray-400 uppercase tracking-widest font-light mt-1 italic">Gestionar pase familiar</p>
                   </div>
-                  
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <button onClick={() => setFormData({...formData, attendance: "YES"})} className={`py-4 rounded-sm text-[10px] font-medium tracking-widest border transition-all ${formData.attendance === "YES" ? 'bg-[#b4a178] text-white border-[#b4a178]' : 'bg-white text-gray-400 border-gray-200'}`}>ASISTIRÉ</button>
@@ -205,7 +230,6 @@ export function RSVP({ config }: RSVPProps) {
 
                     {formData.attendance === "YES" && (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                        {/* CONTADOR DE CUPOS */}
                         <div className="space-y-2 text-center">
                           <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 italic">Personas que asisten:</label>
                           <div className="flex items-center justify-center gap-6">
@@ -214,39 +238,17 @@ export function RSVP({ config }: RSVPProps) {
                             <button onClick={() => setFormData(p => ({...p, confirmados: Math.min(guestInfo?.cupos || 1, p.confirmados + 1)}))} className="text-[#b4a178] p-1 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"><Plus size={16}/></button>
                           </div>
                         </div>
-
-                        {/* MENÚ ESPECIAL */}
                         <div className="space-y-2">
                           <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 flex items-center gap-2"><Utensils size={12}/> Menú Especial:</label>
-                          <input 
-                            type="text" 
-                            placeholder="CELÍACO, VEGANO, ETC..." 
-                            value={formData.dietary} 
-                            onChange={(e) => setFormData({...formData, dietary: e.target.value.toUpperCase()})} 
-                            className="w-full bg-gray-50 border-b border-gray-200 py-2 px-1 text-xs outline-none focus:border-[#b4a178] transition-colors uppercase" 
-                          />
+                          <input type="text" placeholder="CELÍACO, VEGANO, ETC..." value={formData.dietary} onChange={(e) => setFormData({...formData, dietary: e.target.value.toUpperCase()})} className="w-full bg-gray-50 border-b border-gray-200 py-2 px-1 text-xs outline-none focus:border-[#b4a178] transition-colors uppercase" />
                         </div>
-
-                        {/* MENSAJE Lindo */}
                         <div className="space-y-2">
                           <label className="text-[9px] font-medium tracking-widest uppercase text-gray-400 flex items-center gap-2"><MessageSquare size={12}/> Un mensaje para nosotros:</label>
-                          <textarea 
-                            rows={2}
-                            placeholder="Escribe algo lindo aquí..." 
-                            value={formData.message} 
-                            onChange={(e) => setFormData({...formData, message: e.target.value})} 
-                            className="w-full bg-gray-50 border border-gray-100 p-3 text-xs outline-none focus:border-[#b4a178] transition-colors resize-none rounded-sm" 
-                          />
+                          <textarea rows={2} placeholder="Escribe algo lindo aquí..." value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-3 text-xs outline-none focus:border-[#b4a178] transition-colors resize-none rounded-sm" />
                         </div>
                       </motion.div>
                     )}
-
-                    {/* BOTÓN FINAL */}
-                    <button 
-                      onClick={handleSubmit} 
-                      disabled={isSubmitting || !formData.attendance} 
-                      className="w-full bg-black text-white py-4 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-xl disabled:bg-gray-300"
-                    >
+                    <button onClick={handleSubmit} disabled={isSubmitting || !formData.attendance} className="w-full bg-black text-white py-4 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-xl disabled:bg-gray-300">
                       {isSubmitting ? <Loader2 className="animate-spin mx-auto" size={16} /> : "ENVIAR RESPUESTA"}
                     </button>
                   </div>

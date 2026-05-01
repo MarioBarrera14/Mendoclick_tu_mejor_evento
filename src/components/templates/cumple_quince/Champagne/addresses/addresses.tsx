@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { MapPin, Calendar, Clock } from "lucide-react";
 
-// --- INTERFAZ CONECTADA AL SCHEMA DE PRISMA ---
 interface LocationProps {
   config: {
     venueName: string;
@@ -15,90 +14,103 @@ interface LocationProps {
 }
 
 export function Location({ config }: LocationProps) {
-  // Mapeo dinámico
   const name = config.venueName || "Nombre del Salón";
   const address = config.venueAddress || "Dirección del evento";
   const link = config.mapLink || "#";
   const time = `${config.eventTime}hs`;
 
-  // Formateo de fecha: YYYY-MM-DD -> DD · MM · YYYY
-  const displayDate = config.eventDate.split("-").reverse().join(" · ");
+  const [year, month, day] = config.eventDate.split("-");
+  const displayDate = `${day} / ${month} / ${year}`;
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden font-sans -mt-20 md:-mt-24">
-      
-      {/* LA FRANJA INCLINADA - Estética Night Lights */}
-      <div 
-        className="absolute inset-0 bg-[#d1d1d1] z-10"
-        style={{ 
-          clipPath: "polygon(0 12%, 100% 0%, 100% 88%, 0% 100%)" 
-        }}
-      />
-
-      <div className="container mx-auto px-6 relative z-10 text-center max-w-2xl pt-16">
+    // Agregamos un padding inferior mucho más grande en móvil (pb-32) para que no pise el diseño inferior
+    <section className="relative pt-12 pb-32 md:py-28 bg-white overflow-hidden font-sans">
+      <div className="container mx-auto px-6 relative z-10 text-center max-w-3xl">
         
-        {/* TÍTULO PRINCIPAL */}
-        <motion.h2 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="font-script text-4xl md:text-5xl text-[#b4a178] mb-10 pt-4"
+        {/* CABECERA COMPACTA */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-8 md:mb-16"
         >
-          Fiesta
-        </motion.h2>
+          <h2 className="font-script text-4xl md:text-7xl text-[#b4a178] leading-tight">
+            La Fiesta
+          </h2>
+          <div className="flex items-center justify-center gap-3 mt-1">
+            <div className="h-[1px] w-6 md:w-8 bg-[#b4a178]/30" />
+            <div className="w-1 h-1 rounded-full bg-[#b4a178]/40" />
+            <div className="h-[1px] w-6 md:w-8 bg-[#b4a178]/30" />
+          </div>
+        </motion.div>
 
-        <div className="space-y-12 pb-10">
+        {/* Reducimos el gap en móvil para compactar el texto */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-0 md:divide-x md:divide-gray-100">
           
-          {/* BLOQUE: DÍA Y HORARIO DINÁMICO */}
+          {/* BLOQUE: CUÁNDO */}
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center px-4 md:px-8"
           >
-            <div className="border border-gray-800 px-3 py-1 mb-3">
-              <span className="text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-gray-500 font-medium">
-                Día y Horario
-              </span>
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-100 flex items-center justify-center mb-2 shadow-sm">
+              <Calendar size={14} className="text-[#b4a178]" />
             </div>
-            <p className="text-gray-800 text-base md:text-xl font-light tracking-wide">
-              {displayDate} - {time}
+            <span className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-gray-400 font-bold mb-2 md:mb-4">
+              Cuándo
+            </span>
+            <p className="text-gray-800 text-lg md:text-2xl font-light tracking-[0.1em] mb-1">
+              {displayDate}
             </p>
+            <div className="flex items-center gap-1.5 text-gray-500 italic text-xs md:text-sm">
+              <Clock size={12} className="opacity-70" />
+              <span>{time}</span>
+            </div>
           </motion.div>
 
-          {/* BLOQUE: LUGAR DINÁMICO */}
+          {/* BLOQUE: DÓNDE */}
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center px-4 md:px-8"
           >
-            <div className="border border-gray-800 px-5 py-1 mb-4">
-              <span className="text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-gray-500 font-medium">
-                Lugar
-              </span>
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-100 flex items-center justify-center mb-2 shadow-sm">
+              <MapPin size={14} className="text-[#b4a178]" />
             </div>
-            <h3 className="text-gray-800 text-base md:text-lg font-medium mb-1 leading-tight px-4 uppercase">
+            <span className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-gray-400 font-bold mb-2 md:mb-4">
+              Dónde
+            </span>
+            <h3 className="text-gray-800 text-base md:text-xl font-medium mb-1 tracking-tight uppercase">
               {name}
             </h3>
-            <p className="text-gray-500 text-[11px] md:text-[13px] font-light max-w-[250px] mx-auto mb-8 leading-relaxed italic uppercase">
+            <p className="text-gray-500 text-[10px] md:text-sm font-light max-w-[200px] leading-relaxed italic uppercase tracking-wider">
               {address}
             </p>
-
-            {/* BOTÓN MAPA */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3 w-full px-4">
-              <motion.a 
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex bg-white items-center justify-center gap-2 w-full md:w-auto px-8 py-2 border border-gray-400 rounded-full text-gray-600 text-[10px] font-medium tracking-widest uppercase hover:bg-gray-50 transition-all shadow-sm no-underline"
-              >
-                <MapPin size={12} />
-                ¿Cómo llegar?
-              </motion.a>
-            </div>
           </motion.div>
-
         </div>
+
+        {/* BOTÓN RESPONSIVO - Ajustado margen y z-index */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-10 md:mt-20 flex justify-center relative z-20"
+        >
+          <motion.a 
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="inline-flex items-center justify-center gap-2 w-full max-w-[220px] md:max-w-none md:w-auto md:px-10 py-3 border border-gray-200 rounded-full text-gray-700 text-[10px] font-bold tracking-[0.2em] uppercase transition-all bg-white shadow-sm no-underline"
+          >
+            <MapPin size={14} />
+            Ver ubicación
+          </motion.a>
+        </motion.div>
+
       </div>
     </section>
   );

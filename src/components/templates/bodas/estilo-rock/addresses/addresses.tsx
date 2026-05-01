@@ -47,7 +47,6 @@ export function EventDetails({ config }: EventDetailsProps) {
 
   return (
     <>
-      <SeparadorEntrePaginas />
       <section className="relative bg-[#33aba1] py-16 px-4 flex flex-col items-center overflow-hidden font-sans">
         
         <div className={`${zebraClass} top-0`} />

@@ -8,12 +8,15 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import SeparadorEntrePaginas from "../line/separadordepaaginas";
 
-// --- INTERFAZ DE PROPS ---
+// --- INTERFAZ DE PROPS ACTUALIZADA ---
 interface RSVPProps {
   config: {
     heroImage: string;
     eventDate: string;
     confirmDate: string;
+    plan: string;         // Requerido para la lógica de planes
+    eventName: string;    // Requerido para el mensaje de WhatsApp
+    confirmPhone: string; // Requerido para el destino de WhatsApp
   };
 }
 
@@ -39,6 +42,9 @@ export function RSVP({ config }: RSVPProps) {
     dietary: "",   
     message: "",   
   });
+
+  // Lógica de validación de plan
+  const isClassic = config.plan === "CLASSIC";
 
   // --- LÓGICA DE BLOQUEO DE SCROLL ROBUSTA ---
   useEffect(() => {
@@ -69,6 +75,12 @@ export function RSVP({ config }: RSVPProps) {
     month: 'long',
     year: 'numeric'
   }).toUpperCase();
+
+  // Función para confirmación directa vía WhatsApp (Plan CLASSIC)
+  const handleConfirmClassic = () => {
+    const text = encodeURIComponent(`¡Hola! 👋 Queremos confirmar nuestra asistencia a la boda de ${config.eventName}.`);
+    window.open(`https://wa.me/${config.confirmPhone}?text=${text}`, '_blank');
+  };
   
   const resetAll = () => {
     setIsValidated(false);
@@ -198,12 +210,15 @@ export function RSVP({ config }: RSVPProps) {
             <p className="text-gray-600 text-sm md:text-base font-bold mb-8 italic">
               ¡Confirmá tu asistencia antes del {formattedDate}!
             </p>
+            
+            {/* BOTÓN CON LÓGICA DE PLAN */}
             <button 
-              onClick={() => setIsOpen(true)} 
+              onClick={isClassic ? handleConfirmClassic : () => setIsOpen(true)} 
               className={`${buttonBase} ${buttonBorder} bg-[#b02a30] px-14 py-4 text-lg outline-none`}
             >
-              CONFIRMAR
+              {isClassic ? "CONFIRMAR POR WHATSAPP" : "CONFIRMAR"}
             </button>
+
             <div className="mt-8 opacity-70 text-[#33aba1]">
                 <Ticket size={40} className="rotate-[-20deg]" />
             </div>
@@ -212,9 +227,9 @@ export function RSVP({ config }: RSVPProps) {
       </div>
 
       <AnimatePresence>
-        {isOpen && (
+        {/* EL MODAL SOLO SE ACTIVA PARA PLANES PREMIUM/DELUXE */}
+        {!isClassic && isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* touch-none en el fondo para evitar scroll táctil */}
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -295,7 +310,6 @@ export function RSVP({ config }: RSVPProps) {
 
                   {formData.attendance === "YES" && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pt-6 border-t-2 border-black/10">
-                      
                       <div className="space-y-2">
                         <p className="text-[10px] font-black uppercase tracking-widest italic opacity-50 text-[#b02a30]">Confirmar cantidad de personas:</p>
                         <div className="flex items-center gap-4 bg-white border-2 border-black p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">

@@ -1,16 +1,22 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, KeyRound, CheckCircle2, AlertCircle, PartyPopper, Heart, MessageSquareHeart, Zap, Plus, Minus } from "lucide-react";
+import { 
+  X, Loader2, KeyRound, CheckCircle2, AlertCircle, 
+  PartyPopper, Heart, MessageSquareHeart, Zap, Plus, Minus, Phone 
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-// --- INTERFAZ DE PROPS ---
+// --- INTERFAZ ACTUALIZADA ---
 interface RSVPProps {
   config: {
     heroImage: string;
     eventDate: string;
     confirmDate: string;
+    eventName: string;       // Requerido para el mensaje de WA
+    confirmPhone?: string;   // Requerido para el destino de WA
+    plan?: "CLASSIC" | "PREMIUM" | "DELUXE"; // Requerido para la lógica de planes
   };
 }
 
@@ -40,7 +46,8 @@ export function RSVP({ config }: RSVPProps) {
     message: "",
   });
 
-  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
+  const currentPlan = config.plan || "CLASSIC"; //
+
   useEffect(() => {
     if (isOpen) {
       document.documentElement.style.overflow = "hidden";
@@ -55,11 +62,19 @@ export function RSVP({ config }: RSVPProps) {
     };
   }, [isOpen]);
 
-  const formattedDate = new Date(`${config.eventDate}T00:00:00`).toLocaleDateString('es-AR', {
+  // --- LÓGICA WHATSAPP (PLAN CLASSIC) ---
+  const handleWhatsAppConfirm = () => {
+    const telefono = config.confirmPhone || "549261000000"; //
+    const texto = encodeURIComponent(
+      `¡Hola! Quiero confirmar mi asistencia al evento de ${config.eventName}. \nAsistiremos: [Cantidad] personas. \nMenú especial: [Opcional]. \n¡Gracias!`
+    );
+    window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank"); //
+  };
+
+  const formattedDate = new Date(`${config.confirmDate}T00:00:00`).toLocaleDateString('es-AR', {
     day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  }).toUpperCase();
+    month: 'long'
+  }).toUpperCase(); //
   
   const resetAll = () => {
     setIsValidated(false);
@@ -185,17 +200,33 @@ export function RSVP({ config }: RSVPProps) {
               <h2 className="text-6xl md:text-8xl font-black italic text-white tracking-tighter uppercase leading-[0.8] mb-8 drop-shadow-2xl">
                 ¡No podés <br /> <span className="text-purple-600">faltar!</span>
               </h2>
-              <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-10 leading-relaxed max-w-md">
-                Queremos compartir esta noche mágica con vos. Por favor, confirma tu asistencia antes del {formattedDate}.
+              <p className="text-purple-100/60 font-medium italic text-sm md:text-base mb-2 leading-relaxed max-w-md">
+                Queremos compartir esta noche mágica con vos. ¿Nos acompañas?
               </p>
-              <motion.button
-                whileHover={{ scale: 1.05, x: 5 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(true)}
-                className="px-12 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(147,51,234,0.5)] hover:bg-purple-500 italic flex items-center gap-4"
-              >
-                CONFIRMAR MI ASISTENCIA <Heart size={16} fill="currentColor" />
-              </motion.button>
+              <p className="text-white text-[10px] tracking-widest uppercase font-bold mb-10 opacity-70 italic">
+                Confirmar antes del {formattedDate}
+              </p>
+
+              {/* LÓGICA DE BOTONES SEGÚN PLAN */}
+              {currentPlan === "CLASSIC" ? (
+                <motion.button
+                  whileHover={{ scale: 1.05, x: 5 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleWhatsAppConfirm}
+                  className="px-12 py-6 bg-[#25D366] text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(37,211,102,0.5)] italic flex items-center gap-4"
+                >
+                  CONFIRMAR POR WHATSAPP <Phone size={16} fill="currentColor" />
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05, x: 5 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsOpen(true)}
+                  className="px-12 py-6 bg-purple-600 text-white tracking-[0.3em] text-[11px] font-black uppercase rounded-2xl transition-all duration-300 shadow-[0_20px_50px_-10px_rgba(147,51,234,0.5)] hover:bg-purple-500 italic flex items-center gap-4"
+                >
+                  CONFIRMAR ASISTENCIA <Heart size={16} fill="currentColor" />
+                </motion.button>
+              )}
             </motion.div>
           </div>
         </div>
@@ -203,19 +234,13 @@ export function RSVP({ config }: RSVPProps) {
       </section>
 
       <AnimatePresence>
-        {isOpen && (
+        {/* EL MODAL SOLO SE ACTIVA EN PLANES PREMIUM/DELUXE */}
+        {isOpen && currentPlan !== "CLASSIC" && (
           <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-            
-            {/* OVERLAY con touch-none para evitar scroll por gestos táctiles */}
             <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
               onClick={handleClose} 
-              className="fixed inset-0 backdrop-blur-md touch-none"
-              style={{
-                background: "radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, rgba(0, 0, 0, 0.95) 100%)"
-              }}
+              className="fixed inset-0 backdrop-blur-md touch-none bg-black/90" 
             />
 
             <motion.div

@@ -50,6 +50,7 @@ export default withAuth(
           path.startsWith("/invit") ||
           path.startsWith("/demo") ||
           path.startsWith("/images") ||
+          path.startsWith("/img-rock") ||
           path.startsWith("/img_boda") ||
           path.startsWith("/img_demo") ||
           path.startsWith("/audio") ||
@@ -67,7 +68,7 @@ export default withAuth(
 export const config = {
   // El matcher define qué rutas procesa este middleware.
   // Se excluyen archivos estáticos, logos y las rutas públicas críticas.
-  matcher: [
-    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|audio|login|client-login|invit|demo|$).*)",
-  ],
+matcher: [
+  "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img-rock|audio|login|client-login|invit|demo|$).*)",
+],
 };

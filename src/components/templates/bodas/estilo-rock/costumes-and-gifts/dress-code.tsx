@@ -8,6 +8,7 @@ import SeparadorEntrePaginas from '../line/separadordepaaginas';
 
 interface WeddingDetailsProps {
   config: {
+    plan?: string | null; // Añadido para controlar el fondo
     dressCode?: string | null;
     dressDescription?: string | null;
     cbu?: string | null;
@@ -23,23 +24,18 @@ const colorCeleste = "#33aba1";
 const buttonBase = "relative text-white px-8 py-3 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 group z-10";
 const buttonBorder = "after:content-[''] after:absolute after:inset-0 after:border-2 after:border-black after:translate-x-1.5 after:translate-y-1.5 after:-z-10 after:transition-transform hover:after:translate-x-0 hover:after:translate-y-0";
 
-// --- MODAL CORREGIDO CON BLOQUEO DE SCROLL ROBUSTO ---
 function DetailModal({ isOpen, onClose, title, children, shadowColor }: { isOpen: boolean; onClose: () => void; title: string; children: React.ReactNode; shadowColor: string }) {
   
   useEffect(() => {
     if (isOpen) {
-      // Bloqueamos scroll en ambos para asegurar compatibilidad en móviles y desktop
       document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
-      // Evita saltos visuales en algunos navegadores
       document.body.style.paddingRight = "0px"; 
     } else {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     }
-
-    // Cleanup: Al desmontar el componente, nos aseguramos de devolver el scroll
     return () => {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
@@ -56,7 +52,7 @@ function DetailModal({ isOpen, onClose, title, children, shadowColor }: { isOpen
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] touch-none" // touch-none evita scroll táctil
+            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] touch-none"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
@@ -78,8 +74,6 @@ function DetailModal({ isOpen, onClose, title, children, shadowColor }: { isOpen
     </AnimatePresence>
   );
 }
-
-// --- RESTO DE COMPONENTES IGUALES ---
 
 function CopyButton({ text, label, shadowColor }: { text: string; label: string; shadowColor: string }) {
   const [copied, setCopied] = useState(false);
@@ -116,6 +110,8 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
 
   useEffect(() => setMounted(true), []);
 
+  const isClassic = config.plan === "CLASSIC";
+
   const cardBaseStyles = "relative bg-[#fdfcf0] border-2 border-black p-8 md:p-10 flex-1 flex flex-col";
 
   const getCardVariants = (rotateVal: number, delayVal: number): Variants => ({
@@ -136,8 +132,15 @@ export default function WeddingDetailsSection({ config }: WeddingDetailsProps) {
 
   return (
     <>
-      <section className="relative min-h-screen w-full flex items-center justify-center bg-[#1a1a1a] py-20 px-4 md:px-10 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <section 
+        className={`relative min-h-screen w-full flex items-center justify-center py-20 px-4 md:px-10 transition-colors duration-500 overflow-hidden ${
+          isClassic ? "bg-white" : "bg-[#1a1a1a]"
+        }`}
+      >
+        {/* Solo mostrar puntitos si NO es classic */}
+        {!isClassic && (
+          <div className="absolute inset-0 z-0 opacity-20 pointer-events-none bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[size:24px_24px]" />
+        )}
 
         <div className="relative z-10 flex flex-col md:flex-row gap-12 max-w-6xl w-full items-stretch">
           

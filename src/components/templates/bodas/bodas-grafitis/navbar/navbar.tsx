@@ -1,126 +1,100 @@
 "use client";
 
-import Link from "next/link";
-import { LayoutDashboard, Users, LogOut, RefreshCw, Edit3 } from "lucide-react"; 
-import { useRouter } from "next/navigation";
-import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
-import { useSession, signOut } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { LogIn, LayoutDashboard, Edit3, LogOut } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
 
 interface NavbarProps {
   eventName?: string | null;
-  isDemo?: boolean;
   plan?: string;
+  isDemo?: boolean;
 }
 
-export const Navbar = ({ eventName, isDemo = false, plan = "CLASSIC" }: NavbarProps) => {
+export function Navbar({ eventName, plan = "CLASSIC", isDemo = false }: NavbarProps) {
+  // --- ESTA ES LA LÓGICA QUE FALTABA ---
+  // Si es demo, no renderizamos absolutamente nada
+  if (isDemo) return null;
+
+  const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession(); 
+  const { data: session, status } = useSession();
 
   const displayName = eventName || localConfig.personal.nombres || "Nuestra Boda";
 
-  const handleRefresh = () => {
-    window.location.reload();
-  };
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  // Lógica corregida para redirección
   const handleDashboardRedirect = () => {
     if (session?.user?.role === "ADMIN") {
       router.push("/manager/dashboard");
     } else {
-      // CAMBIO AQUÍ: Ahora mandamos al cliente a su panel de administración
-      router.push("/admin"); 
+      router.push("/admin");
     }
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/30 backdrop-blur-xl border-b border-white/20 py-2 px-6">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        
+    <nav
+      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-300 ${
+        scrolled ? "bg-[#649a8d]/50 backdrop-blur-md shadow-lg py-2" : "bg-transparent py-4"
+      }`}
+    >
+      <div className="container mx-auto px-6 flex justify-between items-center">
+        {/* Logo / Nombre */}
         <Link href="/" className="group">
-          <h1 className="font-['Permanent_Marker',_cursive] text-black text-xl md:text-2xl uppercase tracking-tighter leading-none transition-transform group-hover:scale-105">
+          <h1 className={`font-['Permanent_Marker',_cursive] text-2xl md:text-3xl transition-colors ${
+            scrolled ? "text-black" : "text-white"
+          }`}>
             {displayName}
           </h1>
-          <span className="block text-[8px] uppercase tracking-[0.4em] font-sans text-black/60 font-black italic leading-none mt-1">
+          <span className={`block text-[8px] uppercase tracking-[0.4em] font-sans font-black italic leading-none mt-1 ${
+            scrolled ? "text-black/60" : "text-white/60"
+          }`}>
             Urban Wedding
           </span>
         </Link>
 
-        <div className="flex items-center gap-4"> 
-          
-          {isDemo ? (
-            <div className="flex flex-col items-center gap-0.5">
-              <motion.button 
-                whileHover={{ rotate: 180, scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={handleRefresh}
-                className="flex items-center justify-center w-9 h-9 bg-black/10 border border-black/10 rounded-full text-black transition-all hover:bg-black/20 shadow-sm"
+        {/* Acciones del Navbar */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {status === "unauthenticated" ? (
+              <Link
+                href="/client-login"
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
+                  scrolled 
+                    ? "border-black text-black hover:bg-black hover:text-white" 
+                    : "border-white text-white hover:bg-white hover:text-black"
+                }`}
               >
-                <RefreshCw className="w-4 h-4" />
-              </motion.button>
-              <span className="text-[7px] uppercase tracking-widest font-bold text-black/60">
-                Reset
-              </span>
-            </div>
-          ) : (
-            <>
-              {plan !== "CLASSIC" && (
-                <>
-                  {status === "unauthenticated" && (
-                    <div className="flex flex-col items-center gap-0.5">
-                      <button 
-                        onClick={() => router.push("/client-login")}
-                        className="flex items-center justify-center w-9 h-9 bg-black text-white rounded-full transition-all hover:scale-110 shadow-lg"
-                      >
-                        <Users className="w-4 h-4" />
-                      </button>
-                      <span className="text-[7px] uppercase tracking-widest font-bold text-black/60 font-sans">
-                        Login
-                      </span>
-                    </div>
-                  )}
-
-                  {status === "authenticated" && (
-                    <>
-                      <div className="flex flex-col items-center gap-0.5">
-                        <button 
-                          onClick={handleDashboardRedirect} 
-                          className="flex items-center justify-center w-9 h-9 bg-[#5ba394] text-white rounded-full transition-all hover:scale-110 shadow-lg"
-                        >
-                          {session?.user?.role === "ADMIN" ? (
-                            <LayoutDashboard className="w-4 h-4" />
-                          ) : (
-                            <Edit3 className="w-4 h-4" />
-                          )}
-                        </button>
-                        <span className="text-[7px] uppercase tracking-widest font-bold text-black/60">
-                          {session?.user?.role === "ADMIN" ? "Admin" : "Mi Panel"}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col items-center gap-0.5">
-                        <button 
-                          onClick={() => {
-                            const currentSlug = session?.user?.slug;
-                            const redirectPath = currentSlug ? `/invit/${currentSlug}` : "/";
-                            signOut({ callbackUrl: redirectPath });
-                          }}
-                          className="flex items-center justify-center w-9 h-9 bg-rose-500 text-white rounded-full transition-all hover:scale-110 shadow-lg"
-                        >
-                          <LogOut className="w-4 h-4" />
-                        </button>
-                        <span className="text-[7px] uppercase tracking-widest font-bold text-rose-600/70">
-                          Salir
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-            </>
-          )}
+                <LogIn size={14} />
+                Acceso
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handleDashboardRedirect}
+                  className="flex items-center justify-center w-10 h-10 bg-[#5ba394] text-white rounded-full hover:scale-110 transition-transform shadow-lg"
+                >
+                  {session?.user?.role === "ADMIN" ? <LayoutDashboard size={18} /> : <Edit3 size={18} />}
+                </button>
+                
+                <button 
+                  onClick={() => signOut()}
+                  className="flex items-center justify-center w-10 h-10 bg-rose-500 text-white rounded-full hover:scale-110 transition-transform shadow-lg"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>
   );
-};
+}

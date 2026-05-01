@@ -16,10 +16,15 @@ interface EventDetailsProps {
     churchName?: string | null;
     churchAddress?: string | null;
     churchMapLink?: string | null;
+    // Plan para el fondo
+    plan?: string;
   };
 }
 
 export function EventDetails({ config }: EventDetailsProps) {
+  // Detectamos si es plan CLASSIC para el cambio de fondo
+  const isClassic = config.plan?.toUpperCase() === "CLASSIC";
+
   // Construcción dinámica de los eventos basada en el Schema
   const events = [];
 
@@ -28,7 +33,7 @@ export function EventDetails({ config }: EventDetailsProps) {
     events.push({
       title: "CEREMONIA",
       icon: "/images/img-grafitis/anillos.webp",
-      image: "/img_boda/iglesia.webp", // Placeholder temático
+      image: "/img_boda/iglesia.webp", 
       time: `${config.eventDate.split("-").reverse().join("/")} a las ${config.eventTime}hs`,
       location: `"${config.churchName}", ${config.churchAddress}`,
       mapsLink: config.churchMapLink || "#",
@@ -39,14 +44,20 @@ export function EventDetails({ config }: EventDetailsProps) {
   events.push({
     title: "FIESTA",
     icon: "/images/img-grafitis/fiesta.webp",
-    image: "/img_boda/lugar.webp", // Placeholder temático
+    image: "/img_boda/lugar.webp", 
     time: `${config.eventDate.split("-").reverse().join("/")} a las ${config.eventTime}hs`,
     location: `"${config.venueName}", ${config.venueAddress}`,
     mapsLink: config.mapLink || "#",
   });
 
   return (
-    <section className="py-12 bg-[#f7e6c4] font-['Permanent_Marker',_cursive]">
+    <section 
+      className={`py-12 font-['Permanent_Marker',_cursive] transition-all duration-500 ${
+        isClassic 
+          ? "bg-gradient-to-b from-[#649a8d] to-[#f7e6c4]" 
+          : "bg-[#f7e6c4]"
+      }`}
+    >
       <div className="container mx-auto px-4 max-w-4xl">
         <div className={`grid grid-cols-1 ${events.length > 1 ? 'md:grid-cols-2' : 'max-w-md mx-auto'} gap-8 md:gap-4`}>
           
@@ -57,10 +68,10 @@ export function EventDetails({ config }: EventDetailsProps) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="flex flex-col items-center text-center bg-white/30 p-4 rounded-3xl backdrop-blur-sm shadow-sm border border-white/20"
+              className="flex flex-col items-center text-center bg-white/30 p-6 rounded-3xl backdrop-blur-sm shadow-xl border border-white/20 h-full"
             >
               {/* ICONO */}
-              <div className="mb-2 relative w-16 h-16 md:w-20 md:h-20">
+              <div className="mb-2 relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
                 <Image 
                   src={event.icon} 
                   alt={event.title}
@@ -75,7 +86,7 @@ export function EventDetails({ config }: EventDetailsProps) {
               </h3>
 
               {/* IMAGEN DEL LUGAR */}
-              <div className="relative w-full aspect-video mb-4 rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
+              <div className="relative w-full aspect-video mb-4 rounded-2xl overflow-hidden shadow-lg border-2 border-white/50 flex-shrink-0">
                 <Image 
                   src={event.image} 
                   alt={`Imagen de ${event.title}`}
@@ -85,32 +96,34 @@ export function EventDetails({ config }: EventDetailsProps) {
               </div>
 
               {/* INFO DETALLES */}
-              <div className="space-y-4 w-full">
-                <div>
-                  <h4 className="font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-[#4B664B] mb-1">
-                    DIA Y HORARIO
-                  </h4>
-                  <p className="text-black text-sm italic leading-tight">
-                    {event.time}
-                  </p>
+              <div className="flex flex-col flex-grow w-full justify-between">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-[#4B664B] mb-1">
+                      DIA Y HORARIO
+                    </h4>
+                    <p className="text-black text-sm italic leading-tight uppercase">
+                      {event.time}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-[#4B664B] mb-1">
+                      LUGAR
+                    </h4>
+                    <p className="text-black text-xs leading-relaxed max-w-[250px] mx-auto uppercase line-clamp-2" title={event.location}>
+                      {event.location}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <h4 className="font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-[#4B664B] mb-1">
-                    LUGAR
-                  </h4>
-                  <p className="text-black text-xs leading-relaxed max-w-[250px] mx-auto uppercase">
-                    {event.location}
-                  </p>
-                </div>
-
-                {/* BOTONES ACCIÓN */}
-                <div className="flex flex-row justify-center gap-2 pt-2">
+                {/* BOTÓN ACCIÓN */}
+                <div className="flex flex-row justify-center gap-2 pt-6 flex-shrink-0">
                   <a 
                     href={event.mapsLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-[#d29b7b] hover:bg-[#c18a6a] text-white text-[10px] py-2 px-6 rounded-full transition-all flex items-center gap-2 shadow-md uppercase font-sans font-bold"
+                    className="bg-[#d29b7b] hover:bg-[#c18a6a] text-white text-[11px] py-2.5 px-6 rounded-full transition-all flex items-center gap-2 shadow-md uppercase font-sans font-black"
                   >
                     📍 Ver Mapa
                   </a>

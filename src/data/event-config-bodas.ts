@@ -30,7 +30,9 @@ interface BaseConfig {
 
 // Interfaz específica para Bodas (Novios)
 export interface BodaConfig extends BaseConfig {
-  personal: { nombres: string; titulo: string; subtitulo: string; };
+  personal: {
+    telefono: any; nombres: string; titulo: string; subtitulo: string; 
+};
   imagenes: {
     hero: { rock: string; graffiti: string; noir: string; };
     videoUrl: { rock: string; graffiti: string; noir: string; };
@@ -59,6 +61,7 @@ export const globalBodaConfig: BodaConfig = {
     nombres: "Juli & Mario",
     titulo: "¡NOS CASAMOS!",
     subtitulo: "Nuestra unión, nuestro inicio.",
+    telefono: undefined
   },
   fecha: { dia: 12, mes: 12, año: 2026, hora: "18:00", mensaje: "12 . 09 . 2026" },
   imagenes: {

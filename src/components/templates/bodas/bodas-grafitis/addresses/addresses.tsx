@@ -13,10 +13,14 @@ interface EventDetailsProps {
     churchName?: string | null;
     churchAddress?: string | null;
     churchMapLink?: string | null;
+    plan?: string; 
   };
 }
 
 export function EventDetails({ config }: EventDetailsProps) {
+  
+  const isClassic = config.plan?.toUpperCase() === "CLASSIC";
+
   const eventItems = [
     {
       show: true,
@@ -39,7 +43,13 @@ export function EventDetails({ config }: EventDetailsProps) {
   ].filter(item => item.show);
 
   return (
-    <section className="py-12 bg-[#f7e6c4] font-['Permanent_Marker',_cursive]">
+    <section 
+      className={`py-12 font-['Permanent_Marker',_cursive] transition-all duration-500 ${
+        isClassic 
+          ? "bg-gradient-to-b from-[#649a8d] to-[#f7e6c4]" 
+          : "bg-[#f7e6c4]"
+      }`}
+    >
       <div className="container mx-auto px-4 max-w-4xl">
         <div className={`grid grid-cols-1 ${eventItems.length > 1 ? 'md:grid-cols-2' : 'md:max-w-md mx-auto'} gap-8 md:gap-4`}>
           
@@ -50,7 +60,6 @@ export function EventDetails({ config }: EventDetailsProps) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              // h-full asegura que todas midan lo mismo
               className="flex flex-col items-center text-center bg-white/30 p-6 rounded-3xl backdrop-blur-sm h-full border border-white/20 shadow-xl"
             >
               <div className="mb-2 relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
@@ -65,7 +74,6 @@ export function EventDetails({ config }: EventDetailsProps) {
                 <Image src={event.image} alt={event.title} fill className="object-cover" />
               </div>
 
-              {/* El div de info tiene flex-grow para empujar los botones al final */}
               <div className="flex flex-col flex-grow w-full justify-between">
                 <div className="space-y-4">
                   <div>
@@ -81,14 +89,12 @@ export function EventDetails({ config }: EventDetailsProps) {
                     <h4 className="font-sans text-[10px] font-bold tracking-[0.2em] uppercase text-[#4B664B] mb-1">
                       LUGAR
                     </h4>
-                    {/* line-clamp-2 limita a 2 líneas y pone "..." si excede */}
                     <p className="text-black text-xs leading-relaxed max-w-[250px] mx-auto uppercase line-clamp-2 overflow-hidden text-ellipsis" title={event.location}>
                       {event.location}
                     </p>
                   </div>
                 </div>
 
-                {/* Los botones siempre quedarán abajo gracias al flex-grow anterior */}
                 <div className="flex flex-row justify-center gap-2 pt-6 flex-shrink-0">
                   <a 
                     href={event.mapsLink}

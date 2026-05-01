@@ -3,41 +3,39 @@
 import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, X, Expand } from "lucide-react";
+import { Volume2, VolumeX, X, Expand, Play, Pause, Maximize } from "lucide-react";
 
 interface FotoCarouselRetroProps {
   images?: string | any[] | null;
   videoUrl?: string | null;
+  plan?: string;
 }
 
-export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) {
+export function FotoCarouselRetro({ images, videoUrl, plan }: FotoCarouselRetroProps) {
+  // --- 1. ESTADOS Y HOOKS ---
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [progress, setProgress] = useState(0);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Bloqueo de scroll robusto (HTML + BODY)
+  // Normalización del plan
+  const currentPlan = plan?.toUpperCase() || "PREMIUM";
+
   useEffect(() => {
-    if (selectedImg) {
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-    } else {
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-    }
+    setMounted(true);
+  }, []);
 
-    return () => {
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-    };
+  // Bloqueo de scroll al abrir modal
+  useEffect(() => {
+    document.body.style.overflow = selectedImg ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [selectedImg]);
 
-  const toggleFullscreen = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.requestFullscreen) v.requestFullscreen();
-  };
-
+  // Lógica de duplicación de fotos para scroll infinito
   const duplicatedPhotos = useMemo(() => {
     const defaultPhotos = ["/img_boda/gallery-1.webp", "/img_boda/gallery-2.webp", "/img_boda/gallery-4.webp"];
     let base = defaultPhotos;
@@ -54,15 +52,44 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
         }
       }
     } catch (e) {
-      console.error("Error en FotoCarouselRetro: JSON inválido", e);
       base = defaultPhotos;
     }
-    
     return [...base, ...base]; 
   }, [images]);
 
+  // --- 2. VALIDACIÓN DE RENDERIZADO (EARLY RETURN) ---
+  if (!mounted) return null;
+
+  // Si es CLASSIC, no se muestra nada (ni fotos ni video)
+  if (currentPlan === "CLASSIC") {
+    return null;
+  }
+
+  // --- 3. HANDLERS DE VIDEO ---
+  const togglePlay = () => {
+    if (videoRef.current) {
+      isPlaying ? videoRef.current.pause() : videoRef.current.play();
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleFullScreen = () => {
+    if (containerRef.current) {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else containerRef.current.requestFullscreen();
+    }
+  };
+
   return (
     <section className="pb-10 bg-white font-sans z-30 pt-24 md:pt-32 overflow-hidden">
+      {/* Encabezado */}
       <div className="w-full px-4 mb-2 text-center flex flex-col items-center relative">
         <motion.div 
           animate={{ scale: [1, 1.1, 1], rotate: [2, -2, 2] }}
@@ -78,13 +105,13 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
         </h3>
       </div>
 
-      {/* Carrusel Infinito */}
+      {/* Carrusel de Fotos (Solo visible en PREMIUM y DELUXE) */}
       <div className="relative mb-12 z-20 overflow-hidden py-4">
         <motion.div
           className="flex gap-4 md:gap-6 w-max"
-          initial={{ x: 0 }}
-          animate={{ x: "-50%" }}
+          animate={{ x: ["0%", "-50%"] }}
           transition={{ ease: "linear", duration: 35, repeat: Infinity }}
+          whileHover={{ animationPlayState: "paused" }}
         >
           {duplicatedPhotos.map((url, index) => (
             <motion.div 
@@ -109,60 +136,57 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
         </motion.div>
       </div>
 
-      {/* Video Player Section */}
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-2xl mx-auto relative group">
-          <div className="relative border-[5px] border-black bg-black overflow-hidden shadow-[8px_8px_0px_0px_#a02133]">
-            {videoUrl ? (
-              <>
-                <video
-                  ref={videoRef}
-                  src={videoUrl}
-                  className="w-full h-full object-cover opacity-90"
-                  loop muted={isMuted} autoPlay playsInline
-                />
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between z-30">
-                  <div className="flex gap-2">
-                    <button onClick={() => setIsMuted(!isMuted)} className="bg-white border border-black p-1 shadow-[1px_1px_0px_black]">
-                      {isMuted ? <VolumeX size={14} className="text-black" /> : <Volume2 size={14} className="text-black" />}
+      {/* Sección de Video (Visible en PREMIUM y DELUXE) */}
+      {videoUrl && (currentPlan === "DELUXE" || currentPlan === "PREMIUM") && (
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-2xl mx-auto relative group">
+            <div 
+              ref={containerRef}
+              className="relative border-[5px] border-black bg-black overflow-hidden shadow-[8px_8px_0px_0px_#a02133]"
+            >
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                className="w-full h-full object-cover opacity-90 cursor-pointer"
+                loop muted={isMuted} autoPlay playsInline
+                onTimeUpdate={() => setProgress((videoRef.current!.currentTime / videoRef.current!.duration) * 100)}
+              />
+              
+              {/* Controles de Video Estilo Retro */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">
+                <div className="w-full h-1 bg-white/20 rounded-full mb-4 overflow-hidden">
+                  <div className="h-full bg-[#33aba1]" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="flex items-center justify-between text-white">
+                  <div className="flex items-center gap-4">
+                    <button onClick={togglePlay} className="hover:scale-110 transition-transform">
+                      {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
                     </button>
-                    <button onClick={toggleFullscreen} className="bg-white border border-black p-1 shadow-[1px_1px_0px_black]">
-                      <Expand size={14} className="text-black" />
+                    <button onClick={toggleMute} className="hover:scale-110 transition-transform">
+                      {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                     </button>
                   </div>
-                  <button 
-                    onClick={() => {
-                      isPlaying ? videoRef.current?.pause() : videoRef.current?.play();
-                      setIsPlaying(!isPlaying);
-                    }} 
-                    className="bg-[#33aba1] border border-black px-3 py-1 text-white font-black text-[9px] uppercase italic shadow-[2px_2px_0px_black]"
-                  >
-                    {isPlaying ? "STOP SHOW" : "PLAY SHOW"}
+                  <button onClick={handleFullScreen} className="hover:scale-110 transition-transform">
+                    <Maximize size={20} />
                   </button>
                 </div>
-              </>
-            ) : (
-              <div className="aspect-video w-full flex items-center justify-center font-black text-white/10 text-2xl uppercase">No Signal</div>
-            )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Modal / Lightbox */}
+      {/* Modal de Imagen Fullscreen */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setSelectedImg(null)}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md touch-none"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md"
           >
             <motion.div 
-              initial={{ scale: 0.85 }} 
-              animate={{ scale: 1 }} 
-              exit={{ scale: 0.85 }}
-              className="bg-white p-2 border-4 border-black shadow-[12px_12px_0px_#a02133] max-w-lg w-full relative touch-auto"
+              initial={{ scale: 0.85 }} animate={{ scale: 1 }} exit={{ scale: 0.85 }}
+              className="bg-white p-2 border-4 border-black shadow-[12px_12px_0px_#a02133] max-w-lg w-full relative"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
@@ -172,13 +196,7 @@ export function FotoCarouselRetro({ images, videoUrl }: FotoCarouselRetroProps) 
                 Cerrar <X size={24}/>
               </button>
               <div className="relative w-full h-[70vh]">
-                <Image 
-                  src={selectedImg} 
-                  alt="Full view" 
-                  fill 
-                  className="object-contain" 
-                  priority
-                />
+                <Image src={selectedImg} alt="Full view" fill className="object-contain" priority />
               </div>
             </motion.div>
           </motion.div>

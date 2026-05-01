@@ -15,8 +15,9 @@ import {
 } from "@/components/templates/bodas/bodas-grafitis";
 
 import { Permanent_Marker, Montserrat } from "next/font/google";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
+import { config } from "process";
 
 const graffitiFont = Permanent_Marker({
   subsets: ["latin"],
@@ -36,12 +37,18 @@ interface GraffitiPageProps {
 }
 
 export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: GraffitiPageProps) {
-  
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const safeConfig = useMemo(() => {
     const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
     
-    // Determinamos el plan: si no viene en dbConfig, asumimos DELUXE para la demo
-    const currentPlan = dbConfig?.planLevel || dbConfig?.plan || "DELUXE";
+    const currentPlan = dbConfig?.planLevel || dbConfig?.plan || (dbConfig ? "CLASSIC" : "DELUXE");
+
+    const getSafeSrc = (src: any, fallback: string) => (src && src.trim() !== "" ? src : fallback);
 
     const baseData = dbConfig ? {
       ...dbConfig,
@@ -49,13 +56,12 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       eventName: dbConfig.eventName || localConfig.personal.nombres,
       eventDate: dbConfig.eventDate || eventDateDefault,
       eventTime: dbConfig.eventTime || localConfig.fecha.hora,
-      heroImage: dbConfig.heroImage || localConfig.imagenes.hero.graffiti,
+      heroImage: getSafeSrc(dbConfig.heroImage, localConfig.imagenes.hero.graffiti),
       musicUrl: dbConfig.musicUrl || localConfig.imagenes.musicaUrl.graffiti,
       videoUrl: dbConfig.videoUrl || localConfig.imagenes.videoUrl.graffiti,
       carruselImages: dbConfig.carruselImages || JSON.stringify(localConfig.imagenes.carrusel),
-      // IMPORTANTE: Mapeo de Itinerario y Testigos desde DB o Local
-      itinerary: dbConfig.itinerary || localConfig.itinerario,
-      witnesses: dbConfig.witnesses || dbConfig.testigos || localConfig.testigos,
+      itinerary: (dbConfig.itinerary && dbConfig.itinerary.length > 0) ? dbConfig.itinerary : localConfig.itinerario,
+      witnesses: (dbConfig.witnesses && dbConfig.witnesses.length > 0) ? dbConfig.witnesses : localConfig.testigos,
       confirmDate: dbConfig.confirmDate || dbConfig.eventDate || eventDateDefault,
       venueName: dbConfig.venueName || localConfig.ubicacion.nombreLugar,
       venueAddress: dbConfig.venueAddress || localConfig.ubicacion.direccion,
@@ -76,17 +82,26 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       itinerary: localConfig.itinerario,
       witnesses: localConfig.testigos,
       confirmDate: localConfig.confirmacion.fechaLimite,
+      confirmPhone: "549261000000",
     };
 
     return baseData;
   }, [dbConfig]);
+
+  if (!mounted) return null;
 
   const currentEventId = eventId || "demo-boda-graffiti";
   const plan = safeConfig.plan;
 
   const PageContent = (
     <>
-      <Navbar eventName={safeConfig.eventName} isDemo={isDemo} plan={plan} />
+     {dbConfig && !isDemo && (
+        <Navbar 
+          eventName={safeConfig.eventName} 
+          plan={plan} 
+          isDemo={isDemo} 
+        />
+      )}
       
       <Hero
         heroImage={safeConfig.heroImage}
@@ -94,7 +109,6 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
         eventDate={safeConfig.eventDate}
       />
 
-      {/* GALERÍA */}
       {plan !== "CLASSIC" && (
         <FotoCarousel 
           images={safeConfig.carruselImages} 
@@ -107,7 +121,6 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       
       <RSVP config={safeConfig} />
 
-      {/* SECCIONES PRO: Se muestran si es PREMIUM o DELUXE */}
       {plan !== "CLASSIC" && (
         <>
           <Witnesses 
@@ -118,7 +131,7 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
             items={safeConfig.itinerary || []} 
             plan={plan} 
           />
-          <MusicSuggestion eventId={currentEventId} />
+          <MusicSuggestion eventId={currentEventId} plan={plan} />
         </>
       )}
 
@@ -129,9 +142,6 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
 
   return (
     <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
-      {/* Si el plan es CLASSIC entra directo. 
-          Si es PREMIUM o DELUXE, el sobre (Envelope) maneja la entrada y música.
-      */}
       {plan === "CLASSIC" ? (
         <div className="animate-in fade-in duration-1000">
           {PageContent}

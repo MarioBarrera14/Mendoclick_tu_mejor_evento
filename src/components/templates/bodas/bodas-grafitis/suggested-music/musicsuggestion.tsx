@@ -4,23 +4,26 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, KeyRound, Music as MusicIcon } from "lucide-react";
 import { submitSongSuggestions } from "@/actions/songs.actions";
-
 import Image from "next/image";
 import Swal from "sweetalert2";
 
 interface MusicSuggestionProps {
   eventId: string;
-  plan?: string; // <--- Agregado para compatibilidad con planes
+  plan?: string;
 }
 
 export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
+  // --- 1. TODOS LOS HOOKS AL PRINCIPIO ---
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [guestCode, setGuestCode] = useState("");
   const [songs, setSongs] = useState({ tema1: "", tema2: "", tema3: "" });
   const [mounted, setMounted] = useState(false);
 
-  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
+  // Normalización del plan
+  const currentPlan = plan?.toUpperCase();
+
+  // Bloqueo de scroll robusto
   useEffect(() => {
     if (isOpen) {
       document.documentElement.style.overflow = "hidden";
@@ -35,8 +38,22 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
     };
   }, [isOpen]);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  // --- 2. VALIDACIONES DE RENDERIZADO (DESPUÉS DE HOOKS) ---
+  
+  // Si no ha montado el cliente, evitamos errores de hidratación
+  if (!mounted) return null;
+
+  // REGLA DE NEGOCIO: Solo se oculta si el plan es CLÁSICO. 
+  // En Demos o planes superiores se debe ver.
+  if (currentPlan === "CLASSIC") {
+    return null;
+  }
+
+  // --- 3. MANEJADORES ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSongs((prev) => ({ ...prev, [name]: value }));
@@ -82,28 +99,23 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
     }
   };
 
-  // --- REGLA DE NEGOCIO: Si el plan es CLASSIC, no se renderiza nada ---
-  if (!plan || plan === "CLASSIC") return null;
-  if (!mounted) return null;
-
   return (
     <section className="relative py-16 md:py-24 overflow-hidden bg-[url('/images/img-grafitis/radio.webp')] bg-cover bg-center mb-[-1px]">
       
-      {/* SEPARADOR SUPERIOR */}
+      {/* SEPARADOR SUPERIOR (Graffiti Style) */}
       <div className="absolute top-0 left-0 w-full z-20 pointer-events-none -translate-y-[1px]">
-        <div className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[60px] md:h-[180px] bg-[#e0f2f1] [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat]" />
       </div>
 
       <div className="absolute inset-0 bg-black/60 z-0" />
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10 flex justify-center pt-6 md:pt-10">
+      <div className="container mx-auto px-4 relative z-10 flex justify-center pt-6 md:pt-10">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="max-w-xl w-full bg-white/20 backdrop-blur-xl p-6 md:p-12 shadow-2xl text-center rounded-[1.5rem] md:rounded-[2.5rem] border border-white/30"
+          className="max-w-xl w-full bg-white/20 backdrop-blur-xl p-6 md:p-12 shadow-2xl text-center rounded-[1.5rem] md:rounded-[2.5rem] border border-white/30 cursor-pointer"
           onClick={() => setIsOpen(true)}
-          style={{ cursor: 'pointer' }}
         >
           <div className="flex justify-center mb-4">
             <div className="relative w-14 h-14 md:w-20 md:h-20">
@@ -127,7 +139,7 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full sm:w-auto bg-[#5ba394] hover:bg-[#4d8a7d] text-white px-8 md:px-12 py-4 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 rounded-full shadow-lg transition-all font-sans"
+              className="w-full sm:w-auto bg-[#5ba394] text-white px-8 md:px-12 py-4 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 rounded-full shadow-lg"
             >
               <MusicIcon size={16} />
               Sugerir Canción
@@ -139,7 +151,6 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -148,12 +159,11 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
               className="absolute inset-0 bg-black/80 backdrop-blur-sm touch-none"
             />
             
-            {/* Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40 touch-auto"
+              className="relative w-full max-w-md bg-white rounded-[2rem] p-6 md:p-10 shadow-2xl z-10 border border-white/40"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
@@ -165,7 +175,7 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
               </button>
 
               <div className="text-center mb-6 pt-4">
-                <h4 className="text-3xl md:text-4xl font-['Permanent_Marker',_cursive] text-black uppercase tracking-tighter leading-none">
+                <h4 className="text-3xl md:text-4xl font-['Permanent_Marker',_cursive] text-black uppercase tracking-tighter">
                   DJ Playlist
                 </h4>
               </div>
@@ -186,7 +196,7 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-[9px] uppercase font-black text-black/40 tracking-[0.2em] text-center mb-2 font-sans">Sugerencias (Máx 3)</p>
+                  <p className="text-[9px] uppercase font-black text-black/40 tracking-[0.2em] text-center mb-2">Sugerencias (Máx 3)</p>
                   {[1, 2, 3].map((num) => (
                     <div key={num} className="bg-zinc-50 p-3 rounded-xl flex items-center gap-2 border border-zinc-100">
                       <span className="text-[#5ba394] font-black text-xs">{num}.</span>
@@ -208,7 +218,7 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={isSending}
-                    className="w-full py-4 bg-black text-white rounded-2xl font-bold font-sans flex justify-center items-center gap-2 uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-zinc-800 transition-all"
+                    className="w-full py-4 bg-black text-white rounded-2xl font-bold flex justify-center items-center gap-2 uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-zinc-800 transition-all"
                   >
                     {isSending ? <Loader2 className="animate-spin" size={18} /> : <Send size={16} />}
                     {isSending ? "ENVIANDO..." : "ENVIAR AL DJ"}
@@ -222,7 +232,7 @@ export function MusicSuggestion({ eventId, plan }: MusicSuggestionProps) {
 
       {/* SEPARADOR INFERIOR */}
       <div className="absolute bottom-0 rotate-180 left-0 w-full z-20 pointer-events-none -translate-y-[1px]">
-        <div className="w-full h-[60px] md:h-[160px] bg-white [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%] [mask-repeat:no-repeat] [-webkit-mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [-webkit-mask-size:100%_100%]" />
+        <div className="w-full h-[60px] md:h-[160px] bg-white [mask-image:url(/images/img-grafitis/graffiti-separador-2a.webp)] [mask-size:100%_100%]" />
       </div>
     </section>
   );

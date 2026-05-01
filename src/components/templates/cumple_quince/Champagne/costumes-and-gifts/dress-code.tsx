@@ -6,6 +6,7 @@ import { Gift, Shirt, X, Copy, Check } from "lucide-react";
 
 interface DetailsProps {
   config: {
+    plan?: string; // Propiedad para identificar el plan
     dressCode?: string | null;
     dressDescription?: string | null;
     cbu?: string | null;
@@ -19,18 +20,17 @@ export function Details({ config }: DetailsProps) {
   const [activeModal, setActiveModal] = useState<"dress" | "gift" | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
-  // --- BLOQUEO DE SCROLL ROBUSTO (HTML + BODY) ---
+  // Identificamos si es plan classic
+  const isClassic = config.plan === "CLASSIC";
+
   useEffect(() => {
     if (activeModal) {
-      // Bloqueamos ambos para asegurar compatibilidad en móviles y desktop
       document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
     } else {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
     }
-
-    // Cleanup: Al desmontar el componente, nos aseguramos de devolver el scroll
     return () => {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
@@ -47,13 +47,15 @@ export function Details({ config }: DetailsProps) {
   return (
     <section className="relative py-24 md:py-24 bg-white overflow-hidden font-sans">
       
-      {/* LA FRANJA INCLINADA */}
-      <div 
-        className="absolute inset-0 bg-[#d1d1d1] z-0"
-        style={{ 
-          clipPath: "polygon(0 10%, 100% 0%, 100% 120%, 0% 100%)" 
-        }}
-      />
+      {/* LA FRANJA INCLINADA - Solo se muestra si NO es classic */}
+      {!isClassic && (
+        <div 
+          className="absolute inset-0 bg-[#d1d1d1] z-0"
+          style={{ 
+            clipPath: "polygon(0 10%, 100% 0%, 100% 120%, 0% 100%)" 
+          }}
+        />
+      )}
 
       <div className="container mx-auto px-6 max-w-4xl relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-4 items-start pt-6">
@@ -74,7 +76,8 @@ export function Details({ config }: DetailsProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveModal("gift")}
-                className="flex items-center justify-center gap-2 px-6 py-2 border border-gray-400 rounded-full text-gray-600 text-[10px] font-medium tracking-widest uppercase hover:bg-gray-100 transition-all shadow-sm bg-white"
+                // Si es classic, el borde puede ser un poco más visible sobre el blanco puro
+                className={`flex items-center justify-center gap-2 px-6 py-2 border rounded-full text-gray-600 text-[10px] font-medium tracking-widest uppercase hover:bg-gray-100 transition-all shadow-sm bg-white ${isClassic ? 'border-gray-300' : 'border-gray-400'}`}
               >
                 <Gift size={12} />
                 Datos bancarios
@@ -99,7 +102,7 @@ export function Details({ config }: DetailsProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveModal("dress")}
-                className="flex items-center justify-center gap-2 w-full px-6 py-2 border border-gray-400 rounded-full text-gray-600 text-[10px] font-medium tracking-widest uppercase hover:bg-gray-100 transition-all shadow-sm bg-white"
+                className={`flex items-center justify-center gap-2 w-full px-6 py-2 border rounded-full text-gray-600 text-[10px] font-medium tracking-widest uppercase hover:bg-gray-100 transition-all shadow-sm bg-white ${isClassic ? 'border-gray-300' : 'border-gray-400'}`}
               >
                 <Shirt size={12} />
                 Sugerencia
@@ -114,7 +117,6 @@ export function Details({ config }: DetailsProps) {
         {activeModal && (
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             
-            {/* OVERLAY: touch-none evita scroll táctil en el fondo */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -126,7 +128,6 @@ export function Details({ config }: DetailsProps) {
               }}
             />
 
-            {/* CAJA DEL MODAL: touch-auto permite scroll interno si el contenido crece */}
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
