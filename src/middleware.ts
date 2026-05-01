@@ -63,9 +63,8 @@ export default withAuth(
 );
 
 export const config = {
-  // El matcher define qué rutas procesa este middleware.
-  // IMPORTANTE: Agregamos img_demo aquí también para que Next.js no lo procese
+  // Se agregaron las extensiones de imagen comunes para evitar que el middleware las bloquee
   matcher: [
-    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|assets|images|img_boda|img_demo|img-rock|audio|login|client-login|invit|demo|$).*)",
+    "/((?!api/auth|api/check-in|_next/static|_next/image|favicon.ico|logo.webp|neobar.webp|assets|images|img_boda|img_demo|img-rock|audio|login|client-login|invit|demo|$).*)",
   ],
 };

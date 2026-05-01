@@ -14,9 +14,9 @@ interface RSVPProps {
     heroImage: string;
     eventDate: string;
     confirmDate: string;
-    eventName: string;       // Requerido para el mensaje de WA
-    confirmPhone?: string;   // Requerido para el destino de WA
-    plan?: "CLASSIC" | "PREMIUM" | "DELUXE"; // Requerido para la lógica de planes
+    eventName: string;       
+    confirmPhone?: string;   
+    plan?: "CLASSIC" | "PREMIUM" | "DELUXE";
   };
 }
 
@@ -160,13 +160,13 @@ export function RSVP({ config }: RSVPProps) {
         
         {/* FONDO NEONBAR */}
         <div className="absolute inset-0 z-0">
-          <Image 
-            src="/neonbar.webp" 
-            alt="Neon Background" 
-            fill 
-            className="object-cover opacity-50"
-            priority
-          />
+ <Image 
+    src="/neonbar.webp"  // <--- Aquí está el error
+    alt="Neon Background" 
+    fill 
+    className="object-cover opacity-50"
+    priority
+  />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0c001a] via-transparent to-[#0c001a] opacity-90" />
           <div className="absolute inset-0 bg-black/30" />
         </div>
