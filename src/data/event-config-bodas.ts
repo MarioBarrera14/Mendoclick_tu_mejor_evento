@@ -144,7 +144,7 @@ export const globalQuinceConfig: QuinceConfig = {
       neon: "/audio/Pitbull x Play N Skillz Party of a Lifetime Lyric Video.mp3",
       graffiti: "/audio/edsheran.mp3",
     },
-    carrusel: ["/img_demo/1.webp", "/img_demo/2.webp", "/img_demo/3.webp", "/img_demo/4.webp", "/img_demo/5.webp", "/img_demo/6.webp"]
+    carrusel: ["/img_demo/1.webp", "/img_demo/2.webp", "/img_demo/3.webp", "/img_demo/4.webp", "/img_demo/9.webp", "/img_demo/6.webp"]
   },
   ubicacion: {
     nombreLugar: "Howard Johnson",
