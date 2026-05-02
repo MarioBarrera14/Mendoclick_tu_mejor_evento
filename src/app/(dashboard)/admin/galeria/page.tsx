@@ -72,7 +72,6 @@ export default function GestionGaleria() {
       Swal.fire("Formato Incorrecto", "No se permiten GIFs.", "warning");
       return null;
     }
-    // Límite de 5MB para imágenes y audio, 20MB para video
     const maxSize = type === 'video' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
       Swal.fire("Archivo muy pesado", `El límite es de ${maxSize / (1024 * 1024)}MB.`, "error");
@@ -119,25 +118,48 @@ export default function GestionGaleria() {
     }
   };
 
+  // ===========================================================
+  // FUNCIÓN CORREGIDA PARA BORRADO FÍSICO
+  // ===========================================================
   const handleLimpiarTodo = async () => {
     const confirm = await Swal.fire({
       title: '¿VACIAR GALERÍA?',
-      text: "Se borrarán todas las fotos, videos y música configurados.",
+      text: "Se borrarán permanentemente las fotos de la nube y de tu invitación.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
-      confirmButtonText: 'SÍ, BORRAR'
+      confirmButtonText: 'SÍ, BORRAR TODO'
     });
 
     if (confirm.isConfirmed) {
       setIsSaving(true);
+      
+      // Capturamos los archivos actuales antes de resetear el estado
+      const previousFiles = [
+        fotoPrincipal,
+        videoFile,
+        musicFile,
+        ...carrusel
+      ].filter(url => url !== null);
+
       const result = await updateGalleryConfig({
-        heroImage: null, videoUrl: null, musicUrl: null, carruselImages: []
+        heroImage: null, 
+        videoUrl: null, 
+        musicUrl: null, 
+        carruselImages: [],
+        deletePhysicalFiles: true, // Avisamos al servidor que debe borrar en Cloudinary
+        previousFiles: previousFiles  // Le pasamos la lista de URLs a procesar
       });
+
       if (result.success) {
-        setFotoPrincipal(null); setVideoFile(null); setMusicFile(null);
-        setMusicName("Sin archivo"); setCarrusel(Array(6).fill(null));
-        Swal.fire("Eliminado", "Galería limpia.", "success");
+        setFotoPrincipal(null); 
+        setVideoFile(null); 
+        setMusicFile(null);
+        setMusicName("Sin archivo"); 
+        setCarrusel(Array(6).fill(null));
+        Swal.fire("Eliminado", "Galería y nube limpias.", "success");
+      } else {
+        Swal.fire("Error", "No se pudo limpiar la galería correctamente.", "error");
       }
       setIsSaving(false);
     }

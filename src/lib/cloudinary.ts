@@ -7,23 +7,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET?.trim(),
 });
 
+/**
+ * Sube un archivo a Cloudinary
+ */
 export async function uploadToCloudinary(
   fileBuffer: Buffer, 
   fileName: string, 
   folder: string,
   mimeType: string 
 ): Promise<{ url: string; publicId: string }> {
-  
   try {
-    // Convertimos el buffer a un formato que el SDK de Cloudinary entiende (Data URI)
     const base64File = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
-
-    // Usamos el uploader del SDK directamente
     const result = await cloudinary.uploader.upload(base64File, {
       folder: folder,
-      // 'auto' detecta automáticamente si es imagen, video, audio o raw (PDF, etc.)
-      resource_type: "auto", 
-      // Opcional: puedes usar el fileName original si lo deseas
+      resource_type: "auto", // Para subir, "auto" funciona perfecto
       public_id: fileName.split('.')[0], 
     });
 
@@ -31,13 +28,36 @@ export async function uploadToCloudinary(
       url: result.secure_url,
       publicId: result.public_id,
     };
-
   } catch (error: any) {
-    // Esto imprimirá el error real en tu terminal de VS Code para debuguear
     console.error("Detalle error Cloudinary SDK:", error);
-    
-    throw new Error(
-      error.message || 'Error en la subida a Cloudinary'
-    );
+    throw new Error(error.message || 'Error en la subida a Cloudinary');
+  }
+}
+
+/**
+ * Borra un archivo físicamente de Cloudinary
+ * CORRECCIÓN: Se eliminó 'auto' y se agregó 'invalidate'
+ */
+export async function deleteFromCloudinary(publicId: string) {
+  try {
+    // 1. Intentamos borrar como imagen (cubre jpg, png, webp, etc.)
+    let result = await cloudinary.uploader.destroy(publicId, { 
+      resource_type: "image", 
+      invalidate: true // Esto limpia el link de internet inmediatamente
+    });
+
+    // 2. Si no se encontró como imagen (ej: era un mp3 o mp4), intentamos como video
+    if (result.result === 'not found') {
+      result = await cloudinary.uploader.destroy(publicId, { 
+        resource_type: "video", 
+        invalidate: true 
+      });
+    }
+
+    console.log(`Resultado borrado para ${publicId}:`, result);
+    return result;
+  } catch (error) {
+    console.error("Error al eliminar en Cloudinary:", error);
+    return null;
   }
 }
