@@ -45,6 +45,7 @@ export default withAuth(
           path === "/client-login" ||
           path.startsWith("/store") ||     // <--- AGREGADO: CUALQUIERA VE LOS PRECIOS
           path.startsWith("/check-in/") ||
+          path.startsWith("/api/checkout") || // <--- AGREGAR ESTO
           path.startsWith("/api/check-in") ||
           path.startsWith("/api/guests") || 
           path.startsWith("/invit") ||

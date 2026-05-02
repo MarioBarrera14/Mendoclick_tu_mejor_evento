@@ -134,6 +134,14 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
     const plan = PLANS[selectedPlanKey];
     const format = (num: number) => num.toLocaleString('es-AR');
 
+    // Lógica para Transferencia (WhatsApp)
+    const handleTransferPayment = () => {
+        const adminPhone = "5492615388131"; 
+        const message = `¡Hola MendoClick! 👋%0A%0AQuiero comprar la invitación *${template.title}* con el plan *${plan.name}*.%0A%0AEligí pagar por *Transferencia Bancaria* ($${format(plan.price)}).%0A%0A¿Me pasarías los datos del Santander Río para realizar el pago? ¡Gracias!`;
+        
+        window.open(`https://wa.me/${adminPhone}?text=${message}`, '_blank');
+    };
+
     return (
         <div className="min-h-svh bg-[#f4f4f2] text-zinc-800 selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
             <Navbar />
@@ -182,7 +190,10 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
                                 <span className="text-[10px] text-gray-400 uppercase">desde</span>
                                 <span className="text-3xl font-bold text-gray-700">${format(plan.price)}</span>
                             </div>
-                            <button className="w-full bg-[#4e9c87] hover:bg-[#3d7d6c] text-white font-bold py-3 rounded text-xs uppercase tracking-widest mt-2 transition-all flex items-center justify-center gap-2">
+                            <button 
+                                onClick={handleTransferPayment}
+                                className="w-full bg-[#4e9c87] hover:bg-[#3d7d6c] text-white font-bold py-3 rounded text-xs uppercase tracking-widest mt-2 transition-all flex items-center justify-center gap-2"
+                            >
                                 Pagar <Building2 size={14} />
                             </button>
                         </div>
