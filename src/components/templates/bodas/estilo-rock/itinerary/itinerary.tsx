@@ -19,16 +19,16 @@ interface ItineraryItem {
 }
 
 const iconMap: Record<string, React.ReactNode> = {
-  GlassWater: <GlassWater size={18} />,
-  Star: <Star size={18} />,
-  Utensils: <Utensils size={18} />,
-  Sparkles: <Sparkles size={18} />,
-  PartyPopper: <PartyPopper size={18} />,
-  Gift: <Gift size={18} />,
-  Heart: <Heart size={18} />,
-  Clock: <Clock size={18} />,
-  Music: <Music size={18} />,
-  Camera: <Camera size={18} />,
+  GlassWater: <GlassWater size={16} />,
+  Star: <Star size={16} />,
+  Utensils: <Utensils size={16} />,
+  Sparkles: <Sparkles size={16} />,
+  PartyPopper: <PartyPopper size={16} />,
+  Gift: <Gift size={16} />,
+  Heart: <Heart size={16} />,
+  Clock: <Clock size={16} />,
+  Music: <Music size={16} />,
+  Camera: <Camera size={16} />,
 };
 
 export default function Itinerary({ items }: { items: ItineraryItem[] }) {
@@ -37,78 +37,80 @@ export default function Itinerary({ items }: { items: ItineraryItem[] }) {
 
   return (
     <>
-      <section className="relative bg-white text-black overflow-hidden flex flex-col justify-center font-sans py-12 md:py-24">
-        {/* Patrón de fondo sutil (puntos retro) */}
-        <div className="absolute inset-0 opacity-30 pointer-events-none bg-[radial-gradient(#b43c3c_0.5px,transparent_0.5px)] bg-[size:15px_15px]" />
+      <section className="relative bg-white text-black overflow-hidden flex flex-col justify-center font-sans py-6 md:py-24">
+        {/* Patrón de fondo */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#b43c3c_0.5px,transparent_0.5px)] bg-[size:10px_10px]" />
 
-        <div className="container mx-auto px-6 relative z-10 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 relative z-10 max-w-2xl">
           
-          {/* Encabezado */}
-          <div className="text-center mb-16">
+          {/* Encabezado muy compacto */}
+          <div className="text-center mb-6 md:mb-16">
             <motion.div 
               initial={{ rotate: -10, scale: 0.8 }}
               whileInView={{ rotate: 0, scale: 1 }}
-              className="relative w-16 h-16 mx-auto mb-4"
+              className="relative w-10 h-10 md:w-16 md:h-16 mx-auto mb-1 md:mb-4"
             >
               <Image src="/img-rock/reloj.webp" alt="Reloj Retro" fill className="object-contain" />
             </motion.div>
-            <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#b43c3c] drop-shadow-[3px_3px_0px_#33aba1] uppercase leading-none">
+            <h2 className="text-3xl md:text-7xl font-black italic tracking-tighter text-[#b43c3c] drop-shadow-[2px_2px_0px_#33aba1] uppercase leading-none">
               Cronograma
             </h2>
-            <div className="flex items-center justify-center gap-4 mt-2">
-              <div className="h-[2px] w-10 bg-[#33aba1]" />
-              <p className="text-[#33aba1] font-black text-xs tracking-[0.3em] uppercase">The Show Schedule</p>
-              <div className="h-[2px] w-10 bg-[#33aba1]" />
+            <div className="flex items-center justify-center gap-2 mt-1">
+              <div className="h-[1px] w-6 bg-[#33aba1]" />
+              <p className="text-[#33aba1] font-black text-[9px] md:text-xs tracking-[0.2em] uppercase">The Show Schedule</p>
+              <div className="h-[1px] w-6 bg-[#33aba1]" />
             </div>
           </div>
 
-          {/* Línea de Tiempo */}
+          {/* Línea de Tiempo Compacta */}
           <div className="relative">
-            {/* Línea central estilo "cuero/madera" */}
-            <div className="absolute left-5 md:left-1/2 top-0 bottom-0 w-[6px] bg-[#8b6b4d] -translate-x-1/2 rounded-full border-2 border-black/10" />
+            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[3px] md:w-[6px] bg-[#8b6b4d] -translate-x-1/2 rounded-full border-black/10" />
 
-            <div className="space-y-10 md:space-y-0 relative">
+            <div className="space-y-1 md:space-y-0 relative">
               {sortedItems.map((item, index) => {
                 const isLeft = index % 2 === 0;
                 return (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    className={`relative flex items-center w-full md:mb-12 ${
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className={`relative flex items-center w-full md:mb-10 ${
                       isLeft ? "md:flex-row" : "md:flex-row-reverse"
                     } flex-row`}
                   >
-                    {/* Contenido Card (Estilo Ticket) */}
-                    <div className={`w-full md:w-1/2 flex ${isLeft ? "md:justify-end md:pr-12" : "md:justify-start md:pl-12"} justify-start pl-16 md:pl-0 z-10`}>
+                    {/* Contenido Card */}
+                    <div className={`w-full md:w-1/2 flex ${isLeft ? "md:justify-end md:pr-10" : "md:justify-start md:pl-10"} justify-start pl-10 md:pl-0 z-10`}>
                       <div className={`
-                        bg-white border-4 border-black 
-                        p-5 min-w-[220px] md:max-w-[320px] 
-                        shadow-[8px_8px_0px_#33aba1]
+                        bg-white border-2 md:border-4 border-black 
+                        p-2 md:p-5 w-full md:max-w-[300px] 
+                        shadow-[3px_3px_0px_#33aba1] md:shadow-[8px_8px_0px_#33aba1]
                         ${isLeft ? "md:-rotate-1" : "md:rotate-1"}
-                        relative group transition-transform hover:rotate-0
+                        relative transition-transform hover:rotate-0
                       `}>
-                        {/* Círculos laterales tipo "perforación de ticket" */}
-                        <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#fdfcf0] border-4 border-black rounded-full md:hidden" />
+                        {/* Círculo de enganche */}
+                        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-black rounded-full md:hidden" />
                         
-                        <span className={`block text-[#b43c3c] font-black text-lg leading-none mb-1 ${isLeft ? "md:text-right" : "md:text-left"} tabular-nums italic underline decoration-[#33aba1] decoration-2 underline-offset-4`}>
+                        <span className={`block text-[#b43c3c] font-black text-xs md:text-lg leading-none ${isLeft ? "md:text-right" : "md:text-left"} tabular-nums italic underline decoration-[#33aba1] decoration-1 underline-offset-2`}>
                           {item.time} hs
                         </span>
-                        <h4 className={`text-black font-black text-xl md:text-2xl leading-tight ${isLeft ? "md:text-right" : "md:text-left"} uppercase tracking-tighter`}>
+                        <h4 className={`text-black font-black text-base md:text-2xl leading-tight ${isLeft ? "md:text-right" : "md:text-left"} uppercase tracking-tighter`}>
                           {item.title}
                         </h4>
                         {item.description && (
-                           <p className={`text-sm text-gray-600 font-bold mt-2 leading-tight ${isLeft ? "md:text-right" : "md:text-left"} italic border-t-2 border-dashed border-gray-200 pt-2`}>
+                           <p className={`text-[10px] md:text-sm text-gray-600 font-bold mt-0.5 leading-tight ${isLeft ? "md:text-right" : "md:text-left"} italic border-t border-dashed border-gray-200 pt-0.5`}>
                               {item.description}
                            </p>
                         )}
                       </div>
                     </div>
 
-                    {/* Burbuja de Icono (Estilo Pin de Vinilo) */}
-                    <div className="absolute left-0 md:left-1/2 md:-translate-x-1/2 flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-black border-4 border-[#33aba1] shadow-[4px_4px_0px_rgba(0,0,0,0.3)] z-20 text-[#fdfcf0]">
-                      {iconMap[item.icon] || <Star size={18} />}
+                    {/* Burbuja de Icono más pequeña en mobile */}
+                    <div className="absolute left-0 md:left-1/2 md:-translate-x-1/2 flex-shrink-0 flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full bg-black border-2 md:border-4 border-[#33aba1] z-20 text-[#fdfcf0]">
+                      {React.isValidElement(iconMap[item.icon]) 
+                        ? React.cloneElement(iconMap[item.icon] as React.ReactElement, { size: 14 }) 
+                        : <Star size={14} />
+                      }
                     </div>
 
                     <div className="hidden md:block md:w-1/2" />
