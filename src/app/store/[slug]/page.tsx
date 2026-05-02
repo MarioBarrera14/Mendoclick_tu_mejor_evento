@@ -194,7 +194,7 @@ export default function AmoInvitarStore({ params }: { params: Promise<{ slug: st
                                 onClick={handleTransferPayment}
                                 className="w-full bg-[#4e9c87] hover:bg-[#3d7d6c] text-white font-bold py-3 rounded text-xs uppercase tracking-widest mt-2 transition-all flex items-center justify-center gap-2"
                             >
-                                Pagar <Building2 size={14} />
+                                TRANSFERENCIA <Building2 size={14} />
                             </button>
                         </div>
 

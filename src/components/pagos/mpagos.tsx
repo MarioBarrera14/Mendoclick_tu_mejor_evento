@@ -50,7 +50,7 @@ export default function MPButton({ planName, price, userId }: MPButtonProps) {
         "Cargando..."
       ) : (
         <>
-          Pagar con Mercado Pago <CreditCard size={14} />
+          Mercado Pago <CreditCard size={14} />
         </>
       )}
     </button>
