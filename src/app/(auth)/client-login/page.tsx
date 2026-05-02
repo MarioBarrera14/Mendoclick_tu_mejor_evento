@@ -34,7 +34,7 @@ export default function LoginPage() {
       });
 
       // Redirección directa al dashboard del cliente
-      window.location.replace("/admin");
+      window.location.replace("/admin/count");
       
     } catch (error: any) {
       Swal.fire({

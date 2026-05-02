@@ -17,8 +17,6 @@ export function AdminSidebar() {
   const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  
-  // Solución para el error de Hydration
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -29,22 +27,27 @@ export function AdminSidebar() {
   const templateId = (session?.user as any)?.templateId;
   const planLevel = (session?.user as any)?.planLevel || "CLASSIC";
 
+  // --- DIRECCIONAMIENTO DINÁMICO ---
+  // Si el plan es CLASSIC, el inicio es Configuración. 
+  // Para PREMIUM/DELUXE, el inicio es el Live Chat (/admin).
+  const dashboardHref = useMemo(() => {
+    return (planLevel === "PREMIUM" || planLevel === "DELUXE") ? "/admin" : "/admin/count";
+  }, [planLevel]);
+
   const homeHref = useMemo(() => userSlug ? `/invit/${userSlug}` : '#', [userSlug]);
 
   const menuItems = useMemo(() => {
-    // Si no está montado (SSR), devolvemos solo lo básico
     if (!mounted) return [];
-
     const isQuince = ["DEMO1", "DEMO2", "DEMO3"].includes(templateId);
 
-    // --- SECCIONES BASE (CLASSIC) ---
+    // SECCIONES BASE (Disponibles en CLASSIC)
     const items = [
       { title: 'Configuración', href: '/admin/count', icon: Settings },
       { title: 'Regalos & Dress', href: '/admin/details', icon: Pencil },
       { title: 'Galería', href: '/admin/galeria', icon: ImageIcon },
     ];
 
-    // --- SECCIONES PREMIUM & DELUXE ---
+    // SECCIONES ADICIONALES (PREMIUM & DELUXE)
     if (planLevel === "PREMIUM" || planLevel === "DELUXE") {
       items.unshift({ title: 'Live Chat', href: '/admin', icon: MessageSquare });
       items.unshift({ title: 'Invitados', href: '/admin/invitados', icon: TicketPlus });
@@ -53,7 +56,6 @@ export function AdminSidebar() {
       if (!isQuince) items.push({ title: 'Testigos', href: '/admin/testigos', icon: Users });
     }
 
-    // --- SECCIONES EXCLUSIVAS DELUXE ---
     if (planLevel === "DELUXE") {
       items.push({ title: 'Check-in QR', href: '/admin/check-in', icon: QrCode });
     }
@@ -61,12 +63,10 @@ export function AdminSidebar() {
     return items;
   }, [templateId, planLevel, mounted]);
 
-  // Si no está montado, mostramos un placeholder del mismo ancho para evitar saltos
   if (!mounted) return <div className="hidden lg:block w-64 h-screen bg-white border-r-2 border-zinc-100" />;
 
   return (
     <>
-      {/* Mobile Header Bar */}
       <div className="lg:hidden fixed top-0 left-0 w-full h-16 bg-white border-b-2 border-zinc-100 z-50 px-4 flex items-center justify-between font-sans text-black">
         <div className="flex items-center space-x-2">
           <Heart className="h-6 w-6 text-red-600 fill-red-600" />
@@ -85,9 +85,10 @@ export function AdminSidebar() {
 
       <aside className={cn('fixed left-0 top-0 z-40 h-screen bg-white border-r-2 border-zinc-100 transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none font-sans', collapsed ? 'w-20' : 'w-64', mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')}>
         <div className="flex flex-col h-full">
-          {/* Logo Section */}
+          
+          {/* Logo Section - Usa la ruta dinámica dashboardHref */}
           <div className="relative h-20 flex items-center px-6 border-b border-zinc-50">
-            <Link href="/admin" className="flex items-center gap-3">
+            <Link href={dashboardHref} className="flex items-center gap-3">
               <Heart className={cn("h-7 w-7 text-red-600 fill-red-600 transition-all", collapsed && "mx-auto")} />
               {!collapsed && <span className="font-black italic uppercase text-xl tracking-tighter text-zinc-950">Mendo<span className="text-red-600">Click</span></span>}
             </Link>
@@ -96,7 +97,6 @@ export function AdminSidebar() {
             </button>
           </div>
 
-          {/* Live View Link */}
           <div className="px-4 py-6">
             <Link href={homeHref} target="_blank" className={cn("flex items-center gap-3 p-3 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-900 hover:border-red-600 hover:bg-white transition-all group shadow-sm", collapsed && "justify-center")}>
               <Home className="h-5 w-5 text-red-600" />
@@ -109,7 +109,6 @@ export function AdminSidebar() {
             </Link>
           </div>
 
-          {/* Navigation Menu */}
           <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -124,7 +123,6 @@ export function AdminSidebar() {
             })}
           </nav>
 
-          {/* Plan Info Section */}
           {!collapsed && (
              <div className="px-6 py-4 mx-4 mb-2 bg-zinc-50 rounded-2xl border border-zinc-100">
                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1 italic">MendoClick Management</p>
@@ -136,7 +134,6 @@ export function AdminSidebar() {
              </div>
           )}
 
-          {/* Logout Button */}
           <div className="p-4 bg-zinc-50 border-t border-zinc-200">
             <button onClick={() => signOut()} className={cn('flex items-center space-x-3 px-4 py-3 w-full rounded-xl text-zinc-500 hover:text-red-600 hover:bg-red-50 transition-all duration-300 group', collapsed && 'justify-center px-0')}>
               <LogOut className="h-5 w-5" />
