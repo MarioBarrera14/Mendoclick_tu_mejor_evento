@@ -20,14 +20,10 @@ export default function GestionGaleria() {
   const [loading, setLoading] = useState<string | null>(null); 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // ===========================================================
-  // PERMISOS ACTUALIZADOS: PREMIUM Y DELUXE TIENEN TODO LIBRE
-  // ===========================================================
   const hasFullAccess = planLevel === "PREMIUM" || planLevel === "DELUXE";
-  
   const canUploadMusic = hasFullAccess;
   const canUploadCarrusel = hasFullAccess;
-  const canUploadVideo = hasFullAccess; // <--- AHORA TAMBIÉN PREMIUM
+  const canUploadVideo = hasFullAccess;
 
   const mainInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +72,7 @@ export default function GestionGaleria() {
       Swal.fire("Formato Incorrecto", "No se permiten GIFs.", "warning");
       return null;
     }
+    // Límite de 5MB para imágenes y audio, 20MB para video
     const maxSize = type === 'video' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
       Swal.fire("Archivo muy pesado", `El límite es de ${maxSize / (1024 * 1024)}MB.`, "error");
@@ -88,24 +85,38 @@ export default function GestionGaleria() {
       const data = await res.json();
       return data.url;
     } catch (error) {
+      Swal.fire("Error", "No se pudo subir el archivo.", "error");
       return null;
     }
   };
 
   const handlePublicar = async () => {
     setIsSaving(true);
-    const carruselLimpio = carrusel.filter(img => img !== null);
-    const result = await updateGalleryConfig({
-      heroImage: fotoPrincipal, 
-      videoUrl: canUploadVideo ? videoFile : null,
-      musicUrl: canUploadMusic ? musicFile : null,
-      carruselImages: canUploadCarrusel ? carruselLimpio : []
-    });
+    try {
+      const carruselLimpio = carrusel.filter(img => img !== null);
+      
+      const result = await updateGalleryConfig({
+        heroImage: fotoPrincipal, 
+        videoUrl: canUploadVideo ? videoFile : null,
+        musicUrl: canUploadMusic ? musicFile : null,
+        carruselImages: canUploadCarrusel ? carruselLimpio : []
+      });
 
-    if (result.success) {
-      Swal.fire({ title: "¡ACTUALIZADO!", text: "Los cambios ya están en tu invitación.", icon: "success", confirmButtonColor: "#dc2626" });
+      if (result.success) {
+        Swal.fire({ 
+          title: "¡ACTUALIZADO!", 
+          text: "Los cambios ya están en tu invitación.", 
+          icon: "success", 
+          confirmButtonColor: "#dc2626" 
+        });
+      } else {
+        throw new Error("Fallo en la actualización");
+      }
+    } catch (error) {
+      Swal.fire("Error de guardado", "Verifica tu conexión y reintenta.", "error");
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const handleLimpiarTodo = async () => {
@@ -169,25 +180,92 @@ export default function GestionGaleria() {
               <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">
                 <ImagePlus size={16} className="text-red-600"/> 01. Portada Principal
               </p>
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 border-2 border-dashed border-zinc-300 cursor-pointer group" onClick={() => mainInputRef.current?.click()}>
-                {loading === "main" ? <Loader2 className="animate-spin mx-auto mt-20 text-red-600" /> : fotoPrincipal ? <img src={fotoPrincipal} className="w-full h-full object-cover" alt="Hero" /> : <div className="flex flex-col items-center justify-center h-full gap-2"><Upload size={32} className="text-zinc-300 group-hover:text-red-600 transition-colors" /><span className="text-[10px] text-zinc-400 font-bold uppercase">Subir Imagen</span></div>}
-                <input type="file" ref={mainInputRef} className="hidden" accept="image/*" onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) { setLoading("main"); const url = await validateAndUpload(file, 'image'); if (url) setFotoPrincipal(url); setLoading(null); }
-                }} />
+              <div 
+                className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-100 border-2 border-dashed border-zinc-300 cursor-pointer group" 
+                onClick={() => mainInputRef.current?.click()}
+              >
+                {loading === "main" ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-2">
+                    <Loader2 className="animate-spin text-red-600" size={24} />
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase">Subiendo...</span>
+                  </div>
+                ) : fotoPrincipal ? (
+                  <img src={fotoPrincipal} className="w-full h-full object-cover animate-in fade-in zoom-in-95 duration-300" alt="Hero" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full gap-2 transition-all group-hover:scale-105">
+                    <Upload size={32} className="text-zinc-300 group-hover:text-red-600 transition-colors" />
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Subir Imagen</span>
+                  </div>
+                )}
+                
+                <input 
+                  type="file" 
+                  ref={mainInputRef} 
+                  className="hidden" 
+                  accept="image/png, image/jpeg, image/jpg" 
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) { 
+                      setLoading("main"); 
+                      const url = await validateAndUpload(file, 'image'); 
+                      if (url) {
+                        setFotoPrincipal(url);
+                        Swal.fire({
+                          toast: true,
+                          position: 'top-end',
+                          title: '¡Imagen cargada!',
+                          text: 'No olvides PUBLICAR.',
+                          icon: 'info',
+                          showConfirmButton: false,
+                          timer: 3000
+                        });
+                      }
+                      setLoading(null); 
+                    }
+                  }} 
+                />
               </div>
-              {fotoPrincipal && <button onClick={() => setFotoPrincipal(null)} className="absolute top-16 right-8 p-2 bg-black/80 text-white rounded-full hover:bg-red-600 shadow-xl transition-all"><X size={14}/></button>}
+              {fotoPrincipal && !loading && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setFotoPrincipal(null); }} 
+                  className="absolute top-16 right-8 p-2 bg-black/80 text-white rounded-full hover:bg-red-600 shadow-xl transition-all"
+                >
+                  <X size={14}/>
+                </button>
+              )}
             </section>
 
             {/* 02. MÚSICA */}
             <section className={cn("bg-zinc-950 p-5 rounded-[2rem] text-white shadow-xl relative", !canUploadMusic && "opacity-60")}>
               <p className="text-[11px] font-black uppercase text-red-500 mb-3 tracking-widest">02. Música de Fondo</p>
-              <div onClick={() => canUploadMusic && musicInputRef.current?.click()} className={cn("p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3", canUploadMusic ? "cursor-pointer hover:bg-white/10" : "cursor-not-allowed")}>
-                {!canUploadMusic ? <div className="flex gap-2 text-zinc-500 text-[10px] uppercase font-bold"><Lock size={14}/> Bloqueado en Classic</div> : <><FileAudio size={20} className="text-red-500" /> <span className="text-xs truncate font-medium">{musicName}</span></>}
+              <div 
+                onClick={() => canUploadMusic && musicInputRef.current?.click()} 
+                className={cn("p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 transition-all", canUploadMusic ? "cursor-pointer hover:bg-white/10 active:scale-95" : "cursor-not-allowed")}
+              >
+                {!canUploadMusic ? (
+                  <div className="flex gap-2 text-zinc-500 text-[10px] uppercase font-bold items-center">
+                    <Lock size={14}/> Bloqueado en Classic
+                  </div>
+                ) : (
+                  <>
+                    <FileAudio size={20} className={cn("text-red-500", loading === "music" && "animate-pulse")} /> 
+                    <span className="text-xs truncate font-medium">
+                      {loading === "music" ? "Subiendo audio..." : musicName}
+                    </span>
+                  </>
+                )}
               </div>
               <input type="file" ref={musicInputRef} className="hidden" accept="audio/*" onChange={async (e) => {
                  const file = e.target.files?.[0];
-                 if (file && canUploadMusic) { setLoading("music"); const url = await validateAndUpload(file, 'audio'); if (url) { setMusicFile(url); setMusicName(file.name); } setLoading(null); }
+                 if (file && canUploadMusic) { 
+                   setLoading("music"); 
+                   const url = await validateAndUpload(file, 'audio'); 
+                   if (url) { 
+                     setMusicFile(url); 
+                     setMusicName(file.name); 
+                   } 
+                   setLoading(null); 
+                 }
               }} />
             </section>
           </div>
@@ -196,12 +274,30 @@ export default function GestionGaleria() {
             {/* 03. VIDEO HERO */}
             <section className={cn("bg-white p-5 rounded-[2rem] border-2 border-zinc-200 shadow-sm relative", !canUploadVideo && "bg-zinc-100")}>
                <p className="text-[11px] font-black uppercase text-zinc-500 mb-3 tracking-widest flex items-center gap-2">03. Video Hero {!canUploadVideo && <Lock size={12}/>}</p>
-               <div onClick={() => canUploadVideo && videoInputRef.current?.click()} className={cn("relative aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center", canUploadVideo ? "cursor-pointer" : "cursor-not-allowed")}>
-                  {!canUploadVideo ? <div className="text-center text-white/40 text-[8px] font-bold uppercase tracking-widest"><Lock className="mx-auto mb-2" size={24}/> Solo Premium / Deluxe</div> : videoFile ? <video src={videoFile} className="w-full h-full object-cover" autoPlay muted loop /> : <Play size={32} className="text-white/20"/>}
+               <div onClick={() => canUploadVideo && videoInputRef.current?.click()} className={cn("relative aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center group", canUploadVideo ? "cursor-pointer" : "cursor-not-allowed")}>
+                  {!canUploadVideo ? (
+                    <div className="text-center text-white/40 text-[8px] font-bold uppercase tracking-widest">
+                      <Lock className="mx-auto mb-2" size={24}/> Solo Premium / Deluxe
+                    </div>
+                  ) : loading === "video-main" ? (
+                    <Loader2 size={32} className="animate-spin text-white/40" />
+                  ) : videoFile ? (
+                    <video src={videoFile} className="w-full h-full object-cover" autoPlay muted loop />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Play size={32} className="text-white/20 group-hover:text-red-600 transition-colors" />
+                      <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest">Subir Video (Max 20MB)</span>
+                    </div>
+                  )}
                </div>
                <input type="file" ref={videoInputRef} className="hidden" accept="video/*" onChange={async (e) => {
                  const file = e.target.files?.[0];
-                 if (file && canUploadVideo) { setLoading("video-main"); const url = await validateAndUpload(file, 'video'); if (url) setVideoFile(url); setLoading(null); }
+                 if (file && canUploadVideo) { 
+                   setLoading("video-main"); 
+                   const url = await validateAndUpload(file, 'video'); 
+                   if (url) setVideoFile(url); 
+                   setLoading(null); 
+                 }
                }} />
             </section>
 
@@ -213,7 +309,7 @@ export default function GestionGaleria() {
                     <div key={i} className="relative aspect-square">
                       <div 
                         onClick={() => canUploadCarrusel && carruselRefs.current[i]?.click()} 
-                        className={cn("w-full h-full rounded-xl border-2 flex items-center justify-center overflow-hidden transition-all", !canUploadCarrusel ? "bg-zinc-200 cursor-not-allowed" : "border-dashed border-zinc-300 cursor-pointer bg-zinc-50 hover:bg-white")}
+                        className={cn("w-full h-full rounded-xl border-2 flex items-center justify-center overflow-hidden transition-all", !canUploadCarrusel ? "bg-zinc-200 cursor-not-allowed" : "border-dashed border-zinc-300 cursor-pointer bg-zinc-50 hover:bg-white active:scale-95")}
                       >
                         {!canUploadCarrusel ? <Lock size={12} className="text-zinc-400"/> : loading === `carrusel-${i}` ? <Loader2 size={14} className="animate-spin text-red-600"/> : url ? (
                            isVideo(url) ? <video src={url} className="w-full h-full object-cover" muted autoPlay loop /> : <img src={url} className="w-full h-full object-cover" alt="item" />
@@ -223,6 +319,7 @@ export default function GestionGaleria() {
                         type="file" 
                         ref={el => { if (el) carruselRefs.current[i] = el }} 
                         className="hidden" 
+                        accept="image/*,video/*"
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file && canUploadCarrusel) { 
@@ -233,7 +330,14 @@ export default function GestionGaleria() {
                           }
                         }} 
                       />
-                      {url && canUploadCarrusel && <button onClick={(e) => { e.stopPropagation(); setCarrusel(prev => { const n = [...prev]; n[i] = null; return n; }); }} className="absolute -top-1 -right-1 p-1 bg-black text-white rounded-full hover:bg-red-600 transition-colors z-10"><X size={10}/></button>}
+                      {url && canUploadCarrusel && !loading && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setCarrusel(prev => { const n = [...prev]; n[i] = null; return n; }); }} 
+                          className="absolute -top-1 -right-1 p-1 bg-black text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                        >
+                          <X size={10}/>
+                        </button>
+                      )}
                     </div>
                   ))}
                </div>
