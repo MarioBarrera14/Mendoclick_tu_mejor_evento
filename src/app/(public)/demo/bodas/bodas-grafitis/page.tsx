@@ -17,7 +17,6 @@ import {
 import { Permanent_Marker, Montserrat } from "next/font/google";
 import { useMemo, useEffect, useState } from "react";
 import { globalBodaConfig as localConfig } from "@/data/event-config-bodas";
-import { config } from "process";
 
 const graffitiFont = Permanent_Marker({
   subsets: ["latin"],
@@ -46,8 +45,10 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
   const safeConfig = useMemo(() => {
     const eventDateDefault = `${localConfig.fecha.año}-${String(localConfig.fecha.mes).padStart(2, '0')}-${String(localConfig.fecha.dia).padStart(2, '0')}`;
     
+    // Determinamos el plan: Prioridad DB, si no hay dbConfig es DELUXE (Modo Demo)
     const currentPlan = dbConfig?.planLevel || dbConfig?.plan || (dbConfig ? "CLASSIC" : "DELUXE");
 
+    // Función de seguridad para evitar src="" en imágenes
     const getSafeSrc = (src: any, fallback: string) => (src && src.trim() !== "" ? src : fallback);
 
     const baseData = dbConfig ? {
@@ -95,13 +96,8 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
 
   const PageContent = (
     <>
-     {dbConfig && !isDemo && (
-        <Navbar 
-          eventName={safeConfig.eventName} 
-          plan={plan} 
-          isDemo={isDemo} 
-        />
-      )}
+      {/* Navbar con plan para manejar visibilidad del login y links */}
+      <Navbar eventName={safeConfig.eventName} isDemo={isDemo} plan={plan} />
       
       <Hero
         heroImage={safeConfig.heroImage}
@@ -109,6 +105,7 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
         eventDate={safeConfig.eventDate}
       />
 
+      {/* GALERÍA: Solo PREMIUM o DELUXE */}
       {plan !== "CLASSIC" && (
         <FotoCarousel 
           images={safeConfig.carruselImages} 
@@ -121,6 +118,7 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
       
       <RSVP config={safeConfig} />
 
+      {/* SECCIONES PRO: Se muestran si es PREMIUM o DELUXE */}
       {plan !== "CLASSIC" && (
         <>
           <Witnesses 
@@ -142,6 +140,10 @@ export default function GraffitiDemoPage({ dbConfig, eventId, isDemo = false }: 
 
   return (
     <main className={`${graffitiFont.variable} ${sansFont.variable} min-h-screen bg-[#0a0a0a]`}>
+      {/* Lógica de Entrada: 
+          CLASSIC: Sin sobre, entrada directa.
+          PREMIUM/DELUXE: Con sobre (Envelope) y música.
+      */}
       {plan === "CLASSIC" ? (
         <div className="animate-in fade-in duration-1000">
           {PageContent}

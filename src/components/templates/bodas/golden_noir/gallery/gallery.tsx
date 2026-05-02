@@ -10,7 +10,7 @@ interface PhotoGalleryProps {
     carruselImages?: string | null;
     videoUrl?: string | null;
   };
-  plan?: string; // Añadimos el plan a la interfaz
+  plan?: string;
 }
 
 export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
@@ -26,25 +26,36 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // --- 1. VALIDACIÓN DE PLAN (EARLY RETURN) ---
   const currentPlan = plan?.toUpperCase();
+  // Variable de ayuda para verificar si tiene acceso (Todo menos Classic)
+  const hasPremiumAccess = currentPlan === "PREMIUM" || currentPlan === "DELUXE";
 
   useEffect(() => {
     setMounted(true);
     if (config.carruselImages) {
       try {
         const parsed = JSON.parse(config.carruselImages);
-        setFotos(parsed.length > 0 ? parsed : []);
+        setFotos(Array.isArray(parsed) && parsed.length > 0 ? parsed : []);
       } catch (e) {
         setFotos([]);
       }
     }
   }, [config.carruselImages]);
 
-  // Bloqueo de scroll
+  // --- BLOQUEO DE SCROLL (CORREGIDO) ---
   useEffect(() => {
     const isAnyModalOpen = !!selectedImg || isVideoModalOpen;
-    document.body.style.overflow = isAnyModalOpen ? "hidden" : "";
+    if (isAnyModalOpen) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
   }, [selectedImg, isVideoModalOpen]);
 
   if (!mounted) return null;
@@ -57,7 +68,6 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
   const videoUrl = config.videoUrl;
   const allPhotos = [...fotos, ...fotos, ...fotos];
 
-  // Handlers de video
   const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (videoRef.current) {
@@ -94,7 +104,7 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
         <div className="w-12 h-px bg-[#b5a47a]/60 mx-auto" />
       </div>
 
-      {/* Carrusel de Fotos */}
+      {/* Carrusel de Fotos (Se ve en Premium y Deluxe) */}
       {fotos.length > 0 && (
         <div className="relative mb-16 z-10 w-full overflow-visible">
           <motion.div 
@@ -119,8 +129,8 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
         </div>
       )}
 
-      {/* Condicional para el Video: Solo se muestra en DELUXE */}
-      {videoUrl && currentPlan === "DELUXE" && (
+      {/* Condicional para el Video: PREMIUM y DELUXE */}
+      {videoUrl && hasPremiumAccess && (
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-2xl mx-auto p-1.5 bg-white/10 rounded-xl border border-white/20">
             <div 
@@ -136,7 +146,6 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
                 onClick={() => setIsVideoModalOpen(true)}
               />
 
-              {/* Controles */}
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="w-full h-1 bg-white/20 rounded-full mb-4 overflow-hidden">
                   <div className="h-full bg-[#b5a47a]" style={{ width: `${progress}%` }} />
@@ -154,7 +163,6 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
         </div>
       )}
 
-      {/* Modales (AnimatePresence) igual que antes... */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div
@@ -169,7 +177,8 @@ export function PhotoGallerySection({ config, plan }: PhotoGalleryProps) {
           </motion.div>
         )}
 
-        {isVideoModalOpen && videoUrl && currentPlan === "DELUXE" && (
+        {/* Modal de Video habilitado para PREMIUM y DELUXE */}
+        {isVideoModalOpen && videoUrl && hasPremiumAccess && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black p-4"

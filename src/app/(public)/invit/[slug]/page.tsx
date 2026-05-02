@@ -59,16 +59,23 @@ export default async function InvitacionDinamica({ params }: PageProps) {
 
   if (!user) notFound();
 
-  // Si dbConfig existe, el cliente ya fue creado
-  const dbConfig = user.eventConfig;
+  /**
+   * INYECCIÓN DE PLAN (CRÍTICO):
+   * Las vistas esperan el planLevel dentro del objeto dbConfig.
+   * Si no lo pasamos aquí, la vista asume que es "CLASSIC" por defecto.
+   */
+  const dbConfig = user.eventConfig ? {
+    ...user.eventConfig,
+    planLevel: user.planLevel // <--- Pasamos el nivel real (PREMIUM/DELUXE) a la vista
+  } : null;
 
   const esAdmin = session?.user?.role === "ADMIN";
   const esDuenio = session?.user?.id === user.id;
 
   const renderTemplate = () => {
     /**
-     * Si dbConfig es null (no hay config en DB), es una DEMO.
-     * Si dbConfig existe, isDemoMode es FALSE (habilitando el Navbar).
+     * Si dbConfig es null (no hay config en DB), es una DEMO pura.
+     * Si dbConfig existe, isDemoMode es FALSE (habilita Navbar y funciones reales).
      */
     const isDemoMode = !dbConfig;
 
@@ -104,9 +111,10 @@ export default async function InvitacionDinamica({ params }: PageProps) {
 
   return (
     <>
+      {/* Barra de aviso para Administradores */}
       {esAdmin && !esDuenio && (
         <div className="bg-blue-600 text-white text-[10px] py-1 px-4 text-center fixed top-0 w-full z-[9999] uppercase font-bold tracking-tighter shadow-md">
-          Modo Administrador — {user.nombre}
+          Modo Administrador — Visualizando a: {user.nombre} | Plan: {user.planLevel}
         </div>
       )}
       {renderTemplate()}
@@ -117,7 +125,10 @@ export default async function InvitacionDinamica({ params }: PageProps) {
 function TemplateError({ templateId }: { templateId: string }) {
   return (
     <main className="min-h-screen bg-zinc-950 flex items-center justify-center text-white p-10 text-center">
-      <h1 className="text-xl font-black uppercase text-red-600">Error de Diseño: {templateId}</h1>
+      <div className="space-y-4">
+        <h1 className="text-xl font-black uppercase text-red-600">Error de Configuración</h1>
+        <p className="text-zinc-400 text-sm font-mono">El ID de plantilla "{templateId}" no es válido o no está asignado.</p>
+      </div>
     </main>
   );
 }

@@ -22,7 +22,6 @@ export function FotoCarousel({
   videoUrl?: string | null;
   plan?: string;
 }) {
-  // --- 1. DEFINICIÓN DE TODOS LOS HOOKS ---
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
@@ -60,12 +59,15 @@ export function FotoCarousel({
     return defaultPhotos;
   }, [images]);
 
-  // --- 2. EARLY RETURN (VALIDACIÓN DE PLAN) ---
-  // Normalizamos a mayúsculas para evitar errores de tipeo
   const currentPlan = plan?.toUpperCase();
+
+  // Bloqueo total solo para CLASSIC
   if (!currentPlan || currentPlan === "CLASSIC") {
     return null;
   }
+
+  // Variable de ayuda para legibilidad
+  const hasVideoAccess = currentPlan === "DELUXE" || currentPlan === "PREMIUM";
 
   const duplicatedPhotos = [...fotos, ...fotos, ...fotos];
 
@@ -111,7 +113,8 @@ export function FotoCarousel({
         </div>
       </div>
 
-      {currentPlan === "DELUXE" && (
+      {/* Cambiado de DELUXE a hasVideoAccess (Premium y Deluxe) */}
+      {hasVideoAccess && (
         <div className="container mx-auto px-6 relative z-10 pb-6">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="max-w-3xl mx-auto">
             <div className="relative aspect-video overflow-hidden rounded-[1.5rem] bg-white shadow-xl group border border-[#94A994]/20">
@@ -157,7 +160,8 @@ export function FotoCarousel({
           </motion.div>
         )}
 
-        {isVideoModalOpen && videoUrl && currentPlan === "DELUXE" && (
+        {/* Modal también habilitado para hasVideoAccess */}
+        {isVideoModalOpen && videoUrl && hasVideoAccess && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 touch-none"
