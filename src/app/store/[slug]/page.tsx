@@ -89,7 +89,8 @@ const PLANS: Record<string, Plan> = {
             "Confirmación Web en Base de Datos",
             "Indicación de Menú (Celiacos, Veganos, etc.)",
             "Sugerencia de canciones para la fiesta",
-            "¡REGALO! Save The Date Digital"
+            "Código Único por Familia/Grupo",
+            "Chat Live de confirmaciones en tiempo real y dedicatoria",
         ]
     },
     deluxe: {
